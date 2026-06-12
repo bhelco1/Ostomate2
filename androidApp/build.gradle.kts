@@ -12,6 +12,7 @@ dependencies {
     implementation(libs.compose.uiToolingPreview)
     implementation(libs.compose.foundation)
     implementation(libs.koin.android)
+    implementation(libs.androidx.fragment.ktx)
 }
 
 android {

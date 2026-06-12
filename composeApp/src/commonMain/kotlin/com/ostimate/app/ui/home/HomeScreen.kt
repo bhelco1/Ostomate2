@@ -24,13 +24,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.data.db.ChangeEventEntity
+import com.ostimate.app.platform.BiometricAuthenticator
+import com.ostimate.app.platform.Notifier
 import com.ostimate.app.platform.formatTimestamp
 import com.ostimate.app.ui.theme.supplyColor
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -62,10 +68,41 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             style = MaterialTheme.typography.titleMedium,
         )
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
             items(events, key = { it.id }) { event ->
                 EventRow(event = event, onDelete = { viewModel.delete(event) })
             }
+        }
+
+        SpikeChecks()
+    }
+}
+
+// Phase 0 spike checks — exercises the notification and biometric expect/actuals
+// on a real device. Remove in Phase 1.
+@Composable
+private fun SpikeChecks() {
+    val notifier = koinInject<Notifier>()
+    val biometric = koinInject<BiometricAuthenticator>()
+    var biometricResult by remember { mutableStateOf("") }
+
+    Column {
+        Text("Phase 0 spike checks", style = MaterialTheme.typography.labelSmall)
+        Row {
+            TextButton(onClick = {
+                notifier.schedule(10, "Ostimate", "Test reminder — notifications work")
+            }) { Text("Test notification (10 s)") }
+            TextButton(onClick = {
+                biometric.authenticate("Unlock Ostimate") {
+                    biometricResult = it.toString().substringAfterLast('.')
+                }
+            }) { Text("Test biometric") }
+        }
+        if (biometricResult.isNotEmpty()) {
+            Text("Biometric: $biometricResult", style = MaterialTheme.typography.bodySmall)
         }
     }
 }

@@ -45,7 +45,10 @@ jobs:
       - name: Shared tests on iOS simulator (arm64)
         run: ./gradlew :shared:iosSimulatorArm64Test --stacktrace
       - name: Build iOS app (simulator, unsigned)
+        # ARCHS=arm64 because composeApp publishes no x86_64 slice (CMP 1.11+ dropped it);
+        # an unconstrained simulator build tries both archs and fails.
         run: |
           cd iosApp
           xcodebuild -project iosApp.xcodeproj -target iosApp -configuration Debug \
-            -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+            -sdk iphonesimulator ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO build
