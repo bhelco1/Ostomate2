@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Ostimate</string>
+    <string name="change_logged">Logged %1$s change</string>
+    <string name="unknown_qr">Unknown QR code</string>
+</resources>

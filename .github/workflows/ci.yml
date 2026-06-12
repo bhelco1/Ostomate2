@@ -1,0 +1,51 @@
+# Ostimate 2.0 CI — Phase 0 skeleton.
+# Cost rule (ostimate-2.0/07-business-plan.md): macOS runners bill at 10×,
+# so the iOS job runs on main merges and manual dispatch only, not on every PR push.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android build + JVM tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build debug APK
+        run: ./gradlew :androidApp:assembleDebug --stacktrace
+      - name: Run JVM host tests
+        run: ./gradlew :shared:testAndroidHostTest --stacktrace
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: androidApp-debug
+          path: androidApp/build/outputs/apk/debug/*.apk
+
+  ios:
+    name: iOS shared tests + app build
+    # Apple-Silicon runner: runs the arm64 simulator tests Bobby's Intel Mac cannot.
+    runs-on: macos-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Shared tests on iOS simulator (arm64)
+        run: ./gradlew :shared:iosSimulatorArm64Test --stacktrace
+      - name: Build iOS app (simulator, unsigned)
+        run: |
+          cd iosApp
+          xcodebuild -project iosApp.xcodeproj -target iosApp -configuration Debug \
+            -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
