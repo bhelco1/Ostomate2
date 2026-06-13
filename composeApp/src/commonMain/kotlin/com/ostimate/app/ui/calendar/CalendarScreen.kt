@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -26,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +42,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,13 +59,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.data.db.ChangeEventEntity
 import com.ostimate.app.data.db.ChangeEventWithSupply
+import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.platform.formatTimestamp
 import com.ostimate.app.ui.components.Pill
 import com.ostimate.app.ui.history.EditEventDialog
 import com.ostimate.app.ui.theme.supplyColor
+import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 
-private val WEEKDAY_LABELS = listOf("M", "T", "W", "T", "F", "S", "S")
+private val WEEKDAY_LABELS = listOf("S", "M", "T", "W", "T", "F", "S")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +75,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var editEvent by remember { mutableStateOf<ChangeEventEntity?>(null) }
+    var showAddEntryDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.pendingUndo) {
         val deleted = uiState.pendingUndo ?: return@LaunchedEffect
@@ -96,6 +102,19 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
         )
     }
 
+    if (showAddEntryDialog) {
+        AddEntryDialog(
+            supplies = uiState.supplies,
+            date = uiState.selectedDate,
+            onDismiss = { showAddEntryDialog = false },
+            onConfirm = { supplyId ->
+                val date = uiState.selectedDate ?: return@AddEntryDialog
+                viewModel.addEventForDate(supplyId, date)
+                showAddEntryDialog = false
+            },
+        )
+    }
+
     if (uiState.selectedDayEvents != null) {
         ModalBottomSheet(
             onDismissRequest = viewModel::dismissSheet,
@@ -106,6 +125,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 events = uiState.selectedDayEvents!!,
                 onEdit = { editEvent = it },
                 onDelete = viewModel::deleteEvent,
+                onAddEntry = { showAddEntryDialog = true },
             )
         }
     }
@@ -141,7 +161,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 }
             }
 
-            // Weekday headers
+            // Weekday headers — Sunday-first (US convention)
             Row(modifier = Modifier.fillMaxWidth()) {
                 WEEKDAY_LABELS.forEach { label ->
                     Text(
@@ -156,7 +176,6 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
 
-            // Month grid — fixed 7 columns
             LazyVerticalGrid(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth(),
@@ -187,7 +206,6 @@ private fun DayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {
-        // Day number
         Box(
             modifier =
                 Modifier
@@ -216,7 +234,6 @@ private fun DayCell(
             )
         }
 
-        // Supply pills (max 2 shown, "+N" overflow)
         val shown = day.pills.take(2)
         val overflow = day.pills.size - shown.size
         shown.forEach { pill ->
@@ -242,6 +259,7 @@ private fun DayDetailSheet(
     events: List<ChangeEventWithSupply>,
     onEdit: (ChangeEventEntity) -> Unit,
     onDelete: (ChangeEventEntity) -> Unit,
+    onAddEntry: () -> Unit,
 ) {
     Column(
         modifier =
@@ -268,6 +286,12 @@ private fun DayDetailSheet(
             events.forEach { row ->
                 DayEventCard(row = row, onEdit = { onEdit(row.event) }, onDelete = { onDelete(row.event) })
             }
+        }
+        TextButton(
+            onClick = onAddEntry,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("+ Add an entry for this day")
         }
     }
 }
@@ -306,6 +330,14 @@ private fun DayEventCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
+                val note = row.event.note
+                if (!note.isNullOrBlank()) {
+                    Text(
+                        note,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                    )
+                }
             }
             IconButton(onClick = onDelete) {
                 Icon(
@@ -316,4 +348,48 @@ private fun DayEventCard(
             }
         }
     }
+}
+
+@Composable
+private fun AddEntryDialog(
+    supplies: List<SupplyTypeEntity>,
+    date: LocalDate?,
+    onDismiss: () -> Unit,
+    onConfirm: (supplyId: Long) -> Unit,
+) {
+    if (supplies.isEmpty() || date == null) return
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add entry") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "Which supply did you use?",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                supplies.forEach { supply ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Spacer(
+                            Modifier
+                                .size(10.dp)
+                                .background(supplyColor(supply.kind), CircleShape),
+                        )
+                        TextButton(
+                            onClick = { onConfirm(supply.id) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(supply.name, modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
 }

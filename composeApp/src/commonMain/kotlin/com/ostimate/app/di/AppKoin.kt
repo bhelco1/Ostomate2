@@ -3,6 +3,7 @@ package com.ostimate.app.di
 import com.ostimate.app.ui.calendar.CalendarViewModel
 import com.ostimate.app.ui.history.HistoryViewModel
 import com.ostimate.app.ui.home.HomeViewModel
+import com.ostimate.app.ui.onboarding.OnboardingViewModel
 import com.ostimate.app.ui.settings.ManageSuppliesViewModel
 import com.ostimate.app.ui.settings.SettingsViewModel
 import com.ostimate.app.ui.stats.StatsViewModel
@@ -19,6 +20,7 @@ val uiModule =
         viewModelOf(::StatsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::ManageSuppliesViewModel)
+        viewModelOf(::OnboardingViewModel)
     }
 
 fun initKoin(config: KoinAppDeclaration? = null) {

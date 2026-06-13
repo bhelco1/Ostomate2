@@ -129,6 +129,7 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { onNavigateToManageSupplies() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
+            SettingsItem(title = "Print QR Labels", subtitle = "Coming in a future update")
             SettingsItem(title = "Reorder Warnings", subtitle = "Per-supply threshold days")
 
             HorizontalDivider()
@@ -213,6 +214,16 @@ fun SettingsScreen(
                     },
             )
             SettingsItem(title = "Ostimate", subtitle = "v2.0.0-dev")
+            ListItem(
+                headlineContent = {
+                    Text(
+                        "Privacy policy",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
 
             Spacer(Modifier.height(16.dp))
         }

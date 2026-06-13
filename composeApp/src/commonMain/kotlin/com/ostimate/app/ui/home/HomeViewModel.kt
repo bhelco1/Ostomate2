@@ -25,6 +25,7 @@ data class HomeUiState(
     val supplies: List<SupplyRow> = emptyList(),
     val pendingUndo: ChangeEventEntity? = null,
     val undoSupplyName: String = "",
+    val undoOnHand: Int? = null,
 )
 
 class HomeViewModel(
@@ -32,7 +33,9 @@ class HomeViewModel(
     private val supplyRepository: SupplyRepository,
     private val notificationScheduler: NotificationScheduler,
 ) : ViewModel() {
-    private val _pendingUndo = MutableStateFlow<Pair<ChangeEventEntity, String>?>(null)
+    private data class PendingUndo(val event: ChangeEventEntity, val supplyName: String, val onHandAfter: Int)
+
+    private val _pendingUndo = MutableStateFlow<PendingUndo?>(null)
 
     val uiState: StateFlow<HomeUiState> =
         combine(
@@ -53,8 +56,9 @@ class HomeViewModel(
                 }
             HomeUiState(
                 supplies = rows,
-                pendingUndo = pendingUndo?.first,
-                undoSupplyName = pendingUndo?.second ?: "",
+                pendingUndo = pendingUndo?.event,
+                undoSupplyName = pendingUndo?.supplyName ?: "",
+                undoOnHand = pendingUndo?.onHandAfter,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
@@ -73,14 +77,14 @@ class HomeViewModel(
     fun logChange(supply: SupplyTypeEntity) {
         viewModelScope.launch {
             val event = eventRepository.logChange(supply.id)
-            _pendingUndo.value = Pair(event, supply.name)
+            _pendingUndo.value = PendingUndo(event, supply.name, maxOf(0, supply.onHand - 1))
         }
     }
 
     fun undoLog() {
         viewModelScope.launch {
             val pending = _pendingUndo.value ?: return@launch
-            eventRepository.delete(pending.first)
+            eventRepository.delete(pending.event)
             _pendingUndo.value = null
         }
     }

@@ -20,9 +20,11 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
@@ -51,7 +53,9 @@ data class CalendarUiState(
     val days: List<CalendarDay> = emptyList(),
     val selectedDayEvents: List<ChangeEventWithSupply>? = null,
     val selectedDayLabel: String = "",
+    val selectedDate: LocalDate? = null,
     val pendingUndo: ChangeEventEntity? = null,
+    val supplies: List<com.ostimate.app.data.db.SupplyTypeEntity> = emptyList(),
 )
 
 class CalendarViewModel(
@@ -79,7 +83,7 @@ class CalendarViewModel(
 
             val firstDay = LocalDate(month.year, month.monthNumber, 1)
             val lastDay = firstDay.plus(1, DateTimeUnit.MONTH).minus(1, DateTimeUnit.DAY)
-            val startPadding = firstDay.dayOfWeek.ordinal // 0=Mon (ISO)
+            val startPadding = (firstDay.dayOfWeek.ordinal + 1) % 7 // 0=Sun (US convention)
             val totalCells = ((startPadding + lastDay.dayOfMonth + 6) / 7) * 7
 
             val days =
@@ -121,7 +125,9 @@ class CalendarViewModel(
                 days = days,
                 selectedDayEvents = selectedDayEvents,
                 selectedDayLabel = selectedDayLabel,
+                selectedDate = selectedDate,
                 pendingUndo = pendingUndo,
+                supplies = supplies,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarUiState())
 
@@ -162,5 +168,15 @@ class CalendarViewModel(
 
     fun updateEvent(event: ChangeEventEntity) {
         viewModelScope.launch { eventRepository.update(event) }
+    }
+
+    fun addEventForDate(supplyId: Long, date: LocalDate) {
+        viewModelScope.launch {
+            val noon =
+                LocalDateTime(date.year, date.monthNumber, date.dayOfMonth, 12, 0)
+                    .toInstant(tz)
+                    .toEpochMilliseconds()
+            eventRepository.logChangeAt(supplyId, noon)
+        }
     }
 }

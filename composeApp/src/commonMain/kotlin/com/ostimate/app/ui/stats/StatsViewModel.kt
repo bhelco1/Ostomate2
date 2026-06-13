@@ -27,11 +27,15 @@ data class SupplyStats(
     val kind: SupplyKind,
     val countInPeriod: Int,
     val avgDaysBetween: Double?,
+    /** Timestamps within the selected period, sorted ASC — used to draw the sparkline. */
+    val periodTimestamps: List<Long> = emptyList(),
 )
 
 data class StatsUiState(
     val period: StatsPeriod = StatsPeriod.MONTH,
     val rows: List<SupplyStats> = emptyList(),
+    /** Plain-language summary, e.g. "You change bags every 2.1 days on average." */
+    val summaryLine: String? = null,
 )
 
 class StatsViewModel(
@@ -52,24 +56,36 @@ class StatsViewModel(
             val rows =
                 supplies.mapNotNull { supply ->
                     val supplyEvents = allEvents.filter { it.event.supplyTypeId == supply.id }
-                    val inPeriod = supplyEvents.count { it.event.timestampMillis >= cutoff }
+                    val inPeriod = supplyEvents.filter { it.event.timestampMillis >= cutoff }
                     if (supplyEvents.isEmpty()) return@mapNotNull null
                     SupplyStats(
                         supplyId = supply.id,
                         supplyName = supply.name,
                         kind = supply.kind,
-                        countInPeriod = inPeriod,
+                        countInPeriod = inPeriod.size,
                         avgDaysBetween =
                             PredictionEngine.averageDaysBetween(
                                 supplyEvents.map { it.event.timestampMillis },
                             ),
+                        periodTimestamps = inPeriod.map { it.event.timestampMillis }.reversed(),
                     )
                 }.sortedByDescending { it.countInPeriod }
 
-            StatsUiState(period = period, rows = rows)
+            val summary = buildSummaryLine(rows)
+            StatsUiState(period = period, rows = rows, summaryLine = summary)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
     fun selectPeriod(period: StatsPeriod) {
         _period.value = period
     }
+}
+
+private fun buildSummaryLine(rows: List<SupplyStats>): String? {
+    val withAvg = rows.filter { it.avgDaysBetween != null }
+    if (withAvg.isEmpty()) return null
+    return withAvg.joinToString(" and ") { row ->
+        val avg = row.avgDaysBetween!!
+        val formatted = if (avg == avg.toLong().toDouble()) "${avg.toLong()}" else "%.1f".format(avg)
+        "${row.supplyName.lowercase()} every $formatted days"
+    }.let { "You change $it on average." }
 }

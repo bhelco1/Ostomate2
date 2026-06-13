@@ -1,6 +1,9 @@
+@file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x monthNumber/dayOfMonth/dayOfWeek deprecation
+
 package com.ostimate.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +25,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.ui.components.SupplyCard
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+
+private val MONTH_NAMES =
+    arrayOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+    )
 
 @Composable
 fun HomeScreen(
@@ -35,9 +47,11 @@ fun HomeScreen(
     LaunchedEffect(uiState.pendingUndo) {
         val event = uiState.pendingUndo ?: return@LaunchedEffect
         val name = uiState.undoSupplyName
+        val onHand = uiState.undoOnHand
+        val message = if (onHand != null) "$name logged · $onHand left" else "$name logged"
         val result =
             snackbarHostState.showSnackbar(
-                message = "$name logged",
+                message = message,
                 actionLabel = "Undo",
                 duration = SnackbarDuration.Short,
             )
@@ -63,7 +77,14 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item {
-                Text("Ostimate", style = MaterialTheme.typography.headlineMedium)
+                Column {
+                    Text("Ostimate", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        todayDateLabel(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                    )
+                }
             }
             if (uiState.supplies.isEmpty()) {
                 item {
@@ -97,4 +118,15 @@ fun HomeScreen(
             }
         }
     }
+}
+
+private fun todayDateLabel(): String {
+    val tz = TimeZone.currentSystemDefault()
+    val now = Clock.System.now().toLocalDateTime(tz)
+    val dow =
+        now.dayOfWeek.name
+            .lowercase()
+            .replaceFirstChar { it.uppercase() }
+    val month = MONTH_NAMES[now.monthNumber - 1]
+    return "$dow, $month ${now.dayOfMonth}"
 }
