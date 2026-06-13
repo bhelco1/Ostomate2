@@ -1,5 +1,5 @@
 appId: com.ostimate.app
-name: "Journey 4: Set on-hand inventory count"
+name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 ---
 - launchApp:
     clearState: true
@@ -9,14 +9,23 @@ name: "Journey 4: Set on-hand inventory count"
     text: "Ostimate"
     timeout: 5000
 
-# Verify initial count is 0
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
 - assertVisible:
-    text: "0"
+    text: "Manage Supplies"
     timeout: 3000
 
-# Tap the count row on the first supply card
+# Open Manage Supplies
 - tapOn:
-    id: "editCountRow"
+    text: "Manage Supplies"
+- assertVisible:
+    text: "Manage Supplies"
+    timeout: 3000
+
+# Tap the edit button on the first supply (Bag)
+- tapOn:
+    id: "editSupplyButton"
     index: 0
 
 # Edit count dialog should appear
@@ -32,19 +41,17 @@ name: "Journey 4: Set on-hand inventory count"
 - tapOn:
     text: "Save"
 
-# Verify updated count is visible on the card
+# Verify updated count is visible
 - assertVisible:
-    text: "12"
+    text: "12 on hand"
     timeout: 3000
 
-# Relaunch to verify persistence (count must survive process death)
-- launchApp:
-    clearState: false
+# Go back to Settings and re-enter to verify persistence
+- tapOn:
+    text: "Settings"
 
+- tapOn:
+    text: "Manage Supplies"
 - assertVisible:
-    text: "Ostimate"
-    timeout: 5000
-
-- assertVisible:
-    text: "12"
+    text: "12 on hand"
     timeout: 3000

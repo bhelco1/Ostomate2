@@ -40,7 +40,10 @@ private const val DEV_MODE_TAPS_REQUIRED = 5
 private const val DEV_MODE_WINDOW_MS = 2_000L
 
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
+fun SettingsScreen(
+    onNavigateToManageSupplies: () -> Unit = {},
+    viewModel: SettingsViewModel = koinViewModel(),
+) {
     val settings by viewModel.settings.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
     val fileSharer = koinInject<FileSharer>()
@@ -120,7 +123,12 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
             Spacer(Modifier.height(12.dp))
 
             SettingsSectionHeader("Inventory")
-            SettingsItem(title = "Manage Supplies", subtitle = "View and edit your supply catalog")
+            ListItem(
+                headlineContent = { Text("Manage Supplies") },
+                supportingContent = { Text("View and update on-hand counts") },
+                modifier = Modifier.clickable { onNavigateToManageSupplies() },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
             SettingsItem(title = "Reorder Warnings", subtitle = "Per-supply threshold days")
 
             HorizontalDivider()

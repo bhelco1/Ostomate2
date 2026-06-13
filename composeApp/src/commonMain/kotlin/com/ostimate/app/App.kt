@@ -30,6 +30,7 @@ import com.ostimate.app.platform.DeepLinkBus
 import com.ostimate.app.ui.calendar.CalendarScreen
 import com.ostimate.app.ui.history.HistoryScreen
 import com.ostimate.app.ui.home.HomeScreen
+import com.ostimate.app.ui.settings.ManageSuppliesScreen
 import com.ostimate.app.ui.settings.SettingsScreen
 import com.ostimate.app.ui.stats.StatsScreen
 import com.ostimate.app.ui.theme.OstimateTheme
@@ -44,6 +45,8 @@ import kotlinx.serialization.Serializable
 @Serializable object SettingsDestination
 
 @Serializable data class HistoryDestination(val supplyId: Long)
+
+@Serializable object ManageSuppliesDestination
 
 @Composable
 fun App() {
@@ -131,7 +134,16 @@ fun App() {
                     }
                     composable<CalendarDestination> { CalendarScreen() }
                     composable<StatsDestination> { StatsScreen() }
-                    composable<SettingsDestination> { SettingsScreen() }
+                    composable<SettingsDestination> {
+                        SettingsScreen(
+                            onNavigateToManageSupplies = {
+                                navController.navigate(ManageSuppliesDestination)
+                            },
+                        )
+                    }
+                    composable<ManageSuppliesDestination> {
+                        ManageSuppliesScreen(onBack = { navController.navigateUp() })
+                    }
                     composable<HistoryDestination> { backStackEntry ->
                         val dest: HistoryDestination = backStackEntry.toRoute()
                         HistoryScreen(
