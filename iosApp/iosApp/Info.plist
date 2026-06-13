@@ -21,7 +21,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Ostimate uses Face ID to protect manual inventory edits.</string>
+	<string>Ostomate uses Face ID to protect manual inventory edits.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

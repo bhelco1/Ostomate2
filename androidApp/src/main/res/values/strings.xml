@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Ostimate</string>
+    <string name="app_name">Ostomate</string>
     <string name="change_logged">Logged %1$s change</string>
     <string name="unknown_qr">Unknown QR code</string>
-    <string name="widget_description">Ostimate supply tracker — days remaining and quick log</string>
+    <string name="widget_description">Ostomate supply tracker — days remaining and quick log</string>
 </resources>

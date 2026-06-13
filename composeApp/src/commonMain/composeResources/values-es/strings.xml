@@ -129,7 +129,7 @@
     <string name="qr_labels_print">Imprimir</string>
     <string name="qr_labels_no_supplies">Sin suministros configurados.</string>
     <string name="qr_labels_share_link">Compartir enlace</string>
-    <string name="qr_links_header">Enlaces QR de Ostimate</string>
+    <string name="qr_links_header">Enlaces QR de Ostomate</string>
     <string name="cd_share_all_links">Compartir todos los enlaces</string>
     <string name="cd_qr_code_for">Código QR para %1$s</string>
 
@@ -154,15 +154,15 @@
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Política de privacidad</string>
     <string name="privacy_section_local_title">Tus datos permanecen en tu dispositivo</string>
-    <string name="privacy_section_local_body">Ostimate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Nada se envía a ningún servidor, servicio en la nube ni tercero.</string>
+    <string name="privacy_section_local_body">Ostomate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Nada se envía a ningún servidor, servicio en la nube ni tercero.</string>
     <string name="privacy_section_analytics_title">Sin análisis ni seguimiento</string>
-    <string name="privacy_section_analytics_body">Ostimate no contiene SDKs de análisis, redes publicitarias ni telemetría de ningún tipo. No sabemos cómo usas la app.</string>
+    <string name="privacy_section_analytics_body">Ostomate no contiene SDKs de análisis, redes publicitarias ni telemetría de ningún tipo. No sabemos cómo usas la app.</string>
     <string name="privacy_section_account_title">Sin cuenta requerida</string>
-    <string name="privacy_section_account_body">Ostimate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan.</string>
+    <string name="privacy_section_account_body">Ostomate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan.</string>
     <string name="privacy_section_backups_title">Copias de seguridad</string>
-    <string name="privacy_section_backups_body">La función Exportar crea un archivo CSV en tu dispositivo que puedes guardar donde prefieras. Ostimate no sube copias de seguridad automáticamente.</string>
+    <string name="privacy_section_backups_body">La función Exportar crea un archivo CSV en tu dispositivo que puedes guardar donde prefieras. Ostomate no sube copias de seguridad automáticamente.</string>
     <string name="privacy_section_deletion_title">Eliminación de datos</string>
-    <string name="privacy_section_deletion_body">Desinstalar Ostimate elimina todos los datos de la app de tu dispositivo. No hay datos almacenados en ningún otro lugar.</string>
+    <string name="privacy_section_deletion_body">Desinstalar Ostomate elimina todos los datos de la app de tu dispositivo. No hay datos almacenados en ningún otro lugar.</string>
     <string name="privacy_section_contact_title">Contacto</string>
     <string name="privacy_section_contact_body">¿Preguntas sobre esta política? Escribe a ostomate26@gmail.com.</string>
     <string name="privacy_last_updated">Última actualización: junio de 2026</string>
