@@ -36,6 +36,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
+            api(libs.androidx.datastore.preferences.core)
+            implementation(libs.okio)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -43,7 +45,6 @@ kotlin {
         }
         iosTest.dependencies {
             implementation(libs.room.testing)
-            implementation(libs.okio) // MigrationTestHelper's native API takes okio Paths
         }
     }
 }

@@ -6,6 +6,7 @@ import com.ostimate.app.data.db.ChangeEventDao
 import com.ostimate.app.data.db.OstimateDatabase
 import com.ostimate.app.data.db.SupplyTypeDao
 import com.ostimate.app.data.db.buildDatabase
+import com.ostimate.app.data.settings.SettingsRepository
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -19,4 +20,5 @@ val dataModule = module {
     single<SupplyTypeDao> { get<OstimateDatabase>().supplyTypeDao() }
     singleOf(::ChangeEventRepository)
     singleOf(::SupplyRepository)
+    singleOf(::SettingsRepository)
 }
