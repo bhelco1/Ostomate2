@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.platform.FileSharer
+import com.ostimate.app.platform.rememberQrPrinter
 import com.ostimate.app.ui.theme.supplyColor
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.koin.compose.koinInject
@@ -56,6 +57,7 @@ fun QrLabelsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val fileSharer = koinInject<FileSharer>()
+    val qrPrinter = rememberQrPrinter()
 
     Scaffold(
         topBar = {
@@ -67,6 +69,9 @@ fun QrLabelsScreen(
                     }
                 },
                 actions = {
+                    TextButton(onClick = { qrPrinter.print(uiState.supplies) }) {
+                        Text("Print")
+                    }
                     IconButton(
                         onClick = {
                             val urls =
