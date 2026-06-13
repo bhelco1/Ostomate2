@@ -1,6 +1,7 @@
 package com.ostimate.app.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +45,7 @@ fun SupplyCard(
     sampleCount: Int,
     warnThresholdDays: Int,
     onLogClick: () -> Unit,
+    onEditCountClick: (() -> Unit)? = null,
     overflowMenuContent: (@Composable ColumnScope.(dismiss: () -> Unit) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -106,7 +108,13 @@ fun SupplyCard(
                 }
             }
 
-            Row(verticalAlignment = Alignment.Bottom) {
+            val countRowModifier =
+                if (onEditCountClick != null) {
+                    Modifier.clickable(onClickLabel = "Edit count") { onEditCountClick() }
+                } else {
+                    Modifier
+                }
+            Row(verticalAlignment = Alignment.Bottom, modifier = countRowModifier) {
                 Text(
                     text = onHand.toString(),
                     style = MaterialTheme.typography.displayMedium,

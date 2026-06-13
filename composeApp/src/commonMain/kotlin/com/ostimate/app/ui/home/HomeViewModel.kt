@@ -60,7 +60,6 @@ class HomeViewModel(
                         sampleCount = minOf(timestamps.size, 10),
                     )
                 }
-            notificationScheduler.reschedule(supplies, eventsBySupply)
             HomeUiState(
                 supplies = rows,
                 pendingUndo = pendingUndo?.first,
@@ -68,6 +67,20 @@ class HomeViewModel(
                 editCountTarget = editCountTarget,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+
+    init {
+        // Notification scheduling is a side effect — kept separate from the UI state
+        // transform so a Notifier exception can't silently kill the uiState flow.
+        viewModelScope.launch {
+            combine(
+                supplyRepository.observeSupplies(),
+                eventRepository.observeEvents(),
+            ) { supplies, events ->
+                val eventsBySupply = events.groupBy { it.event.supplyTypeId }
+                notificationScheduler.reschedule(supplies, eventsBySupply)
+            }.collect {}
+        }
+    }
 
     fun logChange(supply: SupplyTypeEntity) {
         viewModelScope.launch {

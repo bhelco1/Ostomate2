@@ -127,6 +127,7 @@ fun HomeScreen(
                         sampleCount = row.sampleCount,
                         warnThresholdDays = row.supply.warnThresholdDays,
                         onLogClick = { viewModel.logChange(row.supply) },
+                        onEditCountClick = { viewModel.requestEditCount(row.supply) },
                         overflowMenuContent = { dismiss ->
                             DropdownMenuItem(
                                 text = { Text("Edit count") },

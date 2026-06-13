@@ -1,5 +1,6 @@
 package com.ostimate.app.ui.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,24 +23,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.platform.FileSharer
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+private const val DEV_MODE_TAPS_REQUIRED = 5
+private const val DEV_MODE_WINDOW_MS = 2_000L
+
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
     val settings by viewModel.settings.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
     val fileSharer = koinInject<FileSharer>()
+    val uriHandler = LocalUriHandler.current
 
     var importTrigger by remember { mutableIntStateOf(0) }
     var showImportResult by remember { mutableStateOf(false) }
+
+    // Dev-mode easter egg: 5 taps on the About section header within 2 seconds.
+    var devTapCount by remember { mutableIntStateOf(0) }
+    var devTapWindowStart by remember { mutableLongStateOf(0L) }
+    var showDevModeToast by remember { mutableStateOf(false) }
 
     FileImportLauncher(
         trigger = importTrigger,
@@ -72,6 +84,26 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
                     showImportResult = false
                     viewModel.clearImportSummary()
                 }) { Text("OK") }
+            },
+        )
+    }
+
+    if (showDevModeToast) {
+        AlertDialog(
+            onDismissRequest = { showDevModeToast = false },
+            title = { Text(if (settings.devMode) "Dev mode ON" else "Dev mode OFF") },
+            text = {
+                Text(
+                    if (settings.devMode) {
+                        "Dev mode is active. Data is shared with production — use the dev mode " +
+                            "flag to guard test-only UI in future phases."
+                    } else {
+                        "Dev mode disabled."
+                    },
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { showDevModeToast = false }) { Text("OK") }
             },
         )
     }
@@ -144,10 +176,38 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
 
             HorizontalDivider()
             SettingsSectionHeader("Support")
-            SettingsItem(title = "Send Feedback", subtitle = "Report a bug or suggest a feature")
+            ListItem(
+                headlineContent = { Text("Send Feedback") },
+                supportingContent = { Text("Report a bug or suggest a feature") },
+                modifier =
+                    Modifier.clickable {
+                        uriHandler.openUri(
+                            "mailto:bhelco@gmail.com?subject=Ostimate%202.0%20Feedback",
+                        )
+                    },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
 
             HorizontalDivider()
-            SettingsSectionHeader("About")
+            // Tap 5× in 2 s to toggle dev mode
+            SettingsSectionHeader(
+                title = "About" + if (settings.devMode) " [DEV]" else "",
+                modifier =
+                    Modifier.clickable {
+                        val now = System.currentTimeMillis()
+                        if (now - devTapWindowStart > DEV_MODE_WINDOW_MS) {
+                            devTapCount = 1
+                            devTapWindowStart = now
+                        } else {
+                            devTapCount++
+                        }
+                        if (devTapCount >= DEV_MODE_TAPS_REQUIRED) {
+                            devTapCount = 0
+                            viewModel.setDevMode(!settings.devMode)
+                            showDevModeToast = true
+                        }
+                    },
+            )
             SettingsItem(title = "Ostimate", subtitle = "v2.0.0-dev")
 
             Spacer(Modifier.height(16.dp))
@@ -156,12 +216,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
 }
 
 @Composable
-private fun SettingsSectionHeader(title: String) {
+private fun SettingsSectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = title,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
     )
 }
 
