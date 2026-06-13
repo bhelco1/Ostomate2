@@ -42,6 +42,8 @@ private const val DEV_MODE_WINDOW_MS = 2_000L
 @Composable
 fun SettingsScreen(
     onNavigateToManageSupplies: () -> Unit = {},
+    onNavigateToReorderWarnings: () -> Unit = {},
+    onNavigateToPrivacyPolicy: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val settings by viewModel.settings.collectAsState()
@@ -130,7 +132,12 @@ fun SettingsScreen(
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             SettingsItem(title = "Print QR Labels", subtitle = "Coming in a future update")
-            SettingsItem(title = "Reorder Warnings", subtitle = "Per-supply threshold days")
+            ListItem(
+                headlineContent = { Text("Reorder Warnings") },
+                supportingContent = { Text("Per-supply threshold days") },
+                modifier = Modifier.clickable { onNavigateToReorderWarnings() },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
 
             HorizontalDivider()
             SettingsSectionHeader("Security")
@@ -222,6 +229,7 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 },
+                modifier = Modifier.clickable { onNavigateToPrivacyPolicy() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 

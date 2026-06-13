@@ -37,6 +37,8 @@ import com.ostimate.app.ui.history.HistoryScreen
 import com.ostimate.app.ui.home.HomeScreen
 import com.ostimate.app.ui.onboarding.OnboardingScreen
 import com.ostimate.app.ui.settings.ManageSuppliesScreen
+import com.ostimate.app.ui.settings.PrivacyPolicyScreen
+import com.ostimate.app.ui.settings.ReorderWarningsScreen
 import com.ostimate.app.ui.settings.SettingsScreen
 import com.ostimate.app.ui.stats.StatsScreen
 import com.ostimate.app.ui.theme.OstimateTheme
@@ -54,6 +56,10 @@ import org.koin.compose.koinInject
 @Serializable data class HistoryDestination(val supplyId: Long)
 
 @Serializable object ManageSuppliesDestination
+
+@Serializable object ReorderWarningsDestination
+
+@Serializable object PrivacyPolicyDestination
 
 @Composable
 fun App() {
@@ -163,10 +169,22 @@ private fun MainApp() {
                     onNavigateToManageSupplies = {
                         navController.navigate(ManageSuppliesDestination)
                     },
+                    onNavigateToReorderWarnings = {
+                        navController.navigate(ReorderWarningsDestination)
+                    },
+                    onNavigateToPrivacyPolicy = {
+                        navController.navigate(PrivacyPolicyDestination)
+                    },
                 )
             }
             composable<ManageSuppliesDestination> {
                 ManageSuppliesScreen(onBack = { navController.navigateUp() })
+            }
+            composable<ReorderWarningsDestination> {
+                ReorderWarningsScreen(onBack = { navController.navigateUp() })
+            }
+            composable<PrivacyPolicyDestination> {
+                PrivacyPolicyScreen(onBack = { navController.navigateUp() })
             }
             composable<HistoryDestination> { backStackEntry ->
                 val dest: HistoryDestination = backStackEntry.toRoute()
