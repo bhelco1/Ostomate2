@@ -110,7 +110,9 @@ fun SupplyCard(
 
             val countRowModifier =
                 if (onEditCountClick != null) {
-                    Modifier.clickable(onClickLabel = "Edit count") { onEditCountClick() }
+                    Modifier
+                        .testTag("editCountRow")
+                        .clickable(onClickLabel = "Edit count") { onEditCountClick() }
                 } else {
                     Modifier
                 }

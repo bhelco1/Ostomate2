@@ -1,0 +1,50 @@
+appId: com.ostimate.app
+name: "Journey 4: Set on-hand inventory count"
+---
+- launchApp:
+    clearState: true
+
+# Wait for home screen
+- assertVisible:
+    text: "Ostimate"
+    timeout: 5000
+
+# Verify initial count is 0
+- assertVisible:
+    text: "0"
+    timeout: 3000
+
+# Tap the count row on the first supply card
+- tapOn:
+    id: "editCountRow"
+    index: 0
+
+# Edit count dialog should appear
+- assertVisible:
+    text: "Edit*count"
+    timeout: 3000
+
+# Clear the field and type 12
+- clearText
+- inputText: "12"
+
+# Save
+- tapOn:
+    text: "Save"
+
+# Verify updated count is visible on the card
+- assertVisible:
+    text: "12"
+    timeout: 3000
+
+# Relaunch to verify persistence (count must survive process death)
+- launchApp:
+    clearState: false
+
+- assertVisible:
+    text: "Ostimate"
+    timeout: 5000
+
+- assertVisible:
+    text: "12"
+    timeout: 3000
