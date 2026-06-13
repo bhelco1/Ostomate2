@@ -61,7 +61,19 @@ import com.ostimate.app.data.db.ChangeEventEntity
 import com.ostimate.app.data.db.ChangeEventWithSupply
 import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.platform.formatTimestamp
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_cancel
+import com.ostimate.app.resources.action_undo
+import com.ostimate.app.resources.calendar_add_entry_button
+import com.ostimate.app.resources.calendar_add_entry_question
+import com.ostimate.app.resources.calendar_add_entry_title
+import com.ostimate.app.resources.calendar_event_deleted
+import com.ostimate.app.resources.calendar_no_events_today
+import com.ostimate.app.resources.cd_delete_event
+import com.ostimate.app.resources.cd_next_month
+import com.ostimate.app.resources.cd_previous_month
 import com.ostimate.app.ui.components.Pill
+import org.jetbrains.compose.resources.stringResource
 import com.ostimate.app.ui.history.EditEventDialog
 import com.ostimate.app.ui.theme.supplyColor
 import kotlinx.datetime.LocalDate
@@ -76,13 +88,15 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
     var editEvent by remember { mutableStateOf<ChangeEventEntity?>(null) }
     var showAddEntryDialog by remember { mutableStateOf(false) }
+    val eventDeletedMsg = stringResource(Res.string.calendar_event_deleted)
+    val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
         val deleted = uiState.pendingUndo ?: return@LaunchedEffect
         val result =
             snackbarHostState.showSnackbar(
-                message = "Event deleted",
-                actionLabel = "Undo",
+                message = eventDeletedMsg,
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Short,
             )
         when (result) {
@@ -147,7 +161,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = viewModel::prevMonth) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous month")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_previous_month))
                 }
                 Text(
                     text = uiState.monthLabel,
@@ -157,7 +171,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                     textAlign = TextAlign.Center,
                 )
                 IconButton(onClick = viewModel::nextMonth) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next month")
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(Res.string.cd_next_month))
                 }
             }
 
@@ -278,7 +292,7 @@ private fun DayDetailSheet(
         )
         if (events.isEmpty()) {
             Text(
-                "No events this day.",
+                stringResource(Res.string.calendar_no_events_today),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
@@ -291,7 +305,7 @@ private fun DayDetailSheet(
             onClick = onAddEntry,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("+ Add an entry for this day")
+            Text(stringResource(Res.string.calendar_add_entry_button))
         }
     }
 }
@@ -342,7 +356,7 @@ private fun DayEventCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Filled.Delete,
-                    contentDescription = "Delete event",
+                    contentDescription = stringResource(Res.string.cd_delete_event),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
@@ -360,11 +374,11 @@ private fun AddEntryDialog(
     if (supplies.isEmpty() || date == null) return
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add entry") },
+        title = { Text(stringResource(Res.string.calendar_add_entry_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "Which supply did you use?",
+                    stringResource(Res.string.calendar_add_entry_question),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 supplies.forEach { supply ->
@@ -389,7 +403,7 @@ private fun AddEntryDialog(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }

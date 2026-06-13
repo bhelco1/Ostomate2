@@ -42,7 +42,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.data.db.SupplyTypeEntity
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_cancel
+import com.ostimate.app.resources.action_save
+import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.cd_edit_threshold
+import com.ostimate.app.resources.manage_supplies_warn_days_label
+import com.ostimate.app.resources.reorder_warnings_days_suffix
+import com.ostimate.app.resources.reorder_warnings_description
+import com.ostimate.app.resources.reorder_warnings_dialog_body
+import com.ostimate.app.resources.reorder_warnings_dialog_title
+import com.ostimate.app.resources.reorder_warnings_title
+import com.ostimate.app.resources.reorder_warnings_warn_after
 import com.ostimate.app.ui.theme.supplyColor
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,10 +87,10 @@ fun ReorderWarningsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reorder Warnings") },
+                title = { Text(stringResource(Res.string.reorder_warnings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
                     }
                 },
             )
@@ -96,7 +109,7 @@ fun ReorderWarningsScreen(
         ) {
             item {
                 Text(
-                    "Warn when you haven't changed a supply in this many days.",
+                    stringResource(Res.string.reorder_warnings_description),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     modifier = Modifier.padding(bottom = 12.dp),
@@ -134,7 +147,7 @@ private fun ReorderWarningRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(supply.name, style = MaterialTheme.typography.titleMedium)
             Text(
-                "Warn after ${supply.warnThresholdDays} days",
+                stringResource(Res.string.reorder_warnings_warn_after, supply.warnThresholdDays),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
@@ -142,7 +155,7 @@ private fun ReorderWarningRow(
         IconButton(onClick = onEdit) {
             Icon(
                 Icons.Filled.Edit,
-                contentDescription = "Edit ${supply.name} threshold",
+                contentDescription = stringResource(Res.string.cd_edit_threshold, supply.name),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
@@ -159,20 +172,20 @@ private fun EditThresholdDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("${supply.name} warning") },
+        title = { Text(stringResource(Res.string.reorder_warnings_dialog_title, supply.name)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = input,
                     onValueChange = { input = it.filter { c -> c.isDigit() } },
-                    label = { Text("Warn after (days)") },
+                    label = { Text(stringResource(Res.string.manage_supplies_warn_days_label)) },
                     keyboardOptions =
                         KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                     singleLine = true,
-                    suffix = { Text("days") },
+                    suffix = { Text(stringResource(Res.string.reorder_warnings_days_suffix)) },
                 )
                 Text(
-                    "You'll see a warning on the home screen when this supply hasn't been changed in that many days.",
+                    stringResource(Res.string.reorder_warnings_dialog_body),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -185,10 +198,10 @@ private fun EditThresholdDialog(
                     if (days < 1) return@TextButton
                     onSave(days)
                 },
-            ) { Text("Save") }
+            ) { Text(stringResource(Res.string.action_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }

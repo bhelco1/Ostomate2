@@ -44,8 +44,18 @@ import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.platform.FileSharer
 import com.ostimate.app.platform.rememberQrPrinter
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.cd_qr_code_for
+import com.ostimate.app.resources.cd_share_all_links
+import com.ostimate.app.resources.qr_labels_no_supplies
+import com.ostimate.app.resources.qr_labels_print
+import com.ostimate.app.resources.qr_labels_share_link
+import com.ostimate.app.resources.qr_labels_title
+import com.ostimate.app.resources.qr_links_header
 import com.ostimate.app.ui.theme.supplyColor
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -61,16 +71,17 @@ fun QrLabelsScreen(
 
     Scaffold(
         topBar = {
+            val qrLinksHeader = stringResource(Res.string.qr_links_header)
             TopAppBar(
-                title = { Text("QR Labels") },
+                title = { Text(stringResource(Res.string.qr_labels_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
                     }
                 },
                 actions = {
                     TextButton(onClick = { qrPrinter.print(uiState.supplies) }) {
-                        Text("Print")
+                        Text(stringResource(Res.string.qr_labels_print))
                     }
                     IconButton(
                         onClick = {
@@ -79,13 +90,13 @@ fun QrLabelsScreen(
                                     "${supply.name}\n${supplyDeepLinkUrl(supply)}"
                                 }
                             fileSharer.shareText(
-                                content = "Ostimate QR links\n\n$urls",
+                                content = "$qrLinksHeader\n\n$urls",
                                 fileName = "ostimate-qr-links.txt",
                                 mimeType = "text/plain",
                             )
                         },
                     ) {
-                        Icon(Icons.Filled.Share, contentDescription = "Share all links")
+                        Icon(Icons.Filled.Share, contentDescription = stringResource(Res.string.cd_share_all_links))
                     }
                 },
             )
@@ -98,7 +109,7 @@ fun QrLabelsScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("No supplies configured.", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(Res.string.qr_labels_no_supplies), style = MaterialTheme.typography.bodyMedium)
             }
             return@Scaffold
         }
@@ -159,7 +170,7 @@ private fun QrLabelCard(
 
             Image(
                 painter = qrPainter,
-                contentDescription = "QR code for ${supply.name}",
+                contentDescription = stringResource(Res.string.cd_qr_code_for, supply.name),
                 modifier = Modifier.size(140.dp),
             )
 
@@ -190,7 +201,7 @@ private fun QrLabelCard(
                     modifier = Modifier.size(14.dp),
                 )
                 Spacer(Modifier.width(4.dp))
-                Text("Share link", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(Res.string.qr_labels_share_link), style = MaterialTheme.typography.labelSmall)
             }
         }
     }

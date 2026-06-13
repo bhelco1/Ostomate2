@@ -32,6 +32,39 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.platform.FeedbackHelper
 import com.ostimate.app.platform.FileSharer
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_ok
+import com.ostimate.app.resources.settings_app_version
+import com.ostimate.app.resources.settings_backup
+import com.ostimate.app.resources.settings_backup_sub
+import com.ostimate.app.resources.settings_biometric_lock
+import com.ostimate.app.resources.settings_biometric_lock_sub
+import com.ostimate.app.resources.settings_dev_off_body
+import com.ostimate.app.resources.settings_dev_off_title
+import com.ostimate.app.resources.settings_dev_on_body
+import com.ostimate.app.resources.settings_dev_on_title
+import com.ostimate.app.resources.settings_export
+import com.ostimate.app.resources.settings_feedback
+import com.ostimate.app.resources.settings_feedback_sub
+import com.ostimate.app.resources.settings_import
+import com.ostimate.app.resources.settings_import_complete_title
+import com.ostimate.app.resources.settings_import_result
+import com.ostimate.app.resources.settings_import_v1
+import com.ostimate.app.resources.settings_import_v1_sub
+import com.ostimate.app.resources.settings_manage_supplies
+import com.ostimate.app.resources.settings_manage_supplies_sub
+import com.ostimate.app.resources.settings_print_qr
+import com.ostimate.app.resources.settings_print_qr_sub
+import com.ostimate.app.resources.settings_privacy_policy
+import com.ostimate.app.resources.settings_reorder_warnings
+import com.ostimate.app.resources.settings_reorder_warnings_sub
+import com.ostimate.app.resources.settings_section_about
+import com.ostimate.app.resources.settings_section_about_dev
+import com.ostimate.app.resources.settings_section_data
+import com.ostimate.app.resources.settings_section_inventory
+import com.ostimate.app.resources.settings_section_security
+import com.ostimate.app.resources.settings_section_support
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
@@ -78,19 +111,22 @@ fun SettingsScreen(
                 showImportResult = false
                 viewModel.clearImportSummary()
             },
-            title = { Text("Import complete") },
+            title = { Text(stringResource(Res.string.settings_import_complete_title)) },
             text = {
                 Text(
-                    "Inserted: ${importSummary.inserted}\n" +
-                        "Skipped (duplicates): ${importSummary.skipped}\n" +
-                        "Parse errors: ${importSummary.parseErrors}",
+                    stringResource(
+                        Res.string.settings_import_result,
+                        importSummary.inserted,
+                        importSummary.skipped,
+                        importSummary.parseErrors,
+                    ),
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     showImportResult = false
                     viewModel.clearImportSummary()
-                }) { Text("OK") }
+                }) { Text(stringResource(Res.string.action_ok)) }
             },
         )
     }
@@ -98,19 +134,26 @@ fun SettingsScreen(
     if (showDevModeToast) {
         AlertDialog(
             onDismissRequest = { showDevModeToast = false },
-            title = { Text(if (settings.devMode) "Dev mode ON" else "Dev mode OFF") },
+            title = {
+                Text(
+                    if (settings.devMode) {
+                        stringResource(Res.string.settings_dev_on_title)
+                    } else {
+                        stringResource(Res.string.settings_dev_off_title)
+                    },
+                )
+            },
             text = {
                 Text(
                     if (settings.devMode) {
-                        "Dev mode is active. Data is shared with production — use the dev mode " +
-                            "flag to guard test-only UI in future phases."
+                        stringResource(Res.string.settings_dev_on_body)
                     } else {
-                        "Dev mode disabled."
+                        stringResource(Res.string.settings_dev_off_body)
                     },
                 )
             },
             confirmButton = {
-                TextButton(onClick = { showDevModeToast = false }) { Text("OK") }
+                TextButton(onClick = { showDevModeToast = false }) { Text(stringResource(Res.string.action_ok)) }
             },
         )
     }
@@ -125,31 +168,31 @@ fun SettingsScreen(
         ) {
             Spacer(Modifier.height(12.dp))
 
-            SettingsSectionHeader("Inventory")
+            SettingsSectionHeader(stringResource(Res.string.settings_section_inventory))
             ListItem(
-                headlineContent = { Text("Manage Supplies") },
-                supportingContent = { Text("View and update on-hand counts") },
+                headlineContent = { Text(stringResource(Res.string.settings_manage_supplies)) },
+                supportingContent = { Text(stringResource(Res.string.settings_manage_supplies_sub)) },
                 modifier = Modifier.clickable { onNavigateToManageSupplies() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
-                headlineContent = { Text("Print QR Labels") },
-                supportingContent = { Text("Scan to log a change instantly") },
+                headlineContent = { Text(stringResource(Res.string.settings_print_qr)) },
+                supportingContent = { Text(stringResource(Res.string.settings_print_qr_sub)) },
                 modifier = Modifier.clickable { onNavigateToQrLabels() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
-                headlineContent = { Text("Reorder Warnings") },
-                supportingContent = { Text("Per-supply threshold days") },
+                headlineContent = { Text(stringResource(Res.string.settings_reorder_warnings)) },
+                supportingContent = { Text(stringResource(Res.string.settings_reorder_warnings_sub)) },
                 modifier = Modifier.clickable { onNavigateToReorderWarnings() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
             HorizontalDivider()
-            SettingsSectionHeader("Security")
+            SettingsSectionHeader(stringResource(Res.string.settings_section_security))
             ListItem(
-                headlineContent = { Text("Biometric Lock") },
-                supportingContent = { Text("Require biometrics to edit counts") },
+                headlineContent = { Text(stringResource(Res.string.settings_biometric_lock)) },
+                supportingContent = { Text(stringResource(Res.string.settings_biometric_lock_sub)) },
                 trailingContent = {
                     Switch(
                         checked = settings.lockSettings,
@@ -161,10 +204,10 @@ fun SettingsScreen(
             )
 
             HorizontalDivider()
-            SettingsSectionHeader("Data")
+            SettingsSectionHeader(stringResource(Res.string.settings_section_data))
             ListItem(
-                headlineContent = { Text("Backup & Restore") },
-                supportingContent = { Text("Export your event history as CSV") },
+                headlineContent = { Text(stringResource(Res.string.settings_backup)) },
+                supportingContent = { Text(stringResource(Res.string.settings_backup_sub)) },
                 trailingContent = {
                     TextButton(
                         onClick = {
@@ -178,30 +221,30 @@ fun SettingsScreen(
                         },
                         enabled = !backupState.isBusy,
                     ) {
-                        Text("Export")
+                        Text(stringResource(Res.string.settings_export))
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
-                headlineContent = { Text("Import from v1") },
-                supportingContent = { Text("Bring over your Ostomate v1 CSV export") },
+                headlineContent = { Text(stringResource(Res.string.settings_import_v1)) },
+                supportingContent = { Text(stringResource(Res.string.settings_import_v1_sub)) },
                 trailingContent = {
                     TextButton(
                         onClick = { importTrigger++ },
                         enabled = !backupState.isBusy,
                     ) {
-                        Text("Import")
+                        Text(stringResource(Res.string.settings_import))
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
             HorizontalDivider()
-            SettingsSectionHeader("Support")
+            SettingsSectionHeader(stringResource(Res.string.settings_section_support))
             ListItem(
-                headlineContent = { Text("Send Feedback") },
-                supportingContent = { Text("Report a bug or suggest a feature") },
+                headlineContent = { Text(stringResource(Res.string.settings_feedback)) },
+                supportingContent = { Text(stringResource(Res.string.settings_feedback_sub)) },
                 modifier = Modifier.clickable { feedbackHelper.launch() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
@@ -209,7 +252,12 @@ fun SettingsScreen(
             HorizontalDivider()
             // Tap 5× in 2 s to toggle dev mode
             SettingsSectionHeader(
-                title = "About" + if (settings.devMode) " [DEV]" else "",
+                title =
+                    if (settings.devMode) {
+                        stringResource(Res.string.settings_section_about_dev)
+                    } else {
+                        stringResource(Res.string.settings_section_about)
+                    },
                 modifier =
                     Modifier.clickable {
                         val now = Clock.System.now().toEpochMilliseconds()
@@ -226,11 +274,11 @@ fun SettingsScreen(
                         }
                     },
             )
-            SettingsItem(title = "Ostimate", subtitle = "v2.0.0-dev")
+            SettingsItem(title = "Ostimate", subtitle = stringResource(Res.string.settings_app_version))
             ListItem(
                 headlineContent = {
                     Text(
-                        "Privacy policy",
+                        stringResource(Res.string.settings_privacy_policy),
                         color = MaterialTheme.colorScheme.primary,
                         style = MaterialTheme.typography.bodySmall,
                     )

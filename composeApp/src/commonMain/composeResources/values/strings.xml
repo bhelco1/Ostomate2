@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Deep link / QR feedback -->
+    <string name="deeplink_logged">Logged: %1$s</string>
+    <string name="deeplink_unrecognized">Unrecognized QR code</string>
+
+    <!-- Home screen -->
+    <string name="home_no_supplies">No supplies yet.</string>
+    <string name="home_snackbar_logged">%1$s logged</string>
+    <string name="home_snackbar_logged_count">%1$s logged · %2$d left</string>
+    <string name="home_overflow_view_history">View history</string>
+
+    <!-- Supply card -->
+    <string name="supply_on_hand"> on hand</string>
+    <string name="supply_no_data">Not enough data yet</string>
+    <string name="supply_zero_days">0 days remaining</string>
+    <string name="supply_days_remaining">~%1$d days remaining · based on %2$d changes</string>
+    <string name="supply_warning_banner">Time to reorder. About %1$d days of %2$s left — below your %3$d-day warning.</string>
+    <string name="supply_log_button_label">Log %1$s change</string>
+    <string name="supply_edit_count_label">Edit count</string>
+    <string name="cd_supply_more_options">More options for %1$s</string>
+
+    <!-- Common actions -->
+    <string name="action_undo">Undo</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_delete">Delete</string>
+
+    <!-- History screen -->
+    <string name="history_event_deleted">Event deleted</string>
+    <string name="history_no_events">No events yet.</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_edited">Edited</string>
+
+    <!-- Edit event dialog (shared with Calendar) -->
+    <string name="edit_event_title">Edit event</string>
+    <string name="edit_event_date_label">Date (yyyy-MM-dd)</string>
+    <string name="edit_event_time_label">Time (HH:mm)</string>
+    <string name="edit_event_invalid_datetime">Invalid date or time</string>
+    <string name="edit_event_note_label">Note (optional)</string>
+    <string name="edit_event_quick_tags">Quick tags</string>
+
+    <!-- Calendar screen -->
+    <string name="calendar_event_deleted">Event deleted</string>
+    <string name="calendar_no_events_today">No events this day.</string>
+    <string name="calendar_add_entry_button">+ Add an entry for this day</string>
+    <string name="calendar_add_entry_title">Add entry</string>
+    <string name="calendar_add_entry_question">Which supply did you use?</string>
+    <string name="cd_previous_month">Previous month</string>
+    <string name="cd_next_month">Next month</string>
+    <string name="cd_delete_event">Delete event</string>
+
+    <!-- Stats screen -->
+    <string name="stats_no_events">No events recorded yet.</string>
+    <string name="stats_avg_days">~%1$dd avg</string>
+    <string name="stats_days_between">days between changes</string>
+    <string name="stats_changes_count">%1$d changes</string>
+    <string name="stats_period_week">Week</string>
+    <string name="stats_period_month">Month</string>
+    <string name="stats_period_year">Year</string>
+
+    <!-- Settings screen -->
+    <string name="settings_section_inventory">Inventory</string>
+    <string name="settings_manage_supplies">Manage Supplies</string>
+    <string name="settings_manage_supplies_sub">View and update on-hand counts</string>
+    <string name="settings_print_qr">Print QR Labels</string>
+    <string name="settings_print_qr_sub">Scan to log a change instantly</string>
+    <string name="settings_reorder_warnings">Reorder Warnings</string>
+    <string name="settings_reorder_warnings_sub">Per-supply threshold days</string>
+    <string name="settings_section_security">Security</string>
+    <string name="settings_biometric_lock">Biometric Lock</string>
+    <string name="settings_biometric_lock_sub">Require biometrics to edit counts</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_backup">Backup &amp; Restore</string>
+    <string name="settings_backup_sub">Export your event history as CSV</string>
+    <string name="settings_export">Export</string>
+    <string name="settings_import_v1">Import from v1</string>
+    <string name="settings_import_v1_sub">Bring over your Ostomate v1 CSV export</string>
+    <string name="settings_import">Import</string>
+    <string name="settings_section_support">Support</string>
+    <string name="settings_feedback">Send Feedback</string>
+    <string name="settings_feedback_sub">Report a bug or suggest a feature</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_section_about_dev">About [DEV]</string>
+    <string name="settings_app_version">v2.0.0-dev</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
+    <string name="settings_import_complete_title">Import complete</string>
+    <string name="settings_import_result">Inserted: %1$d\nSkipped (duplicates): %2$d\nParse errors: %3$d</string>
+    <string name="settings_dev_on_title">Dev mode ON</string>
+    <string name="settings_dev_off_title">Dev mode OFF</string>
+    <string name="settings_dev_on_body">Dev mode is active. Data is shared with production — use the dev mode flag to guard test-only UI in future phases.</string>
+    <string name="settings_dev_off_body">Dev mode disabled.</string>
+
+    <!-- Manage Supplies screen -->
+    <string name="manage_supplies_title">Manage Supplies</string>
+    <string name="manage_supplies_on_hand_box">%1$d on hand · box of %2$d</string>
+    <string name="manage_supplies_set_count_title">Set %1$s count</string>
+    <string name="manage_supplies_on_hand_label">On hand</string>
+    <string name="manage_supplies_edit_title">Edit %1$s</string>
+    <string name="manage_supplies_name_label">Name</string>
+    <string name="manage_supplies_box_size_label">Box size</string>
+    <string name="manage_supplies_warn_days_label">Warn after (days)</string>
+    <string name="manage_supplies_color_label">Color</string>
+    <string name="manage_supplies_archive">Archive supply</string>
+    <string name="manage_supplies_add_title">Add supply</string>
+    <string name="manage_supplies_add_button">Add</string>
+    <string name="cd_add_supply">Add custom supply</string>
+    <string name="cd_edit_supply">Edit %1$s</string>
+
+    <!-- Reorder Warnings screen -->
+    <string name="reorder_warnings_title">Reorder Warnings</string>
+    <string name="reorder_warnings_description">Warn when you haven\'t changed a supply in this many days.</string>
+    <string name="reorder_warnings_warn_after">Warn after %1$d days</string>
+    <string name="reorder_warnings_dialog_title">%1$s warning</string>
+    <string name="reorder_warnings_dialog_body">You\'ll see a warning on the home screen when this supply hasn\'t been changed in that many days.</string>
+    <string name="reorder_warnings_days_suffix">days</string>
+    <string name="cd_edit_threshold">Edit %1$s threshold</string>
+
+    <!-- QR Labels screen -->
+    <string name="qr_labels_title">QR Labels</string>
+    <string name="qr_labels_print">Print</string>
+    <string name="qr_labels_no_supplies">No supplies configured.</string>
+    <string name="qr_labels_share_link">Share link</string>
+    <string name="qr_links_header">Ostimate QR links</string>
+    <string name="cd_share_all_links">Share all links</string>
+    <string name="cd_qr_code_for">QR code for %1$s</string>
+
+    <!-- Onboarding screen -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_supplies_title">What supplies do you use?</string>
+    <string name="onboarding_supplies_subtitle">Select all that apply. You can add more later.</string>
+    <string name="onboarding_kind_bag">Pouches / Bags</string>
+    <string name="onboarding_kind_flange">Flanges / Wafers</string>
+    <string name="onboarding_next">Next →</string>
+    <string name="onboarding_counts_title">How many do you have on hand?</string>
+    <string name="onboarding_counts_subtitle">Enter your current stock. You can update this anytime in Settings.</string>
+    <string name="onboarding_bag_count_label">Pouches / Bags on hand</string>
+    <string name="onboarding_flange_count_label">Flanges / Wafers on hand</string>
+    <string name="onboarding_back">← Back</string>
+    <string name="onboarding_qr_title">Log in under 2 seconds</string>
+    <string name="onboarding_qr_body">Print a QR sticker and stick it on your supply box. Scan it with your camera and the change is logged instantly — no app navigation required.</string>
+    <string name="onboarding_qr_hint">You can print labels anytime from Settings → Print QR Labels.</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_print_later">Print labels later</string>
+
+    <!-- Privacy Policy screen -->
+    <string name="privacy_title">Privacy Policy</string>
+    <string name="privacy_section_local_title">Your data stays on your device</string>
+    <string name="privacy_section_local_body">Ostimate stores all your supply and change event data locally on this device using a private database. Nothing is sent to any server, cloud service, or third party.</string>
+    <string name="privacy_section_analytics_title">No analytics or tracking</string>
+    <string name="privacy_section_analytics_body">Ostimate contains no analytics SDKs, no advertising networks, and no telemetry of any kind. We do not know how you use the app.</string>
+    <string name="privacy_section_account_title">No account required</string>
+    <string name="privacy_section_account_body">Ostimate works without creating an account or providing any personal information. Your name, email, and identity are never collected.</string>
+    <string name="privacy_section_backups_title">Backups</string>
+    <string name="privacy_section_backups_body">The Export feature creates a CSV file on your device that you can save wherever you choose. Ostimate does not upload backups anywhere automatically.</string>
+    <string name="privacy_section_deletion_title">Data deletion</string>
+    <string name="privacy_section_deletion_body">Uninstalling Ostimate removes all app data from your device. There is no data stored elsewhere to delete.</string>
+    <string name="privacy_section_contact_title">Contact</string>
+    <string name="privacy_section_contact_body">Questions about this policy? Email ostomate26@gmail.com.</string>
+    <string name="privacy_last_updated">Last updated: June 2026</string>
+
+    <!-- Widget -->
+    <string name="widget_no_data">No data</string>
+    <string name="widget_days_remaining">~%1$dd left</string>
+    <string name="widget_zero_days">0 days left</string>
+    <string name="widget_log">Log</string>
+</resources>

@@ -54,8 +54,27 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.domain.SupplyKind
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_cancel
+import com.ostimate.app.resources.action_save
+import com.ostimate.app.resources.cd_add_supply
+import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.cd_edit_supply
+import com.ostimate.app.resources.manage_supplies_add_button
+import com.ostimate.app.resources.manage_supplies_add_title
+import com.ostimate.app.resources.manage_supplies_archive
+import com.ostimate.app.resources.manage_supplies_box_size_label
+import com.ostimate.app.resources.manage_supplies_color_label
+import com.ostimate.app.resources.manage_supplies_edit_title
+import com.ostimate.app.resources.manage_supplies_name_label
+import com.ostimate.app.resources.manage_supplies_on_hand_box
+import com.ostimate.app.resources.manage_supplies_on_hand_label
+import com.ostimate.app.resources.manage_supplies_set_count_title
+import com.ostimate.app.resources.manage_supplies_title
+import com.ostimate.app.resources.manage_supplies_warn_days_label
 import com.ostimate.app.ui.theme.OstimateColors
 import com.ostimate.app.ui.theme.supplyColor
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val CUSTOM_COLORS =
@@ -126,10 +145,10 @@ fun ManageSuppliesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Supplies") },
+                title = { Text(stringResource(Res.string.manage_supplies_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
                     }
                 },
             )
@@ -139,7 +158,7 @@ fun ManageSuppliesScreen(
                 onClick = viewModel::showAddDialog,
                 modifier = Modifier.testTag("addSupplyFab"),
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add custom supply")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.cd_add_supply))
             }
         },
         contentWindowInsets = WindowInsets(0),
@@ -197,7 +216,7 @@ private fun SupplyRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(supply.name, style = MaterialTheme.typography.titleMedium)
             Text(
-                "${supply.onHand} on hand · box of ${supply.boxSize}",
+                stringResource(Res.string.manage_supplies_on_hand_box, supply.onHand, supply.boxSize),
                 style = MaterialTheme.typography.bodySmall,
                 color = accent,
             )
@@ -240,7 +259,7 @@ private fun SupplyRow(
         ) {
             Icon(
                 Icons.Filled.Edit,
-                contentDescription = "Edit ${supply.name}",
+                contentDescription = stringResource(Res.string.cd_edit_supply, supply.name),
                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
@@ -258,12 +277,12 @@ private fun EditCountDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Set ${target.name} count") },
+        title = { Text(stringResource(Res.string.manage_supplies_set_count_title, target.name)) },
         text = {
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it.filter { c -> c.isDigit() } },
-                label = { Text("On hand") },
+                label = { Text(stringResource(Res.string.manage_supplies_on_hand_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.testTag("editCountField"),
@@ -275,10 +294,10 @@ private fun EditCountDialog(
                     val count = input.toIntOrNull() ?: return@TextButton
                     onSave(count)
                 },
-            ) { Text("Save") }
+            ) { Text(stringResource(Res.string.action_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }
@@ -297,29 +316,20 @@ private fun EditSupplyDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit ${supply.name}") },
+        title = { Text(stringResource(Res.string.manage_supplies_edit_title, supply.name)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                if (supply.kind != SupplyKind.CUSTOM) {
-                    OutlinedTextField(
-                        value = nameInput,
-                        onValueChange = { nameInput = it },
-                        label = { Text("Name") },
-                        singleLine = true,
-                    )
-                } else {
-                    OutlinedTextField(
-                        value = nameInput,
-                        onValueChange = { nameInput = it },
-                        label = { Text("Name") },
-                        singleLine = true,
-                    )
-                }
+                OutlinedTextField(
+                    value = nameInput,
+                    onValueChange = { nameInput = it },
+                    label = { Text(stringResource(Res.string.manage_supplies_name_label)) },
+                    singleLine = true,
+                )
 
                 OutlinedTextField(
                     value = boxSizeInput,
                     onValueChange = { boxSizeInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("Box size") },
+                    label = { Text(stringResource(Res.string.manage_supplies_box_size_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                 )
@@ -327,13 +337,13 @@ private fun EditSupplyDialog(
                 OutlinedTextField(
                     value = warnInput,
                     onValueChange = { warnInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("Warn after (days)") },
+                    label = { Text(stringResource(Res.string.manage_supplies_warn_days_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                 )
 
                 if (supply.kind == SupplyKind.CUSTOM) {
-                    Text("Color", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(Res.string.manage_supplies_color_label), style = MaterialTheme.typography.labelMedium)
                     ColorPickerRow(selected = selectedColor, onSelect = { selectedColor = it })
                 }
 
@@ -343,7 +353,7 @@ private fun EditSupplyDialog(
                         onClick = onArchive,
                         modifier = Modifier.testTag("archiveSupplyButton"),
                     ) {
-                        Text("Archive supply", color = MaterialTheme.colorScheme.error)
+                        Text(stringResource(Res.string.manage_supplies_archive), color = MaterialTheme.colorScheme.error)
                     }
                 }
             }
@@ -356,10 +366,10 @@ private fun EditSupplyDialog(
                     val colorIndex = if (supply.kind == SupplyKind.CUSTOM) selectedColor else supply.colorIndex
                     onSave(nameInput, boxSize, warn, colorIndex)
                 },
-            ) { Text("Save") }
+            ) { Text(stringResource(Res.string.action_save)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }
@@ -376,13 +386,13 @@ private fun AddCustomSupplyDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add supply") },
+        title = { Text(stringResource(Res.string.manage_supplies_add_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = nameInput,
                     onValueChange = { nameInput = it },
-                    label = { Text("Name") },
+                    label = { Text(stringResource(Res.string.manage_supplies_name_label)) },
                     singleLine = true,
                     modifier = Modifier.testTag("addSupplyNameField"),
                 )
@@ -390,7 +400,7 @@ private fun AddCustomSupplyDialog(
                 OutlinedTextField(
                     value = boxSizeInput,
                     onValueChange = { boxSizeInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("Box size") },
+                    label = { Text(stringResource(Res.string.manage_supplies_box_size_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                 )
@@ -398,12 +408,12 @@ private fun AddCustomSupplyDialog(
                 OutlinedTextField(
                     value = warnInput,
                     onValueChange = { warnInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("Warn after (days)") },
+                    label = { Text(stringResource(Res.string.manage_supplies_warn_days_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                 )
 
-                Text("Color", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(Res.string.manage_supplies_color_label), style = MaterialTheme.typography.labelMedium)
                 ColorPickerRow(selected = selectedColor, onSelect = { selectedColor = it })
             }
         },
@@ -416,10 +426,10 @@ private fun AddCustomSupplyDialog(
                     onAdd(nameInput, boxSize, warn, selectedColor)
                 },
                 modifier = Modifier.testTag("confirmAddSupply"),
-            ) { Text("Add") }
+            ) { Text(stringResource(Res.string.manage_supplies_add_button)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }

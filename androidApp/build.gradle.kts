@@ -20,4 +20,5 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.koin.android)
     implementation(libs.androidx.fragment.ktx)
+    implementation(libs.glance.appwidget)
 }

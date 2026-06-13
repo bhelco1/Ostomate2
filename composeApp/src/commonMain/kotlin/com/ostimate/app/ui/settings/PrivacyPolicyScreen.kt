@@ -21,6 +21,23 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.privacy_last_updated
+import com.ostimate.app.resources.privacy_section_account_body
+import com.ostimate.app.resources.privacy_section_account_title
+import com.ostimate.app.resources.privacy_section_analytics_body
+import com.ostimate.app.resources.privacy_section_analytics_title
+import com.ostimate.app.resources.privacy_section_backups_body
+import com.ostimate.app.resources.privacy_section_backups_title
+import com.ostimate.app.resources.privacy_section_contact_body
+import com.ostimate.app.resources.privacy_section_contact_title
+import com.ostimate.app.resources.privacy_section_deletion_body
+import com.ostimate.app.resources.privacy_section_deletion_title
+import com.ostimate.app.resources.privacy_section_local_body
+import com.ostimate.app.resources.privacy_section_local_title
+import com.ostimate.app.resources.privacy_title
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,10 +45,10 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Privacy Policy") },
+                title = { Text(stringResource(Res.string.privacy_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
                     }
                 },
             )
@@ -50,39 +67,34 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                         bottom = innerPadding.calculateBottomPadding() + 32.dp,
                     ),
         ) {
-            PolicySection("Your data stays on your device") {
-                "Ostimate stores all your supply and change event data locally on this device " +
-                    "using a private database. Nothing is sent to any server, cloud service, " +
-                    "or third party."
-            }
-
-            PolicySection("No analytics or tracking") {
-                "Ostimate contains no analytics SDKs, no advertising networks, and no " +
-                    "telemetry of any kind. We do not know how you use the app."
-            }
-
-            PolicySection("No account required") {
-                "Ostimate works without creating an account or providing any personal " +
-                    "information. Your name, email, and identity are never collected."
-            }
-
-            PolicySection("Backups") {
-                "The Export feature creates a CSV file on your device that you can save " +
-                    "wherever you choose. Ostimate does not upload backups anywhere automatically."
-            }
-
-            PolicySection("Data deletion") {
-                "Uninstalling Ostimate removes all app data from your device. There is no " +
-                    "data stored elsewhere to delete."
-            }
-
-            PolicySection("Contact") {
-                "Questions about this policy? Email ostomate26@gmail.com."
-            }
+            PolicySection(
+                stringResource(Res.string.privacy_section_local_title),
+                stringResource(Res.string.privacy_section_local_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_analytics_title),
+                stringResource(Res.string.privacy_section_analytics_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_account_title),
+                stringResource(Res.string.privacy_section_account_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_backups_title),
+                stringResource(Res.string.privacy_section_backups_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_deletion_title),
+                stringResource(Res.string.privacy_section_deletion_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_contact_title),
+                stringResource(Res.string.privacy_section_contact_body),
+            )
 
             Spacer(Modifier.height(16.dp))
             Text(
-                "Last updated: June 2026",
+                stringResource(Res.string.privacy_last_updated),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
             )
@@ -93,12 +105,12 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
 @Composable
 private fun PolicySection(
     title: String,
-    body: () -> String,
+    body: String,
 ) {
     Text(title, style = MaterialTheme.typography.titleSmall)
     Spacer(Modifier.height(4.dp))
     Text(
-        body(),
+        body,
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
     )

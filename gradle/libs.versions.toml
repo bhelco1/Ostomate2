@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.1"
+glance = "1.1.1"
 detekt = "1.23.8"
 kotest = "5.9.1"
 kover = "0.8.3"
@@ -34,6 +35,7 @@ build-detekt-gradle = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plug
 build-kotlin-gradle = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 build-ktlint-gradle = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlint-gradle" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
+glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
 androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "androidx-biometric" }
 androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidx-fragment" }

@@ -33,8 +33,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.stats_avg_days
+import com.ostimate.app.resources.stats_changes_count
+import com.ostimate.app.resources.stats_days_between
+import com.ostimate.app.resources.stats_no_events
+import com.ostimate.app.resources.stats_period_month
+import com.ostimate.app.resources.stats_period_week
+import com.ostimate.app.resources.stats_period_year
 import com.ostimate.app.ui.components.Pill
 import com.ostimate.app.ui.theme.supplyColor
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
@@ -57,10 +66,15 @@ fun StatsScreen(viewModel: StatsViewModel = koinViewModel()) {
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 StatsPeriod.entries.forEach { period ->
+                    val label = when (period) {
+                        StatsPeriod.WEEK -> stringResource(Res.string.stats_period_week)
+                        StatsPeriod.MONTH -> stringResource(Res.string.stats_period_month)
+                        StatsPeriod.YEAR -> stringResource(Res.string.stats_period_year)
+                    }
                     FilterChip(
                         selected = uiState.period == period,
                         onClick = { viewModel.selectPeriod(period) },
-                        label = { Text(period.label) },
+                        label = { Text(label) },
                     )
                 }
             }
@@ -70,7 +84,7 @@ fun StatsScreen(viewModel: StatsViewModel = koinViewModel()) {
             if (uiState.rows.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        "No events recorded yet.",
+                        stringResource(Res.string.stats_no_events),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
@@ -118,7 +132,7 @@ private fun StatsCard(row: SupplyStats) {
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                 )
-                Pill(label = "${row.countInPeriod} changes", kind = row.kind)
+                Pill(label = stringResource(Res.string.stats_changes_count, row.countInPeriod), kind = row.kind)
             }
 
             Spacer(Modifier.height(10.dp))
@@ -133,14 +147,14 @@ private fun StatsCard(row: SupplyStats) {
                     val avg = row.avgDaysBetween
                     if (avg != null) {
                         Text(
-                            "~${avg.roundToInt()}d avg",
+                            stringResource(Res.string.stats_avg_days, avg.roundToInt()),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
                         )
                     }
                     Text(
-                        "days between changes",
+                        stringResource(Res.string.stats_days_between),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                     )

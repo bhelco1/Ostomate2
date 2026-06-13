@@ -29,7 +29,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.domain.SupplyKind
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.onboarding_back
+import com.ostimate.app.resources.onboarding_bag_count_label
+import com.ostimate.app.resources.onboarding_counts_subtitle
+import com.ostimate.app.resources.onboarding_counts_title
+import com.ostimate.app.resources.onboarding_flange_count_label
+import com.ostimate.app.resources.onboarding_get_started
+import com.ostimate.app.resources.onboarding_kind_bag
+import com.ostimate.app.resources.onboarding_kind_flange
+import com.ostimate.app.resources.onboarding_next
+import com.ostimate.app.resources.onboarding_print_later
+import com.ostimate.app.resources.onboarding_qr_body
+import com.ostimate.app.resources.onboarding_qr_hint
+import com.ostimate.app.resources.onboarding_qr_title
+import com.ostimate.app.resources.onboarding_skip
+import com.ostimate.app.resources.onboarding_supplies_subtitle
+import com.ostimate.app.resources.onboarding_supplies_title
 import com.ostimate.app.ui.theme.supplyColor
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -51,7 +69,7 @@ fun OnboardingScreen(
                 viewModel.skip()
                 onDone()
             }) {
-                Text("Skip")
+                Text(stringResource(Res.string.onboarding_skip))
             }
         }
 
@@ -99,19 +117,22 @@ private fun SuppliesStep(
             StepIndicator(step = 1)
             Spacer(Modifier.height(24.dp))
             Text(
-                "What supplies do you use?",
+                stringResource(Res.string.onboarding_supplies_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Select all that apply. You can add more later.",
+                stringResource(Res.string.onboarding_supplies_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
             )
             Spacer(Modifier.height(32.dp))
 
-            listOf(SupplyKind.BAG to "Pouches / Bags", SupplyKind.FLANGE to "Flanges / Wafers").forEach { (kind, label) ->
+            listOf(
+                SupplyKind.BAG to stringResource(Res.string.onboarding_kind_bag),
+                SupplyKind.FLANGE to stringResource(Res.string.onboarding_kind_flange),
+            ).forEach { (kind, label) ->
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -138,7 +159,7 @@ private fun SuppliesStep(
             modifier = Modifier.fillMaxWidth().height(52.dp),
             enabled = selectedKinds.isNotEmpty(),
         ) {
-            Text("Next →")
+            Text(stringResource(Res.string.onboarding_next))
         }
     }
 }
@@ -158,13 +179,13 @@ private fun CountsStep(
             StepIndicator(step = 2)
             Spacer(Modifier.height(24.dp))
             Text(
-                "How many do you have on hand?",
+                stringResource(Res.string.onboarding_counts_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Enter your current stock. You can update this anytime in Settings.",
+                stringResource(Res.string.onboarding_counts_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
             )
@@ -174,7 +195,7 @@ private fun CountsStep(
                 OutlinedTextField(
                     value = bagCount,
                     onValueChange = onBagCountChange,
-                    label = { Text("Pouches / Bags on hand") },
+                    label = { Text(stringResource(Res.string.onboarding_bag_count_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -185,7 +206,7 @@ private fun CountsStep(
                 OutlinedTextField(
                     value = flangeCount,
                     onValueChange = onFlangeCountChange,
-                    label = { Text("Flanges / Wafers on hand") },
+                    label = { Text(stringResource(Res.string.onboarding_flange_count_label)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -194,8 +215,8 @@ private fun CountsStep(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TextButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text("← Back") }
-            Button(onClick = onNext, modifier = Modifier.weight(2f).height(52.dp)) { Text("Next →") }
+            TextButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.onboarding_back)) }
+            Button(onClick = onNext, modifier = Modifier.weight(2f).height(52.dp)) { Text(stringResource(Res.string.onboarding_next)) }
         }
     }
 }
@@ -210,19 +231,19 @@ private fun QrExplainerStep(
             StepIndicator(step = 3)
             Spacer(Modifier.height(24.dp))
             Text(
-                "Log in under 2 seconds",
+                stringResource(Res.string.onboarding_qr_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Print a QR sticker and stick it on your supply box. Scan it with your camera and the change is logged instantly — no app navigation required.",
+                stringResource(Res.string.onboarding_qr_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                "You can print labels anytime from Settings → Print QR Labels.",
+                stringResource(Res.string.onboarding_qr_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
@@ -233,13 +254,13 @@ private fun QrExplainerStep(
                 onClick = onDone,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
             ) {
-                Text("Get started")
+                Text(stringResource(Res.string.onboarding_get_started))
             }
             TextButton(
                 onClick = onDone,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Print labels later")
+                Text(stringResource(Res.string.onboarding_print_later))
             }
         }
     }

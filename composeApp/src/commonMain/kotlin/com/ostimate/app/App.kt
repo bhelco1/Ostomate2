@@ -42,8 +42,16 @@ import com.ostimate.app.ui.settings.QrLabelsScreen
 import com.ostimate.app.ui.settings.ReorderWarningsScreen
 import com.ostimate.app.ui.settings.SettingsScreen
 import com.ostimate.app.ui.stats.StatsScreen
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.deeplink_logged
+import com.ostimate.app.resources.deeplink_unrecognized
+import com.ostimate.app.resources.nav_calendar
+import com.ostimate.app.resources.nav_home
+import com.ostimate.app.resources.nav_settings
+import com.ostimate.app.resources.nav_stats
 import com.ostimate.app.ui.theme.OstimateTheme
 import kotlinx.serialization.Serializable
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Serializable object HomeDestination
@@ -89,11 +97,17 @@ private fun MainApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val snackbarHostState = remember { SnackbarHostState() }
+    val loggedMsg = stringResource(Res.string.deeplink_logged)
+    val unrecognizedMsg = stringResource(Res.string.deeplink_unrecognized)
 
     LaunchedEffect(Unit) {
         DeepLinkBus.events.collect { supplyName ->
             val message =
-                if (supplyName != null) "Logged: $supplyName" else "Unrecognized QR code"
+                if (supplyName != null) {
+                    loggedMsg.format(supplyName)
+                } else {
+                    unrecognizedMsg
+                }
             snackbarHostState.showSnackbar(message)
         }
     }
@@ -103,8 +117,8 @@ private fun MainApp() {
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
+                    icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(Res.string.nav_home)) },
+                    label = { Text(stringResource(Res.string.nav_home)) },
                     selected = currentDestination?.hasRoute<HomeDestination>() == true,
                     onClick = {
                         navController.navigate(HomeDestination) {
@@ -115,8 +129,8 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.DateRange, contentDescription = "Calendar") },
-                    label = { Text("Calendar") },
+                    icon = { Icon(Icons.Filled.DateRange, contentDescription = stringResource(Res.string.nav_calendar)) },
+                    label = { Text(stringResource(Res.string.nav_calendar)) },
                     selected = currentDestination?.hasRoute<CalendarDestination>() == true,
                     onClick = {
                         navController.navigate(CalendarDestination) {
@@ -127,8 +141,8 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Info, contentDescription = "Stats") },
-                    label = { Text("Stats") },
+                    icon = { Icon(Icons.Filled.Info, contentDescription = stringResource(Res.string.nav_stats)) },
+                    label = { Text(stringResource(Res.string.nav_stats)) },
                     selected = currentDestination?.hasRoute<StatsDestination>() == true,
                     onClick = {
                         navController.navigate(StatsDestination) {
@@ -139,8 +153,8 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = "Settings") },
-                    label = { Text("Settings") },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = stringResource(Res.string.nav_settings)) },
+                    label = { Text(stringResource(Res.string.nav_settings)) },
                     selected = currentDestination?.hasRoute<SettingsDestination>() == true,
                     onClick = {
                         navController.navigate(SettingsDestination) {

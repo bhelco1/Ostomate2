@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_calendar">Calendario</string>
+    <string name="nav_stats">Estadísticas</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <!-- Deep link / QR feedback -->
+    <string name="deeplink_logged">Registrado: %1$s</string>
+    <string name="deeplink_unrecognized">Código QR no reconocido</string>
+
+    <!-- Home screen -->
+    <string name="home_no_supplies">Sin suministros todavía.</string>
+    <string name="home_snackbar_logged">%1$s registrado</string>
+    <string name="home_snackbar_logged_count">%1$s registrado · quedan %2$d</string>
+    <string name="home_overflow_view_history">Ver historial</string>
+
+    <!-- Supply card -->
+    <string name="supply_on_hand"> disponible</string>
+    <string name="supply_no_data">Sin datos suficientes</string>
+    <string name="supply_zero_days">0 días restantes</string>
+    <string name="supply_days_remaining">~%1$d días restantes · según %2$d cambios</string>
+    <string name="supply_warning_banner">Hora de reponer. Quedan unos %1$d días de %2$s — por debajo de tu alerta de %3$d días.</string>
+    <string name="supply_log_button_label">Registrar cambio de %1$s</string>
+    <string name="supply_edit_count_label">Editar cantidad</string>
+    <string name="cd_supply_more_options">Más opciones para %1$s</string>
+
+    <!-- Common actions -->
+    <string name="action_undo">Deshacer</string>
+    <string name="action_save">Guardar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_ok">Aceptar</string>
+    <string name="cd_back">Atrás</string>
+    <string name="cd_delete">Eliminar</string>
+
+    <!-- History screen -->
+    <string name="history_event_deleted">Evento eliminado</string>
+    <string name="history_no_events">Sin eventos todavía.</string>
+    <string name="history_filter_all">Todos</string>
+    <string name="history_edited">Editado</string>
+
+    <!-- Edit event dialog (shared with Calendar) -->
+    <string name="edit_event_title">Editar evento</string>
+    <string name="edit_event_date_label">Fecha (aaaa-MM-dd)</string>
+    <string name="edit_event_time_label">Hora (HH:mm)</string>
+    <string name="edit_event_invalid_datetime">Fecha u hora no válidas</string>
+    <string name="edit_event_note_label">Nota (opcional)</string>
+    <string name="edit_event_quick_tags">Etiquetas rápidas</string>
+
+    <!-- Calendar screen -->
+    <string name="calendar_event_deleted">Evento eliminado</string>
+    <string name="calendar_no_events_today">Sin eventos este día.</string>
+    <string name="calendar_add_entry_button">+ Agregar entrada para este día</string>
+    <string name="calendar_add_entry_title">Agregar entrada</string>
+    <string name="calendar_add_entry_question">¿Qué suministro usaste?</string>
+    <string name="cd_previous_month">Mes anterior</string>
+    <string name="cd_next_month">Mes siguiente</string>
+    <string name="cd_delete_event">Eliminar evento</string>
+
+    <!-- Stats screen -->
+    <string name="stats_no_events">Sin eventos registrados todavía.</string>
+    <string name="stats_avg_days">~%1$dd prom.</string>
+    <string name="stats_days_between">días entre cambios</string>
+    <string name="stats_changes_count">%1$d cambios</string>
+    <string name="stats_period_week">Semana</string>
+    <string name="stats_period_month">Mes</string>
+    <string name="stats_period_year">Año</string>
+
+    <!-- Settings screen -->
+    <string name="settings_section_inventory">Inventario</string>
+    <string name="settings_manage_supplies">Gestionar suministros</string>
+    <string name="settings_manage_supplies_sub">Ver y actualizar cantidades disponibles</string>
+    <string name="settings_print_qr">Imprimir etiquetas QR</string>
+    <string name="settings_print_qr_sub">Escanear para registrar un cambio al instante</string>
+    <string name="settings_reorder_warnings">Alertas de reposición</string>
+    <string name="settings_reorder_warnings_sub">Días de umbral por suministro</string>
+    <string name="settings_section_security">Seguridad</string>
+    <string name="settings_biometric_lock">Bloqueo biométrico</string>
+    <string name="settings_biometric_lock_sub">Requerir biometría para editar cantidades</string>
+    <string name="settings_section_data">Datos</string>
+    <string name="settings_backup">Copia de seguridad y restauración</string>
+    <string name="settings_backup_sub">Exportar historial de eventos como CSV</string>
+    <string name="settings_export">Exportar</string>
+    <string name="settings_import_v1">Importar de v1</string>
+    <string name="settings_import_v1_sub">Importar tu exportación CSV de Ostomate v1</string>
+    <string name="settings_import">Importar</string>
+    <string name="settings_section_support">Soporte</string>
+    <string name="settings_feedback">Enviar comentarios</string>
+    <string name="settings_feedback_sub">Reportar un error o sugerir una función</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_section_about_dev">Acerca de [DEV]</string>
+    <string name="settings_app_version">v2.0.0-dev</string>
+    <string name="settings_privacy_policy">Política de privacidad</string>
+    <string name="settings_import_complete_title">Importación completa</string>
+    <string name="settings_import_result">Insertados: %1$d\nOmitidos (duplicados): %2$d\nErrores de análisis: %3$d</string>
+    <string name="settings_dev_on_title">Modo dev ACTIVADO</string>
+    <string name="settings_dev_off_title">Modo dev DESACTIVADO</string>
+    <string name="settings_dev_on_body">El modo desarrollador está activo. Los datos se comparten con producción.</string>
+    <string name="settings_dev_off_body">Modo desarrollador desactivado.</string>
+
+    <!-- Manage Supplies screen -->
+    <string name="manage_supplies_title">Gestionar suministros</string>
+    <string name="manage_supplies_on_hand_box">%1$d disponibles · caja de %2$d</string>
+    <string name="manage_supplies_set_count_title">Establecer cantidad de %1$s</string>
+    <string name="manage_supplies_on_hand_label">Disponible</string>
+    <string name="manage_supplies_edit_title">Editar %1$s</string>
+    <string name="manage_supplies_name_label">Nombre</string>
+    <string name="manage_supplies_box_size_label">Tamaño de caja</string>
+    <string name="manage_supplies_warn_days_label">Alertar después de (días)</string>
+    <string name="manage_supplies_color_label">Color</string>
+    <string name="manage_supplies_archive">Archivar suministro</string>
+    <string name="manage_supplies_add_title">Agregar suministro</string>
+    <string name="manage_supplies_add_button">Agregar</string>
+    <string name="cd_add_supply">Agregar suministro personalizado</string>
+    <string name="cd_edit_supply">Editar %1$s</string>
+
+    <!-- Reorder Warnings screen -->
+    <string name="reorder_warnings_title">Alertas de reposición</string>
+    <string name="reorder_warnings_description">Alertar cuando no hayas cambiado un suministro en ese número de días.</string>
+    <string name="reorder_warnings_warn_after">Alertar después de %1$d días</string>
+    <string name="reorder_warnings_dialog_title">Alerta de %1$s</string>
+    <string name="reorder_warnings_dialog_body">Verás una advertencia en la pantalla de inicio cuando este suministro no se haya cambiado en esa cantidad de días.</string>
+    <string name="reorder_warnings_days_suffix">días</string>
+    <string name="cd_edit_threshold">Editar umbral de %1$s</string>
+
+    <!-- QR Labels screen -->
+    <string name="qr_labels_title">Etiquetas QR</string>
+    <string name="qr_labels_print">Imprimir</string>
+    <string name="qr_labels_no_supplies">Sin suministros configurados.</string>
+    <string name="qr_labels_share_link">Compartir enlace</string>
+    <string name="qr_links_header">Enlaces QR de Ostimate</string>
+    <string name="cd_share_all_links">Compartir todos los enlaces</string>
+    <string name="cd_qr_code_for">Código QR para %1$s</string>
+
+    <!-- Onboarding screen -->
+    <string name="onboarding_skip">Omitir</string>
+    <string name="onboarding_supplies_title">¿Qué suministros usas?</string>
+    <string name="onboarding_supplies_subtitle">Selecciona todos los que correspondan. Puedes agregar más después.</string>
+    <string name="onboarding_kind_bag">Bolsas de ostomía</string>
+    <string name="onboarding_kind_flange">Flanges / Placas de base</string>
+    <string name="onboarding_next">Siguiente →</string>
+    <string name="onboarding_counts_title">¿Cuántos tienes disponibles?</string>
+    <string name="onboarding_counts_subtitle">Ingresa tu stock actual. Puedes actualizarlo en Ajustes.</string>
+    <string name="onboarding_bag_count_label">Bolsas disponibles</string>
+    <string name="onboarding_flange_count_label">Flanges disponibles</string>
+    <string name="onboarding_back">← Atrás</string>
+    <string name="onboarding_qr_title">Registra en menos de 2 segundos</string>
+    <string name="onboarding_qr_body">Imprime una etiqueta QR y pégala en tu caja de suministros. Escanéala con tu cámara y el cambio se registrará al instante — sin navegar por la app.</string>
+    <string name="onboarding_qr_hint">Puedes imprimir etiquetas en cualquier momento desde Ajustes → Imprimir etiquetas QR.</string>
+    <string name="onboarding_get_started">Comenzar</string>
+    <string name="onboarding_print_later">Imprimir etiquetas después</string>
+
+    <!-- Privacy Policy screen -->
+    <string name="privacy_title">Política de privacidad</string>
+    <string name="privacy_section_local_title">Tus datos permanecen en tu dispositivo</string>
+    <string name="privacy_section_local_body">Ostimate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Nada se envía a ningún servidor, servicio en la nube ni tercero.</string>
+    <string name="privacy_section_analytics_title">Sin análisis ni seguimiento</string>
+    <string name="privacy_section_analytics_body">Ostimate no contiene SDKs de análisis, redes publicitarias ni telemetría de ningún tipo. No sabemos cómo usas la app.</string>
+    <string name="privacy_section_account_title">Sin cuenta requerida</string>
+    <string name="privacy_section_account_body">Ostimate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan.</string>
+    <string name="privacy_section_backups_title">Copias de seguridad</string>
+    <string name="privacy_section_backups_body">La función Exportar crea un archivo CSV en tu dispositivo que puedes guardar donde prefieras. Ostimate no sube copias de seguridad automáticamente.</string>
+    <string name="privacy_section_deletion_title">Eliminación de datos</string>
+    <string name="privacy_section_deletion_body">Desinstalar Ostimate elimina todos los datos de la app de tu dispositivo. No hay datos almacenados en ningún otro lugar.</string>
+    <string name="privacy_section_contact_title">Contacto</string>
+    <string name="privacy_section_contact_body">¿Preguntas sobre esta política? Escribe a ostomate26@gmail.com.</string>
+    <string name="privacy_last_updated">Última actualización: junio de 2026</string>
+
+    <!-- Widget -->
+    <string name="widget_no_data">Sin datos</string>
+    <string name="widget_days_remaining">~%1$dd restantes</string>
+    <string name="widget_zero_days">0 días restantes</string>
+    <string name="widget_log">Registrar</string>
+</resources>

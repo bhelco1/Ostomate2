@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.kotlinxSerialization)
 }
 
+compose.resources {
+    packageOfResClass = "com.ostimate.app.resources"
+}
+
 kotlin {
     // No iosX64: Compose Multiplatform 1.11+ does not publish Intel-simulator
     // artifacts. iOS UI runs on devices and Apple-Silicon simulators (CI).

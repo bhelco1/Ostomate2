@@ -33,8 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.domain.SupplyKind
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.cd_supply_more_options
+import com.ostimate.app.resources.supply_days_remaining
+import com.ostimate.app.resources.supply_edit_count_label
+import com.ostimate.app.resources.supply_log_button_label
+import com.ostimate.app.resources.supply_no_data
+import com.ostimate.app.resources.supply_on_hand
+import com.ostimate.app.resources.supply_warning_banner
+import com.ostimate.app.resources.supply_zero_days
 import com.ostimate.app.ui.theme.supplyColor
 import kotlin.math.roundToInt
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SupplyCard(
@@ -54,10 +64,11 @@ fun SupplyCard(
     val isWarning = daysRemaining != null && daysRemaining < warnThresholdDays
     val daysText =
         when {
-            daysRemaining == null -> "Not enough data yet"
-            daysRemaining == 0.0 -> "0 days remaining"
-            else -> "~${daysRemaining.roundToInt()} days remaining · based on $sampleCount changes"
+            daysRemaining == null -> stringResource(Res.string.supply_no_data)
+            daysRemaining == 0.0 -> stringResource(Res.string.supply_zero_days)
+            else -> stringResource(Res.string.supply_days_remaining, daysRemaining.roundToInt(), sampleCount)
         }
+    val editCountLabel = stringResource(Res.string.supply_edit_count_label)
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -93,7 +104,7 @@ fun SupplyCard(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
-                            contentDescription = "More options for $name",
+                            contentDescription = stringResource(Res.string.cd_supply_more_options, name),
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
                     }
@@ -112,7 +123,7 @@ fun SupplyCard(
                 if (onEditCountClick != null) {
                     Modifier
                         .testTag("editCountRow")
-                        .clickable(onClickLabel = "Edit count") { onEditCountClick() }
+                        .clickable(onClickLabel = editCountLabel) { onEditCountClick() }
                 } else {
                     Modifier
                 }
@@ -123,7 +134,7 @@ fun SupplyCard(
                     color = accent,
                 )
                 Text(
-                    text = " on hand",
+                    text = stringResource(Res.string.supply_on_hand),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     modifier = Modifier.padding(bottom = 6.dp),
@@ -138,16 +149,19 @@ fun SupplyCard(
 
             if (isWarning && daysRemaining != null) {
                 WarningBanner(
-                    message =
-                        "Time to reorder. About ${daysRemaining.roundToInt()} days of " +
-                            "${name.lowercase()} left — below your $warnThresholdDays-day warning.",
+                    message = stringResource(
+                        Res.string.supply_warning_banner,
+                        daysRemaining.roundToInt(),
+                        name.lowercase(),
+                        warnThresholdDays,
+                    ),
                 )
             }
 
             Spacer(Modifier.height(4.dp))
 
             LogButton(
-                label = "Log ${name.lowercase()} change",
+                label = stringResource(Res.string.supply_log_button_label, name.lowercase()),
                 color = accent,
                 onClick = onLogClick,
                 modifier = Modifier.testTag("logButton"),

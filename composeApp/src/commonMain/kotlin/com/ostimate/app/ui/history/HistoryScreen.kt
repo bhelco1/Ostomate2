@@ -66,7 +66,24 @@ import com.ostimate.app.data.db.ChangeEventEntity
 import com.ostimate.app.data.db.ChangeEventWithSupply
 import com.ostimate.app.data.db.SupplyTypeEntity
 import com.ostimate.app.platform.formatTimestamp
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_cancel
+import com.ostimate.app.resources.action_save
+import com.ostimate.app.resources.action_undo
+import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.cd_delete
+import com.ostimate.app.resources.edit_event_date_label
+import com.ostimate.app.resources.edit_event_invalid_datetime
+import com.ostimate.app.resources.edit_event_note_label
+import com.ostimate.app.resources.edit_event_quick_tags
+import com.ostimate.app.resources.edit_event_time_label
+import com.ostimate.app.resources.edit_event_title
+import com.ostimate.app.resources.history_edited
+import com.ostimate.app.resources.history_event_deleted
+import com.ostimate.app.resources.history_filter_all
+import com.ostimate.app.resources.history_no_events
 import com.ostimate.app.ui.components.Pill
+import org.jetbrains.compose.resources.stringResource
 import com.ostimate.app.ui.theme.supplyColor
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -123,13 +140,15 @@ fun HistoryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var editEvent by remember { mutableStateOf<ChangeEventEntity?>(null) }
     val tz = remember { TimeZone.currentSystemDefault() }
+    val eventDeletedMsg = stringResource(Res.string.history_event_deleted)
+    val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
         val deleted = uiState.pendingUndo ?: return@LaunchedEffect
         val result =
             snackbarHostState.showSnackbar(
-                message = "Event deleted",
-                actionLabel = "Undo",
+                message = eventDeletedMsg,
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Short,
             )
         when (result) {
@@ -157,7 +176,7 @@ fun HistoryScreen(
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(Res.string.cd_back),
                         )
                     }
                 },
@@ -189,7 +208,7 @@ fun HistoryScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "No events yet.",
+                        stringResource(Res.string.history_no_events),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
@@ -246,7 +265,7 @@ private fun SupplyFilterRow(
         FilterChip(
             selected = filterSupplyId < 0,
             onClick = { onSelect(-1L) },
-            label = { Text("All") },
+            label = { Text(stringResource(Res.string.history_filter_all)) },
         )
         supplies.forEach { supply ->
             FilterChip(
@@ -312,7 +331,7 @@ private fun SwipeableEventRow(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete",
+                    contentDescription = stringResource(Res.string.cd_delete),
                     tint = MaterialTheme.colorScheme.onErrorContainer,
                 )
             }
@@ -377,7 +396,7 @@ private fun EventCard(
                 }
                 if (row.event.editedAtMillis != null) {
                     Text(
-                        "Edited",
+                        stringResource(Res.string.history_edited),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     )
@@ -415,7 +434,7 @@ internal fun EditEventDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Edit event") },
+        title = { Text(stringResource(Res.string.edit_event_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
@@ -424,7 +443,7 @@ internal fun EditEventDialog(
                         dateInput = it
                         parseError = false
                     },
-                    label = { Text("Date (yyyy-MM-dd)") },
+                    label = { Text(stringResource(Res.string.edit_event_date_label)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = parseError,
@@ -435,14 +454,14 @@ internal fun EditEventDialog(
                         timeInput = it
                         parseError = false
                     },
-                    label = { Text("Time (HH:mm)") },
+                    label = { Text(stringResource(Res.string.edit_event_time_label)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     isError = parseError,
                 )
                 if (parseError) {
                     Text(
-                        "Invalid date or time",
+                        stringResource(Res.string.edit_event_invalid_datetime),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -450,14 +469,13 @@ internal fun EditEventDialog(
                 OutlinedTextField(
                     value = noteInput,
                     onValueChange = { noteInput = it },
-                    label = { Text("Note (optional)") },
+                    label = { Text(stringResource(Res.string.edit_event_note_label)) },
                     singleLine = false,
                     maxLines = 3,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                // Quick tags
                 Text(
-                    "Quick tags",
+                    stringResource(Res.string.edit_event_quick_tags),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
@@ -492,11 +510,11 @@ internal fun EditEventDialog(
                     }
                 },
             ) {
-                Text("Save")
+                Text(stringResource(Res.string.action_save))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }

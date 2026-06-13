@@ -24,8 +24,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.action_undo
+import com.ostimate.app.resources.home_no_supplies
+import com.ostimate.app.resources.home_overflow_view_history
+import com.ostimate.app.resources.home_snackbar_logged
+import com.ostimate.app.resources.home_snackbar_logged_count
 import com.ostimate.app.ui.components.SupplyCard
 import kotlinx.datetime.Clock
+import org.jetbrains.compose.resources.stringResource
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -43,16 +50,24 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val loggedCountFmt = stringResource(Res.string.home_snackbar_logged_count)
+    val loggedFmt = stringResource(Res.string.home_snackbar_logged)
+    val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
         val event = uiState.pendingUndo ?: return@LaunchedEffect
         val name = uiState.undoSupplyName
         val onHand = uiState.undoOnHand
-        val message = if (onHand != null) "$name logged · $onHand left" else "$name logged"
+        val message =
+            if (onHand != null) {
+                loggedCountFmt.format(name, onHand)
+            } else {
+                loggedFmt.format(name)
+            }
         val result =
             snackbarHostState.showSnackbar(
                 message = message,
-                actionLabel = "Undo",
+                actionLabel = undoLabel,
                 duration = SnackbarDuration.Short,
             )
         when (result) {
@@ -89,7 +104,7 @@ fun HomeScreen(
             if (uiState.supplies.isEmpty()) {
                 item {
                     Text(
-                        "No supplies yet.",
+                        stringResource(Res.string.home_no_supplies),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
@@ -106,7 +121,7 @@ fun HomeScreen(
                         onLogClick = { viewModel.logChange(row.supply) },
                         overflowMenuContent = { dismiss ->
                             DropdownMenuItem(
-                                text = { Text("View history") },
+                                text = { Text(stringResource(Res.string.home_overflow_view_history)) },
                                 onClick = {
                                     dismiss()
                                     onNavigateToHistory(row.supply.id)
