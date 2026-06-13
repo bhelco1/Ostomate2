@@ -90,6 +90,8 @@ jobs:
           distribution: 'zulu'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
+      - name: Install SwiftLint
+        run: brew install swiftlint
       - name: SwiftLint
         run: swiftlint lint --config iosApp/.swiftlint.yml --strict iosApp/
       - name: Shared tests on iOS simulator (arm64)
