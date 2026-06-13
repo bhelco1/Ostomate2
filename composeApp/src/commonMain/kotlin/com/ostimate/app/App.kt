@@ -36,9 +36,13 @@ import com.ostimate.app.ui.theme.OstimateTheme
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeDestination
+
 @Serializable object CalendarDestination
+
 @Serializable object StatsDestination
+
 @Serializable object SettingsDestination
+
 @Serializable data class HistoryDestination(val supplyId: Long)
 
 @Composable

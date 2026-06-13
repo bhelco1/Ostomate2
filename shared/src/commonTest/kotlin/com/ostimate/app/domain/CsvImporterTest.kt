@@ -2,16 +2,15 @@ package com.ostimate.app.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class CsvImporterTest {
-
-    private val sampleV1Csv = """
+    private val sampleV1Csv =
+        """
         id,type,timestamp_iso8601
         1,BAG,2023-11-14T22:13:20Z
         2,FLANGE,2023-11-28T10:00:00Z
         3,BAG,2023-12-12T08:30:00Z
-    """.trimIndent()
+        """.trimIndent()
 
     @Test
     fun `parse empty csv returns empty result`() {

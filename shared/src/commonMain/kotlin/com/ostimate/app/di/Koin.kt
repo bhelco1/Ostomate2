@@ -1,12 +1,12 @@
 package com.ostimate.app.di
 
+import com.ostimate.app.data.BackupRepository
 import com.ostimate.app.data.ChangeEventRepository
 import com.ostimate.app.data.SupplyRepository
 import com.ostimate.app.data.db.ChangeEventDao
 import com.ostimate.app.data.db.OstimateDatabase
 import com.ostimate.app.data.db.SupplyTypeDao
 import com.ostimate.app.data.db.buildDatabase
-import com.ostimate.app.data.BackupRepository
 import com.ostimate.app.data.settings.SettingsRepository
 import com.ostimate.app.domain.NotificationScheduler
 import org.koin.core.module.Module

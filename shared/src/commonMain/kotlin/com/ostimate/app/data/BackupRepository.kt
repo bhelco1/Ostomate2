@@ -48,7 +48,10 @@ class BackupRepository(
                 } ?: continue
 
             val alreadyExists = eventDao.countByTimestamp(row.timestampMillis) > 0
-            if (alreadyExists) { skipped++; continue }
+            if (alreadyExists) {
+                skipped++
+                continue
+            }
 
             eventDao.insert(
                 ChangeEventEntity(

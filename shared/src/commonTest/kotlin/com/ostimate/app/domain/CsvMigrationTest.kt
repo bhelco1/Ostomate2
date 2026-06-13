@@ -12,21 +12,21 @@ import kotlin.test.assertTrue
  * Fixture: 36 BAG events (~1/day) + 7 FLANGE events (~1/5 days).
  */
 class CsvMigrationTest {
-
     private val bagStart = 1_698_796_800_000L // 2023-11-01T00:00:00Z
     private val flangeStart = 1_698_796_800_000L
 
-    private val v1Fixture = buildString {
-        appendLine("id,type,timestamp_iso8601")
-        repeat(36) { i ->
-            val millis = bagStart + i * 86_400_000L
-            appendLine("${i + 1},BAG,${Instant.fromEpochMilliseconds(millis)}")
+    private val v1Fixture =
+        buildString {
+            appendLine("id,type,timestamp_iso8601")
+            repeat(36) { i ->
+                val millis = bagStart + i * 86_400_000L
+                appendLine("${i + 1},BAG,${Instant.fromEpochMilliseconds(millis)}")
+            }
+            repeat(7) { i ->
+                val millis = flangeStart + i * 432_000_000L
+                appendLine("${37 + i},FLANGE,${Instant.fromEpochMilliseconds(millis)}")
+            }
         }
-        repeat(7) { i ->
-            val millis = flangeStart + i * 432_000_000L
-            appendLine("${37 + i},FLANGE,${Instant.fromEpochMilliseconds(millis)}")
-        }
-    }
 
     @Test
     fun `fixture parses without errors`() {

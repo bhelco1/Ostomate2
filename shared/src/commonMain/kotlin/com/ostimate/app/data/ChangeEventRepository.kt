@@ -15,8 +15,7 @@ class ChangeEventRepository(
 ) {
     fun observeEvents(): Flow<List<ChangeEventWithSupply>> = eventDao.observeAllWithSupply()
 
-    fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> =
-        eventDao.observeBySupply(supplyTypeId)
+    fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> = eventDao.observeBySupply(supplyTypeId)
 
     suspend fun logChange(supplyTypeId: Long): ChangeEventEntity {
         val now = currentTimeMillis()
