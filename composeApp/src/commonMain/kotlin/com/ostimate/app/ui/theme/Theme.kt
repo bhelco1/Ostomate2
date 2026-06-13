@@ -6,6 +6,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.ostimate.app.domain.SupplyKind
 
 // Tokens from ostimate-2.0/03-ui-ux-design.md
 object OstimateColors {
@@ -47,11 +48,11 @@ fun OstimateTheme(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun supplyColor(supply: String): Color {
+fun supplyColor(kind: SupplyKind): Color {
     val dark = isSystemInDarkTheme()
-    return when (supply) {
-        "bag" -> if (dark) OstimateColors.BagDark else OstimateColors.Bag
-        "flange" -> if (dark) OstimateColors.FlangeDark else OstimateColors.Flange
-        else -> MaterialTheme.colorScheme.primary
+    return when (kind) {
+        SupplyKind.BAG -> if (dark) OstimateColors.BagDark else OstimateColors.Bag
+        SupplyKind.FLANGE -> if (dark) OstimateColors.FlangeDark else OstimateColors.Flange
+        SupplyKind.CUSTOM -> MaterialTheme.colorScheme.primary
     }
 }

@@ -31,7 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.ChangeEventEntity
+import com.ostimate.app.data.db.ChangeEventWithSupply
 import com.ostimate.app.platform.BiometricAuthenticator
 import com.ostimate.app.platform.Notifier
 import com.ostimate.app.platform.formatTimestamp
@@ -41,7 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
-    val events by viewModel.events.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -52,19 +52,16 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
     ) {
         Text("Ostimate", style = MaterialTheme.typography.headlineMedium)
 
-        LogButton(
-            label = "Log bag change",
-            color = supplyColor("bag"),
-            onClick = { viewModel.logChange("bag") },
-        )
-        LogButton(
-            label = "Log flange change",
-            color = supplyColor("flange"),
-            onClick = { viewModel.logChange("flange") },
-        )
+        uiState.supplies.forEach { supply ->
+            LogButton(
+                label = "Log ${supply.name.lowercase()} change",
+                color = supplyColor(supply.kind),
+                onClick = { viewModel.logChange(supply) },
+            )
+        }
 
         Text(
-            "${events.size} change${if (events.size == 1) "" else "s"} logged",
+            "${uiState.events.size} change${if (uiState.events.size == 1) "" else "s"} logged",
             style = MaterialTheme.typography.titleMedium,
         )
 
@@ -72,8 +69,8 @@ fun HomeScreen(viewModel: HomeViewModel = koinViewModel()) {
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(events, key = { it.id }) { event ->
-                EventRow(event = event, onDelete = { viewModel.delete(event) })
+            items(uiState.events, key = { it.event.id }) { row ->
+                EventRow(row = row, onDelete = { viewModel.delete(row.event) })
             }
         }
 
@@ -122,7 +119,7 @@ private fun LogButton(label: String, color: Color, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EventRow(event: ChangeEventEntity, onDelete: () -> Unit) {
+private fun EventRow(row: ChangeEventWithSupply, onDelete: () -> Unit) {
     Card(shape = RoundedCornerShape(12.dp)) {
         Row(
             modifier = Modifier
@@ -133,15 +130,12 @@ private fun EventRow(event: ChangeEventEntity, onDelete: () -> Unit) {
             Spacer(
                 Modifier
                     .size(10.dp)
-                    .background(supplyColor(event.supply), CircleShape)
+                    .background(supplyColor(row.supplyKind), CircleShape)
             )
             Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                Text(row.supplyName, style = MaterialTheme.typography.bodyLarge)
                 Text(
-                    event.supply.replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    formatTimestamp(event.timestampMillis),
+                    formatTimestamp(row.event.timestampMillis),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )

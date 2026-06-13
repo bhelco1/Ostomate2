@@ -41,7 +41,17 @@ kotlin {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
         }
+        iosTest.dependencies {
+            implementation(libs.room.testing)
+            implementation(libs.okio) // MigrationTestHelper's native API takes okio Paths
+        }
     }
+}
+
+// The migration test reads exported schema JSONs from the source tree. SIMCTL_CHILD_
+// makes simctl forward the variable into the spawned simulator test process.
+tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
+    environment("SIMCTL_CHILD_OSTIMATE_SCHEMAS_PATH", layout.projectDirectory.dir("schemas").asFile.absolutePath)
 }
 
 room {
