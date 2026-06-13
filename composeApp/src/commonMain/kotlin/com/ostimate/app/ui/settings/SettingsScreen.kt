@@ -28,9 +28,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.ostimate.app.platform.FeedbackHelper
 import com.ostimate.app.platform.FileSharer
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -43,7 +43,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
     val settings by viewModel.settings.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
     val fileSharer = koinInject<FileSharer>()
-    val uriHandler = LocalUriHandler.current
+    val feedbackHelper = koinInject<FeedbackHelper>()
 
     var importTrigger by remember { mutableIntStateOf(0) }
     var showImportResult by remember { mutableStateOf(false) }
@@ -179,12 +179,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
             ListItem(
                 headlineContent = { Text("Send Feedback") },
                 supportingContent = { Text("Report a bug or suggest a feature") },
-                modifier =
-                    Modifier.clickable {
-                        uriHandler.openUri(
-                            "mailto:bhelco@gmail.com?subject=Ostimate%202.0%20Feedback",
-                        )
-                    },
+                modifier = Modifier.clickable { feedbackHelper.launch() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 

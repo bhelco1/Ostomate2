@@ -221,7 +221,7 @@ private fun DayCell(
         val overflow = day.pills.size - shown.size
         shown.forEach { pill ->
             Pill(
-                label = pill.supplyName.take(3),
+                label = pill.count.toString(),
                 kind = pill.kind,
                 modifier = Modifier.padding(top = 1.dp),
             )

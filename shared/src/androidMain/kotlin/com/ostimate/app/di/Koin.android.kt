@@ -7,6 +7,7 @@ import com.ostimate.app.data.db.OstimateDatabase
 import com.ostimate.app.data.db.databaseBuilder
 import com.ostimate.app.data.settings.settingsDataStore
 import com.ostimate.app.platform.BiometricAuthenticator
+import com.ostimate.app.platform.FeedbackHelper
 import com.ostimate.app.platform.FileSharer
 import com.ostimate.app.platform.Notifier
 import org.koin.android.ext.koin.androidContext
@@ -20,4 +21,5 @@ actual val platformModule: Module =
         single { Notifier(androidContext()) }
         single { BiometricAuthenticator() }
         single { FileSharer() }
+        single { FeedbackHelper(androidContext()) }
     }

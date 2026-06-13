@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.ostimate.app.data.ChangeEventRepository
 import com.ostimate.app.platform.CurrentActivityHolder
 import com.ostimate.app.platform.DeepLinkBus
+import com.ostimate.app.platform.LastCrashStore
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -24,6 +25,7 @@ class MainActivity : FragmentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { /* result unused in spike */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        LastCrashStore.install(this)
         super.onCreate(savedInstanceState)
         CurrentActivityHolder.activity = this
         enableEdgeToEdge()
