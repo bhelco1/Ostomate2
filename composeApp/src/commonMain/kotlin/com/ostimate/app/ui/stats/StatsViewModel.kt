@@ -38,7 +38,6 @@ class StatsViewModel(
     private val eventRepository: ChangeEventRepository,
     supplyRepository: SupplyRepository,
 ) : ViewModel() {
-
     private val _period = MutableStateFlow(StatsPeriod.MONTH)
 
     val uiState: StateFlow<StatsUiState> =
@@ -60,14 +59,17 @@ class StatsViewModel(
                         supplyName = supply.name,
                         kind = supply.kind,
                         countInPeriod = inPeriod,
-                        avgDaysBetween = PredictionEngine.averageDaysBetween(
-                            supplyEvents.map { it.event.timestampMillis },
-                        ),
+                        avgDaysBetween =
+                            PredictionEngine.averageDaysBetween(
+                                supplyEvents.map { it.event.timestampMillis },
+                            ),
                     )
                 }.sortedByDescending { it.countInPeriod }
 
             StatsUiState(period = period, rows = rows)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), StatsUiState())
 
-    fun selectPeriod(period: StatsPeriod) { _period.value = period }
+    fun selectPeriod(period: StatsPeriod) {
+        _period.value = period
+    }
 }

@@ -10,15 +10,16 @@ import com.ostimate.app.platform.Notifier
  * replace the pending work when the tag matches, so this is safe to call repeatedly.
  */
 class NotificationScheduler(private val notifier: Notifier) {
-
     fun reschedule(
         supplies: List<SupplyTypeEntity>,
         eventsBySupply: Map<Long, List<ChangeEventWithSupply>>,
     ) {
         for (supply in supplies) {
-            val timestamps = eventsBySupply[supply.id]?.map { it.event.timestampMillis } ?: emptyList()
-            val daysRemaining = PredictionEngine.daysRemainingFromHistory(supply.onHand, timestamps)
-                ?: continue // not enough history yet
+            val timestamps =
+                eventsBySupply[supply.id]?.map { it.event.timestampMillis } ?: emptyList()
+            val daysRemaining =
+                PredictionEngine.daysRemainingFromHistory(supply.onHand, timestamps)
+                    ?: continue // not enough history yet
 
             val thresholdDays = supply.warnThresholdDays
             val tag = "reorder-${supply.id}"
@@ -48,7 +49,7 @@ class NotificationScheduler(private val notifier: Notifier) {
                         tag = tag,
                         delaySeconds = delaySeconds,
                         title = "Time to reorder ${supply.name}",
-                        body = "Your ${supply.name} supply will run out in ~${thresholdDays} days.",
+                        body = "Your ${supply.name} supply will run out in ~$thresholdDays days.",
                     )
                 }
             }

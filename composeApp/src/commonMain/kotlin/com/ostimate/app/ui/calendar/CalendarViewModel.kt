@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -25,6 +24,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 data class SupplyPill(
     val supplyId: Long,
@@ -40,10 +40,11 @@ data class CalendarDay(
     val pills: List<SupplyPill>,
 )
 
-private val MONTH_NAMES = arrayOf(
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
-)
+private val MONTH_NAMES =
+    arrayOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+    )
 
 data class CalendarUiState(
     val monthLabel: String = "",
@@ -124,10 +125,21 @@ class CalendarViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarUiState())
 
-    fun prevMonth() { _currentMonth.value = _currentMonth.value.minus(1, DateTimeUnit.MONTH) }
-    fun nextMonth() { _currentMonth.value = _currentMonth.value.plus(1, DateTimeUnit.MONTH) }
-    fun selectDay(date: LocalDate) { _selectedDate.value = date }
-    fun dismissSheet() { _selectedDate.value = null }
+    fun prevMonth() {
+        _currentMonth.value = _currentMonth.value.minus(1, DateTimeUnit.MONTH)
+    }
+
+    fun nextMonth() {
+        _currentMonth.value = _currentMonth.value.plus(1, DateTimeUnit.MONTH)
+    }
+
+    fun selectDay(date: LocalDate) {
+        _selectedDate.value = date
+    }
+
+    fun dismissSheet() {
+        _selectedDate.value = null
+    }
 
     fun deleteEvent(event: ChangeEventEntity) {
         viewModelScope.launch {
@@ -144,7 +156,9 @@ class CalendarViewModel(
         }
     }
 
-    fun clearUndo() { _pendingUndo.value = null }
+    fun clearUndo() {
+        _pendingUndo.value = null
+    }
 
     fun updateEvent(event: ChangeEventEntity) {
         viewModelScope.launch { eventRepository.update(event) }

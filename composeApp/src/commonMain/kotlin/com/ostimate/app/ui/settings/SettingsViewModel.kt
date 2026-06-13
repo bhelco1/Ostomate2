@@ -22,7 +22,6 @@ class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val backupRepository: BackupRepository,
 ) : ViewModel() {
-
     val settings: StateFlow<AppSettings> =
         settingsRepository.settings.stateIn(
             viewModelScope,
@@ -56,10 +55,11 @@ class SettingsViewModel(
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
             val summary = backupRepository.importV1Csv(csvContent)
-            _backupState.value = _backupState.value.copy(
-                isBusy = false,
-                lastImportSummary = summary,
-            )
+            _backupState.value =
+                _backupState.value.copy(
+                    isBusy = false,
+                    lastImportSummary = summary,
+                )
         }
     }
 

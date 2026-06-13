@@ -1,4 +1,6 @@
-@file:Suppress("DEPRECATION") // kotlinx.datetime.Instant/monthNumber/dayOfMonth deprecated in 0.6.x but replacements not yet stable
+@file:Suppress(
+    "DEPRECATION",
+) // kotlinx.datetime.Instant/monthNumber/dayOfMonth deprecated in 0.6.x but replacements not yet stable
 
 package com.ostimate.app.ui.history
 

@@ -10,7 +10,6 @@ import kotlinx.datetime.Instant
  * Header: supply_id,supply_name,supply_kind,timestamp_millis,edited_at_millis,note
  */
 object CsvExporter {
-
     fun buildCsv(events: List<ChangeEventWithSupply>): String =
         buildString {
             appendLine("supply_id,supply_name,supply_kind,timestamp_millis,edited_at_millis,note")
@@ -43,7 +42,6 @@ object CsvExporter {
  * type = BAG | FLANGE
  */
 object CsvV1Importer {
-
     data class V1Row(
         val originalId: Long,
         val kind: String,
@@ -65,13 +63,24 @@ object CsvV1Importer {
                 val trimmed = line.trim()
                 if (trimmed.isEmpty()) return@mapNotNull null
                 val parts = trimmed.split(",", limit = 3)
-                if (parts.size < 3) { errors++; return@mapNotNull null }
-                val id = parts[0].toLongOrNull() ?: run { errors++; return@mapNotNull null }
+                if (parts.size < 3) {
+                    errors++
+                    return@mapNotNull null
+                }
+                val id =
+                    parts[0].toLongOrNull() ?: run {
+                        errors++
+                        return@mapNotNull null
+                    }
                 val kind = parts[1].uppercase().trim()
                 val isoString = parts[2].trim()
-                val millis = runCatching {
-                    Instant.parse(isoString).toEpochMilliseconds()
-                }.getOrElse { errors++; return@mapNotNull null }
+                val millis =
+                    runCatching {
+                        Instant.parse(isoString).toEpochMilliseconds()
+                    }.getOrElse {
+                        errors++
+                        return@mapNotNull null
+                    }
                 V1Row(originalId = id, kind = kind, timestampMillis = millis)
             }
         return ParseResult(rows = rows, parseErrors = errors)

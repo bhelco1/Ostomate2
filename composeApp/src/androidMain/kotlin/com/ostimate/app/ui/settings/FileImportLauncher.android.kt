@@ -13,14 +13,16 @@ actual fun FileImportLauncher(
     onContent: (String?) -> Unit,
 ) {
     val context = LocalContext.current
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        val content = uri?.let { u ->
-            runCatching {
-                context.contentResolver.openInputStream(u)?.bufferedReader()?.readText()
-            }.getOrNull()
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            val content =
+                uri?.let { u ->
+                    runCatching {
+                        context.contentResolver.openInputStream(u)?.bufferedReader()?.readText()
+                    }.getOrNull()
+                }
+            onContent(content)
         }
-        onContent(content)
-    }
     LaunchedEffect(trigger) {
         if (trigger > 0) launcher.launch(mimeType)
     }
