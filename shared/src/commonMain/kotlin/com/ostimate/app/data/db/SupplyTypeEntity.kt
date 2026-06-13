@@ -19,4 +19,6 @@ data class SupplyTypeEntity(
     val onHand: Int = 0,
     val sortOrder: Int,
     val archived: Boolean = false,
+    /** Color palette index (0–7) for CUSTOM kind. Null uses the default palette[0]. */
+    val colorIndex: Int? = null,
 )

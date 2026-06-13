@@ -50,6 +50,16 @@ object OstimateColors {
     // Dev mode nav indicator
     val DevMode = Color(0xFFFFCDD2)
 
+    // Custom supply type palette — 8 contrast-checked pairs (WCAG AA light+dark)
+    val Custom0 = Color(0xFF7C3AED); val Custom0Dark = Color(0xFFA78BFA)  // Purple
+    val Custom1 = Color(0xFF0D9488); val Custom1Dark = Color(0xFF2DD4BF)  // Teal
+    val Custom2 = Color(0xFFE11D48); val Custom2Dark = Color(0xFFFB7185)  // Rose
+    val Custom3 = Color(0xFFB45309); val Custom3Dark = Color(0xFFFCD34D)  // Amber
+    val Custom4 = Color(0xFF0891B2); val Custom4Dark = Color(0xFF67E8F9)  // Cyan
+    val Custom5 = Color(0xFF4338CA); val Custom5Dark = Color(0xFF818CF8)  // Indigo
+    val Custom6 = Color(0xFFDB2777); val Custom6Dark = Color(0xFFF9A8D4)  // Pink
+    val Custom7 = Color(0xFF4D7C0F); val Custom7Dark = Color(0xFFBEF264)  // Lime
+
     // Snackbar
     val SnackbarBg = Color(0xFF1E293B)
     val SnackbarBgDark = Color(0xFF334155)

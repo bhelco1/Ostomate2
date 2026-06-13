@@ -13,7 +13,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [SupplyTypeEntity::class, ChangeEventEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @ConstructedBy(OstimateDatabaseConstructor::class)
@@ -97,11 +97,19 @@ val MIGRATION_1_2 =
         }
     }
 
+/** v3: adds colorIndex (nullable INTEGER) to supply_types for custom supply palette selection. */
+val MIGRATION_2_3 =
+    object : Migration(2, 3) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `supply_types` ADD COLUMN `colorIndex` INTEGER")
+        }
+    }
+
 fun buildDatabase(builder: RoomDatabase.Builder<OstimateDatabase>): OstimateDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(MIGRATION_1_2)
+        .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
         .addCallback(SeedDefaultSuppliesCallback)
         .build()
 

@@ -35,32 +35,65 @@ fun OstimateTheme(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun supplyColor(kind: SupplyKind): Color {
+fun supplyColor(
+    kind: SupplyKind,
+    colorIndex: Int? = null,
+): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
         SupplyKind.BAG -> if (dark) OstimateColors.BagDark else OstimateColors.Bag
         SupplyKind.FLANGE -> if (dark) OstimateColors.FlangeDark else OstimateColors.Flange
-        SupplyKind.CUSTOM -> MaterialTheme.colorScheme.primary
+        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark)
     }
 }
 
 @Composable
-fun supplyPillBg(kind: SupplyKind): Color {
+fun supplyPillBg(
+    kind: SupplyKind,
+    colorIndex: Int? = null,
+): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
         SupplyKind.BAG -> if (dark) OstimateColors.BagPillBgDark else OstimateColors.BagPillBg
         SupplyKind.FLANGE -> if (dark) OstimateColors.FlangePillBgDark else OstimateColors.FlangePillBg
-        SupplyKind.CUSTOM -> MaterialTheme.colorScheme.primaryContainer
+        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark).copy(alpha = 0.15f)
     }
 }
 
 @Composable
-fun supplyPillText(kind: SupplyKind): Color {
+fun supplyPillText(
+    kind: SupplyKind,
+    colorIndex: Int? = null,
+): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
         SupplyKind.BAG -> if (dark) OstimateColors.BagPillTextDark else OstimateColors.BagPillText
         SupplyKind.FLANGE -> if (dark) OstimateColors.FlangePillTextDark else OstimateColors.FlangePillText
-        SupplyKind.CUSTOM -> MaterialTheme.colorScheme.onPrimaryContainer
+        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark)
+    }
+}
+
+private fun customSupplyColor(
+    colorIndex: Int?,
+    dark: Boolean,
+): Color {
+    val light =
+        arrayOf(
+            OstimateColors.Custom0, OstimateColors.Custom1, OstimateColors.Custom2,
+            OstimateColors.Custom3, OstimateColors.Custom4, OstimateColors.Custom5,
+            OstimateColors.Custom6, OstimateColors.Custom7,
+        )
+    val darkPalette =
+        arrayOf(
+            OstimateColors.Custom0Dark, OstimateColors.Custom1Dark, OstimateColors.Custom2Dark,
+            OstimateColors.Custom3Dark, OstimateColors.Custom4Dark, OstimateColors.Custom5Dark,
+            OstimateColors.Custom6Dark, OstimateColors.Custom7Dark,
+        )
+    val palette = if (dark) darkPalette else light
+    return if (colorIndex != null && colorIndex in palette.indices) {
+        palette[colorIndex]
+    } else {
+        palette[0]
     }
 }
 

@@ -38,4 +38,16 @@ interface SupplyTypeDao {
 
     @Query("UPDATE supply_types SET onHand = onHand + 1 WHERE id = :id")
     suspend fun incrementOnHand(id: Long)
+
+    @Query("UPDATE supply_types SET warnThresholdDays = :days WHERE id = :id")
+    suspend fun setWarnThreshold(
+        id: Long,
+        days: Int,
+    )
+
+    @Query("UPDATE supply_types SET archived = 1 WHERE id = :id")
+    suspend fun archive(id: Long)
+
+    @Query("SELECT COALESCE(MAX(sortOrder), -1) FROM supply_types")
+    suspend fun maxSortOrder(): Int
 }
