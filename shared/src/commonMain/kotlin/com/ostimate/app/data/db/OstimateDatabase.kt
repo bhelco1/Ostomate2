@@ -19,6 +19,7 @@ import kotlinx.coroutines.IO
 @ConstructedBy(OstimateDatabaseConstructor::class)
 abstract class OstimateDatabase : RoomDatabase() {
     abstract fun supplyTypeDao(): SupplyTypeDao
+
     abstract fun changeEventDao(): ChangeEventDao
 
     companion object {
@@ -37,10 +38,11 @@ expect object OstimateDatabaseConstructor : RoomDatabaseConstructor<OstimateData
  * (box sizes 30/5 and 14-day warning threshold are v1's constants).
  * Used by both the fresh-install callback and MIGRATION_1_2.
  */
-internal val SEED_DEFAULT_SUPPLIES_SQL = """
+internal val SEED_DEFAULT_SUPPLIES_SQL =
+    """
     INSERT INTO supply_types (name, kind, boxSize, warnThresholdDays, onHand, sortOrder, archived)
     VALUES ('Bag', 'BAG', 30, 14, 0, 0, 0), ('Flange', 'FLANGE', 5, 14, 0, 1, 0)
-""".trimIndent()
+    """.trimIndent()
 
 /**
  * v1 (spike): change_events(id, supply TEXT, timestampMillis)
@@ -48,51 +50,52 @@ internal val SEED_DEFAULT_SUPPLIES_SQL = """
  * Spike rows are remapped onto the seeded defaults via their supply string;
  * createdAt is backfilled from the event timestamp.
  */
-val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(connection: SQLiteConnection) {
-        connection.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS `supply_types` (
-                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                `name` TEXT NOT NULL, `kind` TEXT NOT NULL,
-                `boxSize` INTEGER NOT NULL, `warnThresholdDays` INTEGER NOT NULL,
-                `onHand` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL,
-                `archived` INTEGER NOT NULL
+val MIGRATION_1_2 =
+    object : Migration(1, 2) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `supply_types` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `name` TEXT NOT NULL, `kind` TEXT NOT NULL,
+                    `boxSize` INTEGER NOT NULL, `warnThresholdDays` INTEGER NOT NULL,
+                    `onHand` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL,
+                    `archived` INTEGER NOT NULL
+                )
+                """.trimIndent(),
             )
-            """.trimIndent()
-        )
-        connection.execSQL(SEED_DEFAULT_SUPPLIES_SQL)
-        connection.execSQL(
-            """
-            CREATE TABLE IF NOT EXISTS `change_events_new` (
-                `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                `supplyTypeId` INTEGER NOT NULL,
-                `timestampMillis` INTEGER NOT NULL,
-                `note` TEXT, `tags` TEXT,
-                `createdAtMillis` INTEGER NOT NULL,
-                `editedAtMillis` INTEGER,
-                FOREIGN KEY(`supplyTypeId`) REFERENCES `supply_types`(`id`)
-                    ON UPDATE NO ACTION ON DELETE RESTRICT
+            connection.execSQL(SEED_DEFAULT_SUPPLIES_SQL)
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `change_events_new` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `supplyTypeId` INTEGER NOT NULL,
+                    `timestampMillis` INTEGER NOT NULL,
+                    `note` TEXT, `tags` TEXT,
+                    `createdAtMillis` INTEGER NOT NULL,
+                    `editedAtMillis` INTEGER,
+                    FOREIGN KEY(`supplyTypeId`) REFERENCES `supply_types`(`id`)
+                        ON UPDATE NO ACTION ON DELETE RESTRICT
+                )
+                """.trimIndent(),
             )
-            """.trimIndent()
-        )
-        connection.execSQL(
-            """
-            INSERT INTO change_events_new (id, supplyTypeId, timestampMillis, note, tags, createdAtMillis, editedAtMillis)
-            SELECT e.id,
-                   (SELECT s.id FROM supply_types s WHERE s.kind = UPPER(e.supply)),
-                   e.timestampMillis, NULL, NULL, e.timestampMillis, NULL
-            FROM change_events e
-            WHERE UPPER(e.supply) IN ('BAG', 'FLANGE')
-            """.trimIndent()
-        )
-        connection.execSQL("DROP TABLE `change_events`")
-        connection.execSQL("ALTER TABLE `change_events_new` RENAME TO `change_events`")
-        connection.execSQL(
-            "CREATE INDEX IF NOT EXISTS `index_change_events_supplyTypeId` ON `change_events` (`supplyTypeId`)"
-        )
+            connection.execSQL(
+                """
+                INSERT INTO change_events_new (id, supplyTypeId, timestampMillis, note, tags, createdAtMillis, editedAtMillis)
+                SELECT e.id,
+                       (SELECT s.id FROM supply_types s WHERE s.kind = UPPER(e.supply)),
+                       e.timestampMillis, NULL, NULL, e.timestampMillis, NULL
+                FROM change_events e
+                WHERE UPPER(e.supply) IN ('BAG', 'FLANGE')
+                """.trimIndent(),
+            )
+            connection.execSQL("DROP TABLE `change_events`")
+            connection.execSQL("ALTER TABLE `change_events_new` RENAME TO `change_events`")
+            connection.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_change_events_supplyTypeId` ON `change_events` (`supplyTypeId`)",
+            )
+        }
     }
-}
 
 fun buildDatabase(builder: RoomDatabase.Builder<OstimateDatabase>): OstimateDatabase =
     builder

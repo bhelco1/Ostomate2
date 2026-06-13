@@ -1,0 +1,29 @@
+appId: com.ostimate.app
+name: "Journey 2: Log + undo"
+---
+- launchApp:
+    clearState: true
+
+# Wait for home screen to load
+- assertVisible:
+    text: "Ostimate"
+    timeout: 5000
+
+# Tap the log button on the first supply card
+- tapOn:
+    id: "logButton"
+    index: 0
+
+# Undo snackbar should appear
+- assertVisible:
+    text: "logged"
+    timeout: 3000
+
+# Tap Undo within 5 seconds
+- tapOn:
+    text: "Undo"
+
+# Verify count unchanged (snackbar gone)
+- assertNotVisible:
+    text: "logged"
+    timeout: 2000

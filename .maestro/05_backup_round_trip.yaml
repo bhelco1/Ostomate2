@@ -1,0 +1,33 @@
+appId: com.ostimate.app
+name: "Journey 5: Backup round-trip"
+---
+- launchApp:
+    clearState: true
+
+# Log a few events
+- tapOn:
+    id: "logButton"
+    index: 0
+- waitForAnimationToEnd
+- tapOn:
+    id: "logButton"
+    index: 1
+    optional: true
+- waitForAnimationToEnd
+
+# Navigate to Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Backup"
+    timeout: 3000
+
+# Export CSV
+- tapOn:
+    text: "Export"
+- waitForAnimationToEnd
+
+# Note: share sheet appears here (cannot fully automate sharing in Maestro)
+# Dismiss the share sheet
+- pressKey: BACK
+    optional: true

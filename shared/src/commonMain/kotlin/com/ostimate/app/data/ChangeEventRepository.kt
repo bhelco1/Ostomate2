@@ -13,31 +13,51 @@ class ChangeEventRepository(
     private val eventDao: ChangeEventDao,
     private val supplyTypeDao: SupplyTypeDao,
 ) {
-
     fun observeEvents(): Flow<List<ChangeEventWithSupply>> = eventDao.observeAllWithSupply()
+
+    fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> =
+        eventDao.observeBySupply(supplyTypeId)
 
     suspend fun logChange(supplyTypeId: Long): ChangeEventEntity {
         val now = currentTimeMillis()
-        val event = ChangeEventEntity(
-            supplyTypeId = supplyTypeId,
-            timestampMillis = now,
-            createdAtMillis = now,
-        )
+        val event =
+            ChangeEventEntity(
+                supplyTypeId = supplyTypeId,
+                timestampMillis = now,
+                createdAtMillis = now,
+            )
         val id = eventDao.insert(event)
+        supplyTypeDao.decrementOnHand(supplyTypeId)
         return event.copy(id = id)
     }
 
-    suspend fun delete(event: ChangeEventEntity) = eventDao.delete(event)
+    /** Deletes an event and returns one unit to inventory. */
+    suspend fun delete(event: ChangeEventEntity) {
+        eventDao.delete(event)
+        supplyTypeDao.incrementOnHand(event.supplyTypeId)
+    }
+
+    /** Re-inserts a previously deleted event (undo-delete) and takes one unit from inventory. */
+    suspend fun reinsert(event: ChangeEventEntity): ChangeEventEntity {
+        val newId = eventDao.insert(event.copy(id = 0))
+        supplyTypeDao.decrementOnHand(event.supplyTypeId)
+        return event.copy(id = newId)
+    }
+
+    suspend fun update(event: ChangeEventEntity) {
+        eventDao.update(event.copy(editedAtMillis = currentTimeMillis()))
+    }
 
     /** Returns the name of the supply that was logged, or null if the URI was not a valid log link. */
     suspend fun handleDeepLink(uri: String): String? {
         val item = DeepLinkParser.parse(uri) ?: return null
         // The parser allowlist ("bag"/"flange") maps onto the seeded default supplies.
-        val kind = when (item) {
-            "bag" -> SupplyKind.BAG
-            "flange" -> SupplyKind.FLANGE
-            else -> return null
-        }
+        val kind =
+            when (item) {
+                "bag" -> SupplyKind.BAG
+                "flange" -> SupplyKind.FLANGE
+                else -> return null
+            }
         val supply = supplyTypeDao.getByKind(kind) ?: return null
         logChange(supply.id)
         return supply.name

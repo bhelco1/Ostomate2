@@ -1,0 +1,35 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+  warningsAsErrors: false
+
+complexity:
+  LongMethod:
+    threshold: 50
+  LongParameterList:
+    # Composables legitimately take many parameters
+    active: false
+  TooManyFunctions:
+    # Composable files naturally contain many small functions
+    active: false
+
+naming:
+  FunctionNaming:
+    # Allow PascalCase for @Composable functions (Compose convention)
+    ignoreAnnotated:
+      - 'Composable'
+
+style:
+  MagicNumber:
+    # dp/sp values in Compose UI are acceptable inline literals
+    active: false
+  MaxLineLength:
+    maxLineLength: 120
+  WildcardImport:
+    active: false
+  UnusedImports:
+    active: true
+  ReturnCount:
+    max: 4

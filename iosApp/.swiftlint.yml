@@ -1,0 +1,22 @@
+disabled_rules:
+  - trailing_whitespace  # handled by .editorconfig
+
+opt_in_rules:
+  - empty_count
+  - empty_string
+
+included:
+  - iosApp
+
+excluded:
+  - build
+
+line_length:
+  warning: 120
+  error: 150
+
+type_body_length:
+  warning: 200
+
+function_body_length:
+  warning: 50

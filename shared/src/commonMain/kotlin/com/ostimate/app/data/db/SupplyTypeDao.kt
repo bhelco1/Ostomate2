@@ -28,5 +28,14 @@ interface SupplyTypeDao {
     suspend fun getByKind(kind: SupplyKind): SupplyTypeEntity?
 
     @Query("UPDATE supply_types SET onHand = :onHand WHERE id = :id")
-    suspend fun setOnHand(id: Long, onHand: Int)
+    suspend fun setOnHand(
+        id: Long,
+        onHand: Int,
+    )
+
+    @Query("UPDATE supply_types SET onHand = onHand - 1 WHERE id = :id")
+    suspend fun decrementOnHand(id: Long)
+
+    @Query("UPDATE supply_types SET onHand = onHand + 1 WHERE id = :id")
+    suspend fun incrementOnHand(id: Long)
 }

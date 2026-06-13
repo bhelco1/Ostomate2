@@ -1,8 +1,5 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidMultiplatformLibrary)
+    id("ostimate.kmp-library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
@@ -16,12 +13,6 @@ kotlin {
 
     androidLibrary {
         namespace = "com.ostimate.app.shared"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
-
-        compilerOptions {
-            jvmTarget = JvmTarget.JVM_11
-        }
         withHostTestBuilder {
         }
     }
@@ -38,10 +29,12 @@ kotlin {
             implementation(libs.sqlite.bundled)
             api(libs.androidx.datastore.preferences.core)
             implementation(libs.okio)
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.kotest.property)
         }
         iosTest.dependencies {
             implementation(libs.room.testing)
@@ -65,3 +58,7 @@ dependencies {
     add("kspIosSimulatorArm64", libs.room.compiler)
     add("kspIosX64", libs.room.compiler)
 }
+
+// TODO(coverage): Kover 0.8.x does not support com.android.kotlin.multiplatform.library
+// (it expects the old `android` extension which this plugin does not expose). Coverage
+// gate will be added once Kover releases a fix, or we switch to JaCoCo. Tracked in 05-dev-plan.

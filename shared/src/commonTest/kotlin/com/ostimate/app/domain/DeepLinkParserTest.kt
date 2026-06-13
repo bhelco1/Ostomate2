@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class DeepLinkParserTest {
-
     @Test
     fun parsesBagLink() {
         assertEquals("bag", DeepLinkParser.parse("ostimate://log?item=bag"))

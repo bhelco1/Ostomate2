@@ -2,6 +2,7 @@ package com.ostimate.app.platform
 
 sealed interface BiometricResult {
     data object Success : BiometricResult
+
     data object Failed : BiometricResult
 
     /**
@@ -13,5 +14,8 @@ sealed interface BiometricResult {
 
 expect class BiometricAuthenticator {
     /** Shows the platform auth prompt. [onResult] is invoked on the main thread. */
-    fun authenticate(reason: String, onResult: (BiometricResult) -> Unit)
+    fun authenticate(
+        reason: String,
+        onResult: (BiometricResult) -> Unit,
+    )
 }

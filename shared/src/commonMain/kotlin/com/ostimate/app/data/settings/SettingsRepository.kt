@@ -21,15 +21,15 @@ data class AppSettings(
 )
 
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
-
-    val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
-        AppSettings(
-            devMode = prefs[DEV_MODE] ?: false,
-            onboardingDone = prefs[ONBOARDING_DONE] ?: false,
-            lockSettings = prefs[LOCK_SETTINGS] ?: false,
-            localeOverride = prefs[LOCALE_OVERRIDE],
-        )
-    }
+    val settings: Flow<AppSettings> =
+        dataStore.data.map { prefs ->
+            AppSettings(
+                devMode = prefs[DEV_MODE] ?: false,
+                onboardingDone = prefs[ONBOARDING_DONE] ?: false,
+                lockSettings = prefs[LOCK_SETTINGS] ?: false,
+                localeOverride = prefs[LOCALE_OVERRIDE],
+            )
+        }
 
     suspend fun setDevMode(enabled: Boolean) {
         dataStore.edit { it[DEV_MODE] = enabled }

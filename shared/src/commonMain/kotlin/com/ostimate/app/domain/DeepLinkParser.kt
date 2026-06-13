@@ -8,7 +8,6 @@ package com.ostimate.app.domain
  * supply allowlist — never act on anything else in the URI.
  */
 object DeepLinkParser {
-
     private const val SCHEME_PREFIX = "ostimate://"
     private const val HOST = "log"
     private val allowedSupplies = setOf("bag", "flange")
@@ -24,11 +23,12 @@ object DeepLinkParser {
         val query = afterScheme.substringAfter('?', missingDelimiterValue = "")
         if (query.isEmpty()) return null
 
-        val item = query.split('&')
-            .map { it.split('=', limit = 2) }
-            .firstOrNull { it.size == 2 && it[0] == "item" }
-            ?.get(1)
-            ?: return null
+        val item =
+            query.split('&')
+                .map { it.split('=', limit = 2) }
+                .firstOrNull { it.size == 2 && it[0] == "item" }
+                ?.get(1)
+                ?: return null
 
         return item.takeIf { it in allowedSupplies }
     }

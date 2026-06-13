@@ -22,10 +22,12 @@ object CurrentActivityHolder {
 }
 
 actual class BiometricAuthenticator {
-
     private val authenticators = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
 
-    actual fun authenticate(reason: String, onResult: (BiometricResult) -> Unit) {
+    actual fun authenticate(
+        reason: String,
+        onResult: (BiometricResult) -> Unit,
+    ) {
         val activity = CurrentActivityHolder.activity
         if (activity == null) {
             onResult(BiometricResult.Failed)
@@ -47,24 +49,29 @@ actual class BiometricAuthenticator {
             }
         }
 
-        val prompt = BiometricPrompt(
-            activity,
-            ContextCompat.getMainExecutor(activity),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    onResult(BiometricResult.Success)
-                }
+        val prompt =
+            BiometricPrompt(
+                activity,
+                ContextCompat.getMainExecutor(activity),
+                object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        onResult(BiometricResult.Success)
+                    }
 
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    onResult(BiometricResult.Failed)
-                }
-            },
-        )
+                    override fun onAuthenticationError(
+                        errorCode: Int,
+                        errString: CharSequence,
+                    ) {
+                        onResult(BiometricResult.Failed)
+                    }
+                },
+            )
         // No negative button: DEVICE_CREDENTIAL provides the fallback action.
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(reason)
-            .setAllowedAuthenticators(authenticators)
-            .build()
+        val promptInfo =
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(reason)
+                .setAllowedAuthenticators(authenticators)
+                .build()
         prompt.authenticate(promptInfo)
     }
 }

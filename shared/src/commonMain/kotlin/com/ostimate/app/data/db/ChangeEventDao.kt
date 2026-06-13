@@ -32,13 +32,26 @@ interface ChangeEventDao {
         SELECT e.*, s.name AS supplyName, s.kind AS supplyKind
         FROM change_events e JOIN supply_types s ON s.id = e.supplyTypeId
         ORDER BY e.timestampMillis DESC
-        """
+        """,
     )
     fun observeAllWithSupply(): Flow<List<ChangeEventWithSupply>>
 
     @Query("SELECT * FROM change_events WHERE supplyTypeId = :supplyTypeId ORDER BY timestampMillis DESC")
     suspend fun getBySupplyType(supplyTypeId: Long): List<ChangeEventEntity>
 
+    @Query(
+        """
+        SELECT e.*, s.name AS supplyName, s.kind AS supplyKind
+        FROM change_events e JOIN supply_types s ON s.id = e.supplyTypeId
+        WHERE e.supplyTypeId = :supplyTypeId
+        ORDER BY e.timestampMillis DESC
+        """,
+    )
+    fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>>
+
     @Query("SELECT COUNT(*) FROM change_events")
     suspend fun count(): Long
+
+    @Query("SELECT COUNT(*) FROM change_events WHERE timestampMillis = :millis")
+    suspend fun countByTimestamp(millis: Long): Int
 }

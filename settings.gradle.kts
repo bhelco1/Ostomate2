@@ -1,6 +1,8 @@
 rootProject.name = "Ostimate2"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
+includeBuild("build-logic")
+
 pluginManagement {
     repositories {
         google {

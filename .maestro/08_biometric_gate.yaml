@@ -1,0 +1,32 @@
+appId: com.ostimate.app
+name: "Journey 8: Biometric gate on edit count"
+---
+- launchApp:
+    clearState: true
+
+# Enable biometric lock in Settings
+- tapOn:
+    text: "Settings"
+- assertVisible:
+    text: "Biometric Lock"
+    timeout: 3000
+- tapOn:
+    id: "biometricLockSwitch"
+- tapOn:
+    text: "Home"
+
+# Try to edit count — should trigger biometric
+- tapOn:
+    id: "overflowButton"
+    index: 0
+- tapOn:
+    text: "Edit count"
+
+# On emulator without biometrics: NotEnrolled → dialog opens automatically (v1 behavior)
+- assertVisible:
+    text: "Edit*count"
+    timeout: 4000
+
+# Cancel without changing
+- tapOn:
+    text: "Cancel"

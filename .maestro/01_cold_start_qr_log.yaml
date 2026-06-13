@@ -1,0 +1,25 @@
+appId: com.ostimate.app
+name: "Journey 1: Cold-start QR log"
+---
+# Launch via deep link (simulates QR scan)
+- launchApp:
+    arguments:
+      url: "ostimate://log?item=bag"
+    clearState: true
+
+# Confirmation snackbar should appear
+- assertVisible:
+    text: "Logged:*"
+    timeout: 4000
+
+# Navigate to History to verify event was created
+- tapOn:
+    text: "Home"
+- tapOn:
+    id: "overflowButton_*"
+- tapOn:
+    text: "View history"
+
+# At least one event visible
+- assertVisible:
+    text: "Bag*"

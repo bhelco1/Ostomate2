@@ -1,8 +1,15 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
-    alias(libs.plugins.androidApplication)
+    id("ostimate.android-app")
     alias(libs.plugins.composeCompiler)
+}
+
+android {
+    namespace = "com.ostimate.app"
+    defaultConfig {
+        applicationId = "com.ostimate.app"
+        versionCode = 1
+        versionName = "1.0"
+    }
 }
 
 dependencies {
@@ -13,37 +20,4 @@ dependencies {
     implementation(libs.compose.foundation)
     implementation(libs.koin.android)
     implementation(libs.androidx.fragment.ktx)
-}
-
-android {
-    namespace = "com.ostimate.app"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
-
-    defaultConfig {
-        applicationId = "com.ostimate.app"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
-    }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
-    buildTypes {
-        getByName("release") {
-            isMinifyEnabled = false
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_11
-    }
 }
