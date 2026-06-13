@@ -38,6 +38,7 @@ import com.ostimate.app.ui.home.HomeScreen
 import com.ostimate.app.ui.onboarding.OnboardingScreen
 import com.ostimate.app.ui.settings.ManageSuppliesScreen
 import com.ostimate.app.ui.settings.PrivacyPolicyScreen
+import com.ostimate.app.ui.settings.QrLabelsScreen
 import com.ostimate.app.ui.settings.ReorderWarningsScreen
 import com.ostimate.app.ui.settings.SettingsScreen
 import com.ostimate.app.ui.stats.StatsScreen
@@ -60,6 +61,8 @@ import org.koin.compose.koinInject
 @Serializable object ReorderWarningsDestination
 
 @Serializable object PrivacyPolicyDestination
+
+@Serializable object QrLabelsDestination
 
 @Composable
 fun App() {
@@ -175,6 +178,9 @@ private fun MainApp() {
                     onNavigateToPrivacyPolicy = {
                         navController.navigate(PrivacyPolicyDestination)
                     },
+                    onNavigateToQrLabels = {
+                        navController.navigate(QrLabelsDestination)
+                    },
                 )
             }
             composable<ManageSuppliesDestination> {
@@ -185,6 +191,9 @@ private fun MainApp() {
             }
             composable<PrivacyPolicyDestination> {
                 PrivacyPolicyScreen(onBack = { navController.navigateUp() })
+            }
+            composable<QrLabelsDestination> {
+                QrLabelsScreen(onBack = { navController.navigateUp() })
             }
             composable<HistoryDestination> { backStackEntry ->
                 val dest: HistoryDestination = backStackEntry.toRoute()

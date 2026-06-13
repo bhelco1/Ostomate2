@@ -10,7 +10,8 @@ package com.ostimate.app.domain
 object DeepLinkParser {
     private const val SCHEME_PREFIX = "ostimate://"
     private const val HOST = "log"
-    private val allowedSupplies = setOf("bag", "flange")
+    private val namedSupplies = setOf("bag", "flange")
+    private val idItemRegex = Regex("""^id:\d+$""")
 
     fun parse(uri: String): String? {
         val normalized = uri.trim().lowercase()
@@ -30,6 +31,10 @@ object DeepLinkParser {
                 ?.get(1)
                 ?: return null
 
-        return item.takeIf { it in allowedSupplies }
+        return item.takeIf { it in namedSupplies || idItemRegex.matches(it) }
     }
+
+    /** Extracts the numeric supply ID from an `id:<number>` item token, or null. */
+    fun parseCustomId(item: String): Long? =
+        if (item.startsWith("id:")) item.removePrefix("id:").toLongOrNull() else null
 }

@@ -44,6 +44,7 @@ fun SettingsScreen(
     onNavigateToManageSupplies: () -> Unit = {},
     onNavigateToReorderWarnings: () -> Unit = {},
     onNavigateToPrivacyPolicy: () -> Unit = {},
+    onNavigateToQrLabels: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val settings by viewModel.settings.collectAsState()
@@ -131,7 +132,12 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { onNavigateToManageSupplies() },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
-            SettingsItem(title = "Print QR Labels", subtitle = "Coming in a future update")
+            ListItem(
+                headlineContent = { Text("Print QR Labels") },
+                supportingContent = { Text("Scan to log a change instantly") },
+                modifier = Modifier.clickable { onNavigateToQrLabels() },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
             ListItem(
                 headlineContent = { Text("Reorder Warnings") },
                 supportingContent = { Text("Per-supply threshold days") },

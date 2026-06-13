@@ -1,0 +1,202 @@
+package com.ostimate.app.ui.settings
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.ostimate.app.data.db.SupplyTypeEntity
+import com.ostimate.app.domain.SupplyKind
+import com.ostimate.app.platform.FileSharer
+import com.ostimate.app.ui.theme.supplyColor
+import io.github.alexzhirkevich.qrose.rememberQrCodePainter
+import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun QrLabelsScreen(
+    onBack: () -> Unit,
+    viewModel: ManageSuppliesViewModel = koinViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val fileSharer = koinInject<FileSharer>()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("QR Labels") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = {
+                            val urls =
+                                uiState.supplies.joinToString("\n\n") { supply ->
+                                    "${supply.name}\n${supplyDeepLinkUrl(supply)}"
+                                }
+                            fileSharer.shareText(
+                                content = "Ostimate QR links\n\n$urls",
+                                fileName = "ostimate-qr-links.txt",
+                                mimeType = "text/plain",
+                            )
+                        },
+                    ) {
+                        Icon(Icons.Filled.Share, contentDescription = "Share all links")
+                    }
+                },
+            )
+        },
+        contentWindowInsets = WindowInsets(0),
+    ) { innerPadding ->
+        if (uiState.supplies.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("No supplies configured.", style = MaterialTheme.typography.bodyMedium)
+            }
+            return@Scaffold
+        }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding =
+                PaddingValues(
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = innerPadding.calculateTopPadding() + 8.dp,
+                    bottom = innerPadding.calculateBottomPadding() + 16.dp,
+                ),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            items(uiState.supplies, key = { it.id }) { supply ->
+                QrLabelCard(supply = supply, fileSharer = fileSharer)
+            }
+        }
+    }
+}
+
+@Composable
+private fun QrLabelCard(
+    supply: SupplyTypeEntity,
+    fileSharer: FileSharer,
+) {
+    val url = supplyDeepLinkUrl(supply)
+    val accent = supplyColor(supply.kind, supply.colorIndex)
+    val qrPainter = rememberQrCodePainter(url)
+
+    Card(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .border(1.dp, accent.copy(alpha = 0.3f), RoundedCornerShape(12.dp)),
+        shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                supply.name,
+                style = MaterialTheme.typography.titleSmall,
+                color = accent,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Image(
+                painter = qrPainter,
+                contentDescription = "QR code for ${supply.name}",
+                modifier = Modifier.size(140.dp),
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                url,
+                style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(Modifier.height(4.dp))
+
+            TextButton(
+                onClick = {
+                    fileSharer.shareText(
+                        content = "${supply.name}\n$url",
+                        fileName = "ostimate-qr-link.txt",
+                        mimeType = "text/plain",
+                    )
+                },
+                contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
+            ) {
+                Icon(
+                    Icons.Filled.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp),
+                )
+                Spacer(Modifier.width(4.dp))
+                Text("Share link", style = MaterialTheme.typography.labelSmall)
+            }
+        }
+    }
+}
+
+private fun supplyDeepLinkUrl(supply: SupplyTypeEntity): String {
+    val item =
+        when (supply.kind) {
+            SupplyKind.BAG -> "bag"
+            SupplyKind.FLANGE -> "flange"
+            SupplyKind.CUSTOM -> "id:${supply.id}"
+        }
+    return "ostimate://log?item=$item"
+}

@@ -23,6 +23,7 @@ kotlinx-coroutines = "1.10.2"
 ksp = "2.3.9"
 material3 = "1.11.0-alpha07"
 okio = "3.9.1"
+qrose = "1.0.1"
 room = "2.8.4"
 sqlite = "2.6.2"
 
@@ -54,6 +55,7 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }

@@ -55,14 +55,15 @@ class ChangeEventRepository(
     /** Returns the name of the supply that was logged, or null if the URI was not a valid log link. */
     suspend fun handleDeepLink(uri: String): String? {
         val item = DeepLinkParser.parse(uri) ?: return null
-        // The parser allowlist ("bag"/"flange") maps onto the seeded default supplies.
-        val kind =
-            when (item) {
-                "bag" -> SupplyKind.BAG
-                "flange" -> SupplyKind.FLANGE
-                else -> return null
-            }
-        val supply = supplyTypeDao.getByKind(kind) ?: return null
+        val supply =
+            when {
+                item == "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)
+                item == "flange" -> supplyTypeDao.getByKind(SupplyKind.FLANGE)
+                else -> {
+                    val id = DeepLinkParser.parseCustomId(item) ?: return null
+                    supplyTypeDao.getById(id)
+                }
+            } ?: return null
         logChange(supply.id)
         return supply.name
     }
