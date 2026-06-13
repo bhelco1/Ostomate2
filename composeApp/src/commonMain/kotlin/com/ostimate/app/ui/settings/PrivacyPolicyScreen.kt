@@ -96,7 +96,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             Text(
                 stringResource(Res.string.privacy_last_updated),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

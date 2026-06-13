@@ -150,6 +150,8 @@
     <string name="onboarding_qr_hint">You can print labels anytime from Settings → Print QR Labels.</string>
     <string name="onboarding_get_started">Get started</string>
     <string name="onboarding_print_later">Print labels later</string>
+    <string name="onboarding_step_indicator">Step %1$d of 3</string>
+    <string name="cd_view_day">View events for day %1$d</string>
 
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Privacy Policy</string>

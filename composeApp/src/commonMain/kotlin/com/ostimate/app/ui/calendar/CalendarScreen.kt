@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -72,6 +73,7 @@ import com.ostimate.app.resources.calendar_no_events_today
 import com.ostimate.app.resources.cd_delete_event
 import com.ostimate.app.resources.cd_next_month
 import com.ostimate.app.resources.cd_previous_month
+import com.ostimate.app.resources.cd_view_day
 import com.ostimate.app.ui.components.Pill
 import org.jetbrains.compose.resources.stringResource
 import com.ostimate.app.ui.history.EditEventDialog
@@ -183,7 +185,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -215,7 +217,11 @@ private fun DayCell(
         modifier =
             Modifier
                 .aspectRatio(0.75f)
-                .clickable(enabled = day.isCurrentMonth, onClick = onClick)
+                .clickable(
+                    enabled = day.isCurrentMonth,
+                    onClickLabel = if (day.isCurrentMonth) stringResource(Res.string.cd_view_day, day.date.dayOfMonth) else null,
+                    onClick = onClick,
+                )
                 .padding(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
@@ -261,7 +267,7 @@ private fun DayCell(
             Text(
                 text = "+$overflow",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -294,7 +300,7 @@ private fun DayDetailSheet(
             Text(
                 stringResource(Res.string.calendar_no_events_today),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         } else {
             events.forEach { row ->
@@ -320,7 +326,7 @@ private fun DayEventCard(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onEdit),
+        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.clickable(onClick = onEdit),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
@@ -342,14 +348,14 @@ private fun DayEventCard(
                 Text(
                     formatTimestamp(row.event.timestampMillis),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 val note = row.event.note
                 if (!note.isNullOrBlank()) {
                     Text(
                         note,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

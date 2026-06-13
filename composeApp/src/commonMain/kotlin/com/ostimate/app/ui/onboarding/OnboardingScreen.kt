@@ -43,7 +43,10 @@ import com.ostimate.app.resources.onboarding_print_later
 import com.ostimate.app.resources.onboarding_qr_body
 import com.ostimate.app.resources.onboarding_qr_hint
 import com.ostimate.app.resources.onboarding_qr_title
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.ostimate.app.resources.onboarding_skip
+import com.ostimate.app.resources.onboarding_step_indicator
 import com.ostimate.app.resources.onboarding_supplies_subtitle
 import com.ostimate.app.resources.onboarding_supplies_title
 import com.ostimate.app.ui.theme.supplyColor
@@ -125,7 +128,7 @@ private fun SuppliesStep(
             Text(
                 stringResource(Res.string.onboarding_supplies_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(32.dp))
 
@@ -187,7 +190,7 @@ private fun CountsStep(
             Text(
                 stringResource(Res.string.onboarding_counts_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(32.dp))
 
@@ -239,13 +242,13 @@ private fun QrExplainerStep(
             Text(
                 stringResource(Res.string.onboarding_qr_body),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(24.dp))
             Text(
                 stringResource(Res.string.onboarding_qr_hint),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
@@ -268,7 +271,11 @@ private fun QrExplainerStep(
 
 @Composable
 private fun StepIndicator(step: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    val label = stringResource(Res.string.onboarding_step_indicator, step)
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.semantics { contentDescription = label },
+    ) {
         (1..3).forEach { i ->
             Spacer(
                 Modifier

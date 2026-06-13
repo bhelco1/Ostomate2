@@ -111,7 +111,7 @@ fun ReorderWarningsScreen(
                 Text(
                     stringResource(Res.string.reorder_warnings_description),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
             }
@@ -149,14 +149,14 @@ private fun ReorderWarningRow(
             Text(
                 stringResource(Res.string.reorder_warnings_warn_after, supply.warnThresholdDays),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         IconButton(onClick = onEdit) {
             Icon(
                 Icons.Filled.Edit,
                 contentDescription = stringResource(Res.string.cd_edit_threshold, supply.name),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -187,7 +187,7 @@ private fun EditThresholdDialog(
                 Text(
                     stringResource(Res.string.reorder_warnings_dialog_body),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },

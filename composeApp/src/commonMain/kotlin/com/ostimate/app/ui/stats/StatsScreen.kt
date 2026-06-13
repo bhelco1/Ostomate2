@@ -86,7 +86,7 @@ fun StatsScreen(viewModel: StatsViewModel = koinViewModel()) {
                     Text(
                         stringResource(Res.string.stats_no_events),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
@@ -100,7 +100,7 @@ fun StatsScreen(viewModel: StatsViewModel = koinViewModel()) {
                             Text(
                                 text = summary,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -156,7 +156,7 @@ private fun StatsCard(row: SupplyStats) {
                     Text(
                         stringResource(Res.string.stats_days_between),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 if (row.periodTimestamps.size >= 2) {

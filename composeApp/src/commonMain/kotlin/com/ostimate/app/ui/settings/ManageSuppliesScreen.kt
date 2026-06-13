@@ -260,7 +260,7 @@ private fun SupplyRow(
             Icon(
                 Icons.Filled.Edit,
                 contentDescription = stringResource(Res.string.cd_edit_supply, supply.name),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

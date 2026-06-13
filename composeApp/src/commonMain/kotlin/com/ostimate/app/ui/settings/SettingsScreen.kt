@@ -315,7 +315,7 @@ private fun SettingsItem(
         supportingContent = {
             Text(
                 subtitle,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),

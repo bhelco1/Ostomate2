@@ -105,7 +105,7 @@ fun SupplyCard(
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = stringResource(Res.string.cd_supply_more_options, name),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     if (overflowMenuContent != null) {
@@ -136,7 +136,7 @@ fun SupplyCard(
                 Text(
                     text = stringResource(Res.string.supply_on_hand),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 6.dp),
                 )
             }
@@ -144,7 +144,7 @@ fun SupplyCard(
             Text(
                 text = daysText,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             if (isWarning && daysRemaining != null) {
