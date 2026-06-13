@@ -34,6 +34,7 @@ import com.ostimate.app.platform.FeedbackHelper
 import com.ostimate.app.platform.FileSharer
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
 
 private const val DEV_MODE_TAPS_REQUIRED = 5
 private const val DEV_MODE_WINDOW_MS = 2_000L
@@ -189,7 +190,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
                 title = "About" + if (settings.devMode) " [DEV]" else "",
                 modifier =
                     Modifier.clickable {
-                        val now = System.currentTimeMillis()
+                        val now = Clock.System.now().toEpochMilliseconds()
                         if (now - devTapWindowStart > DEV_MODE_WINDOW_MS) {
                             devTapCount = 1
                             devTapWindowStart = now
