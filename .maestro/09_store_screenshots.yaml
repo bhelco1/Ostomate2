@@ -1,0 +1,47 @@
+appId: com.ostimate.app
+name: "Store screenshots — phone"
+# Run after the app has real data (onboarding done + some events logged).
+# Usage: maestro test .maestro/09_store_screenshots.yaml \
+#          --output fastlane/metadata/android/en-US/images/phoneScreenshots
+---
+
+# 1 — Home screen: supply cards with days-remaining predictions
+- launchApp:
+    clearState: false
+- assertVisible:
+    text: "Ostomate"
+    timeout: 5000
+- takeScreenshot: "01_home"
+
+# 2 — After logging: confirmation snackbar
+- tapOn:
+    id: "logButton"
+    index: 0
+- assertVisible:
+    text: "logged"
+    timeout: 3000
+- takeScreenshot: "02_logged"
+
+# 3 — Calendar: month grid with supply pills
+- tapOn:
+    id: "nav_calendar"
+- waitForAnimationToEnd
+- takeScreenshot: "03_calendar"
+
+# 4 — Stats: period selector + per-supply counts
+- tapOn:
+    id: "nav_stats"
+- waitForAnimationToEnd
+- takeScreenshot: "04_stats"
+
+# 5 — Settings overview
+- tapOn:
+    id: "nav_settings"
+- waitForAnimationToEnd
+- takeScreenshot: "05_settings"
+
+# 6 — Manage Supplies: custom supply types + color picker
+- tapOn:
+    text: "Manage Supplies"
+- waitForAnimationToEnd
+- takeScreenshot: "06_manage_supplies"

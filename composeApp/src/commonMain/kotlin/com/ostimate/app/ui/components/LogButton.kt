@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -25,8 +24,7 @@ fun LogButton(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .semantics { },
+                .height(64.dp),
         shape = RoundedCornerShape(8.dp),
         colors =
             ButtonDefaults.buttonColors(

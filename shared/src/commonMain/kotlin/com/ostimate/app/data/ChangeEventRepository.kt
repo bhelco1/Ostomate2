@@ -9,10 +9,13 @@ import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.Flow
 
+private const val DEEP_LINK_DEBOUNCE_MS = 3_000L
+
 class ChangeEventRepository(
     private val eventDao: ChangeEventDao,
     private val supplyTypeDao: SupplyTypeDao,
 ) {
+    private val lastScanMillis = mutableMapOf<String, Long>()
     fun observeEvents(): Flow<List<ChangeEventWithSupply>> = eventDao.observeAllWithSupply()
 
     fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> = eventDao.observeBySupply(supplyTypeId)
@@ -22,13 +25,13 @@ class ChangeEventRepository(
     suspend fun logChangeAt(
         supplyTypeId: Long,
         timestampMillis: Long,
+        createdAtMillis: Long = timestampMillis,
     ): ChangeEventEntity {
-        val now = currentTimeMillis()
         val event =
             ChangeEventEntity(
                 supplyTypeId = supplyTypeId,
                 timestampMillis = timestampMillis,
-                createdAtMillis = now,
+                createdAtMillis = createdAtMillis,
             )
         val id = eventDao.insert(event)
         supplyTypeDao.decrementOnHand(supplyTypeId)
@@ -52,9 +55,16 @@ class ChangeEventRepository(
         eventDao.update(event.copy(editedAtMillis = currentTimeMillis()))
     }
 
-    /** Returns the name of the supply that was logged, or null if the URI was not a valid log link. */
+    /**
+     * Returns the name of the supply that was logged, or null if the URI was not a valid
+     * log link or a duplicate scan within the debounce window.
+     */
     suspend fun handleDeepLink(uri: String): String? {
         val item = DeepLinkParser.parse(uri) ?: return null
+        val now = currentTimeMillis()
+        val last = lastScanMillis[item] ?: 0L
+        if (now - last < DEEP_LINK_DEBOUNCE_MS) return null
+        lastScanMillis[item] = now
         val supply =
             when {
                 item == "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)

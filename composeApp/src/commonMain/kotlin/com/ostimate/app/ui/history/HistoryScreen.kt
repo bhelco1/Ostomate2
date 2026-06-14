@@ -59,6 +59,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,6 +76,7 @@ import com.ostimate.app.resources.action_cancel
 import com.ostimate.app.resources.action_save
 import com.ostimate.app.resources.action_undo
 import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.action_edit_event
 import com.ostimate.app.resources.cd_delete
 import com.ostimate.app.resources.edit_event_date_label
 import com.ostimate.app.resources.edit_event_invalid_datetime
@@ -296,7 +301,7 @@ private fun DayHeaderRow(label: String) {
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp),
+        modifier = Modifier.padding(top = 12.dp, bottom = 2.dp).semantics { heading() },
     )
 }
 
@@ -338,7 +343,7 @@ private fun SwipeableEventRow(
             }
         },
     ) {
-        EventCard(row = row, onClick = onEdit)
+        EventCard(row = row, onClick = onEdit, onDelete = onDelete)
     }
 }
 
@@ -346,12 +351,24 @@ private fun SwipeableEventRow(
 private fun EventCard(
     row: ChangeEventWithSupply,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null,
 ) {
+    val editLabel = stringResource(Res.string.action_edit_event)
+    val deleteLabel = stringResource(Res.string.cd_delete)
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                customActions = buildList {
+                    add(CustomAccessibilityAction(label = editLabel) { onClick(); true })
+                    if (onDelete != null) {
+                        add(CustomAccessibilityAction(label = deleteLabel) { onDelete(); true })
+                    }
+                }
+            }
+            .clickable(onClick = onClick, onClickLabel = editLabel),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
@@ -362,7 +379,8 @@ private fun EventCard(
                 Modifier
                     .size(10.dp)
                     .background(supplyColor(row.supplyKind), CircleShape)
-                    .padding(top = 4.dp),
+                    .padding(top = 4.dp)
+                    .clearAndSetSemantics {},
             )
             Column(Modifier.weight(1f)) {
                 Row(

@@ -18,6 +18,8 @@ data class AppSettings(
     val lockSettings: Boolean = false,
     /** BCP-47 tag, or null to follow the system locale (N7). */
     val localeOverride: String? = null,
+    /** Opt-in Sentry crash reporting (default off, per privacy posture). */
+    val crashReportingEnabled: Boolean = false,
 )
 
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
@@ -28,6 +30,7 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 onboardingDone = prefs[ONBOARDING_DONE] ?: false,
                 lockSettings = prefs[LOCK_SETTINGS] ?: false,
                 localeOverride = prefs[LOCALE_OVERRIDE],
+                crashReportingEnabled = prefs[CRASH_REPORTING] ?: false,
             )
         }
 
@@ -49,10 +52,15 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         }
     }
 
+    suspend fun setCrashReportingEnabled(enabled: Boolean) {
+        dataStore.edit { it[CRASH_REPORTING] = enabled }
+    }
+
     private companion object {
         val DEV_MODE = booleanPreferencesKey("devMode")
         val ONBOARDING_DONE = booleanPreferencesKey("onboardingDone")
         val LOCK_SETTINGS = booleanPreferencesKey("lockSettings")
         val LOCALE_OVERRIDE = stringPreferencesKey("localeOverride")
+        val CRASH_REPORTING = booleanPreferencesKey("crashReportingEnabled")
     }
 }

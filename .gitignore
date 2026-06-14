@@ -1,3 +1,8 @@
+# Android signing keys — never commit these
+*.keystore
+*.jks
+*.p12
+
 *.iml
 .kotlin
 .gradle

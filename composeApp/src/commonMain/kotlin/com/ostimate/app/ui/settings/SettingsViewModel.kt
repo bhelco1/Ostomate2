@@ -6,6 +6,7 @@ import com.ostimate.app.data.BackupRepository
 import com.ostimate.app.data.ImportSummary
 import com.ostimate.app.data.settings.AppSettings
 import com.ostimate.app.data.settings.SettingsRepository
+import com.ostimate.app.platform.CrashReporter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +22,7 @@ data class BackupUiState(
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val backupRepository: BackupRepository,
+    private val crashReporter: CrashReporter,
 ) : ViewModel() {
     val settings: StateFlow<AppSettings> =
         settingsRepository.settings.stateIn(
@@ -38,6 +40,13 @@ class SettingsViewModel(
 
     fun setDevMode(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.setDevMode(enabled) }
+    }
+
+    fun setCrashReporting(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setCrashReportingEnabled(enabled)
+            crashReporter.setEnabled(enabled)
+        }
     }
 
     /** Generates the v2 CSV and emits it for the platform layer to share. */

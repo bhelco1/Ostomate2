@@ -28,6 +28,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.platform.FeedbackHelper
@@ -39,6 +41,8 @@ import com.ostimate.app.resources.settings_backup
 import com.ostimate.app.resources.settings_backup_sub
 import com.ostimate.app.resources.settings_biometric_lock
 import com.ostimate.app.resources.settings_biometric_lock_sub
+import com.ostimate.app.resources.settings_crash_reporting
+import com.ostimate.app.resources.settings_crash_reporting_sub
 import com.ostimate.app.resources.settings_dev_off_body
 import com.ostimate.app.resources.settings_dev_off_title
 import com.ostimate.app.resources.settings_dev_on_body
@@ -49,6 +53,7 @@ import com.ostimate.app.resources.settings_feedback_sub
 import com.ostimate.app.resources.settings_import
 import com.ostimate.app.resources.settings_import_complete_title
 import com.ostimate.app.resources.settings_import_result
+import com.ostimate.app.resources.settings_import_too_large
 import com.ostimate.app.resources.settings_import_v1
 import com.ostimate.app.resources.settings_import_v1_sub
 import com.ostimate.app.resources.settings_manage_supplies
@@ -106,27 +111,29 @@ fun SettingsScreen(
 
     val importSummary = backupState.lastImportSummary
     if (showImportResult && importSummary != null) {
+        val dismiss = {
+            showImportResult = false
+            viewModel.clearImportSummary()
+        }
         AlertDialog(
-            onDismissRequest = {
-                showImportResult = false
-                viewModel.clearImportSummary()
-            },
+            onDismissRequest = dismiss,
             title = { Text(stringResource(Res.string.settings_import_complete_title)) },
             text = {
-                Text(
-                    stringResource(
-                        Res.string.settings_import_result,
-                        importSummary.inserted,
-                        importSummary.skipped,
-                        importSummary.parseErrors,
-                    ),
-                )
+                if (importSummary.oversized) {
+                    Text(stringResource(Res.string.settings_import_too_large))
+                } else {
+                    Text(
+                        stringResource(
+                            Res.string.settings_import_result,
+                            importSummary.inserted,
+                            importSummary.skipped,
+                            importSummary.parseErrors,
+                        ),
+                    )
+                }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    showImportResult = false
-                    viewModel.clearImportSummary()
-                }) { Text(stringResource(Res.string.action_ok)) }
+                TextButton(onClick = dismiss) { Text(stringResource(Res.string.action_ok)) }
             },
         )
     }
@@ -172,19 +179,28 @@ fun SettingsScreen(
             ListItem(
                 headlineContent = { Text(stringResource(Res.string.settings_manage_supplies)) },
                 supportingContent = { Text(stringResource(Res.string.settings_manage_supplies_sub)) },
-                modifier = Modifier.clickable { onNavigateToManageSupplies() },
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(Res.string.settings_manage_supplies),
+                    onClick = { onNavigateToManageSupplies() },
+                ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
                 headlineContent = { Text(stringResource(Res.string.settings_print_qr)) },
                 supportingContent = { Text(stringResource(Res.string.settings_print_qr_sub)) },
-                modifier = Modifier.clickable { onNavigateToQrLabels() },
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(Res.string.settings_print_qr),
+                    onClick = { onNavigateToQrLabels() },
+                ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
                 headlineContent = { Text(stringResource(Res.string.settings_reorder_warnings)) },
                 supportingContent = { Text(stringResource(Res.string.settings_reorder_warnings_sub)) },
-                modifier = Modifier.clickable { onNavigateToReorderWarnings() },
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(Res.string.settings_reorder_warnings),
+                    onClick = { onNavigateToReorderWarnings() },
+                ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
@@ -198,6 +214,18 @@ fun SettingsScreen(
                         checked = settings.lockSettings,
                         onCheckedChange = viewModel::setLockSettings,
                         modifier = Modifier.testTag("biometricLockSwitch"),
+                    )
+                },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.settings_crash_reporting)) },
+                supportingContent = { Text(stringResource(Res.string.settings_crash_reporting_sub)) },
+                trailingContent = {
+                    Switch(
+                        checked = settings.crashReportingEnabled,
+                        onCheckedChange = viewModel::setCrashReporting,
+                        modifier = Modifier.testTag("crashReportingSwitch"),
                     )
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
@@ -245,7 +273,10 @@ fun SettingsScreen(
             ListItem(
                 headlineContent = { Text(stringResource(Res.string.settings_feedback)) },
                 supportingContent = { Text(stringResource(Res.string.settings_feedback_sub)) },
-                modifier = Modifier.clickable { feedbackHelper.launch() },
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(Res.string.settings_feedback),
+                    onClick = { feedbackHelper.launch() },
+                ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
@@ -283,7 +314,10 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodySmall,
                     )
                 },
-                modifier = Modifier.clickable { onNavigateToPrivacyPolicy() },
+                modifier = Modifier.clickable(
+                    onClickLabel = stringResource(Res.string.settings_privacy_policy),
+                    onClick = { onNavigateToPrivacyPolicy() },
+                ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
@@ -301,7 +335,7 @@ private fun SettingsSectionHeader(
         text = title,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp).semantics { heading() },
     )
 }
 

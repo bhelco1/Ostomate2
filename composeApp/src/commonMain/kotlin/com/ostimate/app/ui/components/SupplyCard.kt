@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.resources.Res
@@ -61,7 +63,6 @@ fun SupplyCard(
 ) {
     var overflowExpanded by remember { mutableStateOf(false) }
     val accent = supplyColor(kind)
-    val isWarning = daysRemaining != null && daysRemaining < warnThresholdDays
     val daysText =
         when {
             daysRemaining == null -> stringResource(Res.string.supply_no_data)
@@ -87,7 +88,8 @@ fun SupplyCard(
                 Spacer(
                     Modifier
                         .size(10.dp)
-                        .background(accent, CircleShape),
+                        .background(accent, CircleShape)
+                        .clearAndSetSemantics {},
                 )
                 Text(
                     text = name,
@@ -100,7 +102,7 @@ fun SupplyCard(
                 Box {
                     IconButton(
                         onClick = { overflowExpanded = true },
-                        modifier = Modifier.size(36.dp).testTag("overflowButton"),
+                        modifier = Modifier.testTag("overflowButton"),
                     ) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
@@ -127,7 +129,7 @@ fun SupplyCard(
                 } else {
                     Modifier
                 }
-            Row(verticalAlignment = Alignment.Bottom, modifier = countRowModifier) {
+            Row(verticalAlignment = Alignment.Bottom, modifier = countRowModifier.semantics(mergeDescendants = true) {}) {
                 Text(
                     text = onHand.toString(),
                     style = MaterialTheme.typography.displayMedium,
@@ -147,15 +149,17 @@ fun SupplyCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            if (isWarning && daysRemaining != null) {
-                WarningBanner(
-                    message = stringResource(
-                        Res.string.supply_warning_banner,
-                        daysRemaining.roundToInt(),
-                        name.lowercase(),
-                        warnThresholdDays,
-                    ),
-                )
+            daysRemaining?.let { days ->
+                if (days < warnThresholdDays) {
+                    WarningBanner(
+                        message = stringResource(
+                            Res.string.supply_warning_banner,
+                            days.roundToInt(),
+                            name.lowercase(),
+                            warnThresholdDays,
+                        ),
+                    )
+                }
             }
 
             Spacer(Modifier.height(4.dp))

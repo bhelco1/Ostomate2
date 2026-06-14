@@ -117,7 +117,7 @@ private fun MainApp() {
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Home, contentDescription = stringResource(Res.string.nav_home)) },
+                    icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_home)) },
                     selected = currentDestination?.hasRoute<HomeDestination>() == true,
                     onClick = {
@@ -129,7 +129,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.DateRange, contentDescription = stringResource(Res.string.nav_calendar)) },
+                    icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_calendar)) },
                     selected = currentDestination?.hasRoute<CalendarDestination>() == true,
                     onClick = {
@@ -141,7 +141,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Info, contentDescription = stringResource(Res.string.nav_stats)) },
+                    icon = { Icon(Icons.Filled.Info, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_stats)) },
                     selected = currentDestination?.hasRoute<StatsDestination>() == true,
                     onClick = {
@@ -153,7 +153,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = stringResource(Res.string.nav_settings)) },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_settings)) },
                     selected = currentDestination?.hasRoute<SettingsDestination>() == true,
                     onClick = {

@@ -1,0 +1,6 @@
+app_identifier("com.ostimate.app")
+apple_id("bhelco@gmail.com")
+
+# Fill in after App Store Connect account is created:
+# itc_team_id("") # App Store Connect Team ID
+# team_id("")     # Apple Developer Team ID

@@ -1,0 +1,57 @@
+default_platform(:android)
+
+platform :android do
+  desc "Capture Play Store screenshots via Maestro (requires connected device with app data)"
+  lane :screenshots do
+    output = File.expand_path("../fastlane/metadata/android/en-US/images/phoneScreenshots")
+    FileUtils.mkdir_p(output)
+    sh("maestro", "test", "../.maestro/09_store_screenshots.yaml", "--output", output)
+  end
+
+  desc "Build release AAB (signing keys must be configured in CI secrets)"
+  lane :build_release do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "../"
+    )
+  end
+
+  desc "Upload to Play Store internal track"
+  lane :internal do
+    build_release
+    upload_to_play_store(
+      track: "internal",
+      aab: "../androidApp/build/outputs/bundle/release/androidApp-release.aab"
+    )
+  end
+
+  desc "Promote internal track → production"
+  lane :production do
+    upload_to_play_store(
+      track: "internal",
+      track_promote_to: "production"
+    )
+  end
+end
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    build_app(
+      project: "iosApp/iosApp.xcodeproj",
+      scheme: "iosApp",
+      configuration: "Release",
+      export_method: "app-store"
+    )
+    upload_to_testflight
+  end
+
+  desc "Upload metadata and screenshots to App Store (binary already on TestFlight)"
+  lane :release do
+    upload_to_app_store(
+      skip_binary_upload: true,
+      force: true
+    )
+  end
+end

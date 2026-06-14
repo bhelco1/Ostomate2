@@ -7,6 +7,7 @@ import com.ostimate.app.data.db.OstimateDatabase
 import com.ostimate.app.data.db.databaseBuilder
 import com.ostimate.app.data.settings.settingsDataStore
 import com.ostimate.app.platform.BiometricAuthenticator
+import com.ostimate.app.platform.CrashReporter
 import com.ostimate.app.platform.FeedbackHelper
 import com.ostimate.app.platform.FileSharer
 import com.ostimate.app.platform.Notifier
@@ -21,4 +22,5 @@ actual val platformModule: Module =
         single { BiometricAuthenticator() }
         single { FileSharer() }
         single { FeedbackHelper() }
+        single { CrashReporter() }
     }

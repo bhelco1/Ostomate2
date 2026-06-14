@@ -8,6 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.ui.theme.supplyPillBg
@@ -19,6 +21,7 @@ fun Pill(
     label: String,
     kind: SupplyKind,
     modifier: Modifier = Modifier,
+    contentDescription: String? = null,
 ) {
     Text(
         text = label,
@@ -26,6 +29,13 @@ fun Pill(
         color = supplyPillText(kind),
         modifier =
             modifier
+                .then(
+                    if (contentDescription != null) {
+                        Modifier.semantics { this.contentDescription = contentDescription }
+                    } else {
+                        Modifier
+                    },
+                )
                 .clip(RoundedCornerShape(50))
                 .background(supplyPillBg(kind))
                 .padding(horizontal = 8.dp, vertical = 3.dp),

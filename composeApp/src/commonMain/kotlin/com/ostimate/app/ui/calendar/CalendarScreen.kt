@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -54,6 +55,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -70,6 +76,7 @@ import com.ostimate.app.resources.calendar_add_entry_question
 import com.ostimate.app.resources.calendar_add_entry_title
 import com.ostimate.app.resources.calendar_event_deleted
 import com.ostimate.app.resources.calendar_no_events_today
+import com.ostimate.app.resources.action_edit_event
 import com.ostimate.app.resources.cd_delete_event
 import com.ostimate.app.resources.cd_next_month
 import com.ostimate.app.resources.cd_previous_month
@@ -82,6 +89,7 @@ import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 
 private val WEEKDAY_LABELS = listOf("S", "M", "T", "W", "T", "F", "S")
+private val WEEKDAY_FULL = listOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -179,10 +187,10 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
 
             // Weekday headers — Sunday-first (US convention)
             Row(modifier = Modifier.fillMaxWidth()) {
-                WEEKDAY_LABELS.forEach { label ->
+                WEEKDAY_LABELS.forEachIndexed { index, label ->
                     Text(
                         text = label,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).semantics { contentDescription = WEEKDAY_FULL[index] },
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -217,6 +225,7 @@ private fun DayCell(
         modifier =
             Modifier
                 .aspectRatio(0.75f)
+                .defaultMinSize(minHeight = 48.dp)
                 .clickable(
                     enabled = day.isCurrentMonth,
                     onClickLabel = if (day.isCurrentMonth) stringResource(Res.string.cd_view_day, day.date.dayOfMonth) else null,
@@ -260,6 +269,7 @@ private fun DayCell(
             Pill(
                 label = pill.count.toString(),
                 kind = pill.kind,
+                contentDescription = "${pill.count} ${pill.supplyName} change${if (pill.count != 1) "s" else ""}",
                 modifier = Modifier.padding(top = 1.dp),
             )
         }
@@ -294,7 +304,7 @@ private fun DayDetailSheet(
             text = label,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 4.dp),
+            modifier = Modifier.padding(bottom = 4.dp).semantics { heading() },
         )
         if (events.isEmpty()) {
             Text(
@@ -322,11 +332,20 @@ private fun DayEventCard(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
 ) {
+    val editLabel = stringResource(Res.string.action_edit_event)
+    val deleteLabel = stringResource(Res.string.cd_delete_event)
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.clickable(onClick = onEdit),
+        modifier = Modifier.fillMaxWidth()
+            .semantics(mergeDescendants = true) {
+                customActions = listOf(
+                    CustomAccessibilityAction(label = editLabel) { onEdit(); true },
+                    CustomAccessibilityAction(label = deleteLabel) { onDelete(); true },
+                )
+            }
+            .clickable(onClick = onEdit, onClickLabel = editLabel),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
@@ -336,7 +355,8 @@ private fun DayEventCard(
                 Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(supplyColor(row.supplyKind)),
+                    .background(supplyColor(row.supplyKind))
+                    .clearAndSetSemantics {},
             )
             Column(
                 modifier =
@@ -359,10 +379,13 @@ private fun DayEventCard(
                     )
                 }
             }
-            IconButton(onClick = onDelete) {
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.clearAndSetSemantics {},
+            ) {
                 Icon(
                     Icons.Filled.Delete,
-                    contentDescription = stringResource(Res.string.cd_delete_event),
+                    contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

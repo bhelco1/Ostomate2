@@ -137,7 +137,10 @@ private fun SuppliesStep(
                 SupplyKind.FLANGE to stringResource(Res.string.onboarding_kind_flange),
             ).forEach { (kind, label) ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .semantics(mergeDescendants = true) {},
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -145,7 +148,8 @@ private fun SuppliesStep(
                         Modifier
                             .size(14.dp)
                             .clip(RoundedCornerShape(3.dp))
-                            .background(supplyColor(kind)),
+                            .background(supplyColor(kind))
+                            .semantics { contentDescription = "" },
                     )
                     Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     Checkbox(

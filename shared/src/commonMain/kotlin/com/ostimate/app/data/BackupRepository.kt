@@ -13,7 +13,10 @@ data class ImportSummary(
     val inserted: Int,
     val skipped: Int,
     val parseErrors: Int,
+    val oversized: Boolean = false,
 )
+
+private const val MAX_IMPORT_CHARS = 10_000_000 // ~10 MB; guards against oversized inputs
 
 class BackupRepository(
     private val eventDao: ChangeEventDao,
@@ -30,6 +33,9 @@ class BackupRepository(
      * Events whose timestamp already exists in the DB are skipped (idempotent).
      */
     suspend fun importV1Csv(csv: String): ImportSummary {
+        if (csv.length > MAX_IMPORT_CHARS) {
+            return ImportSummary(inserted = 0, skipped = 0, parseErrors = 0, oversized = true)
+        }
         val result = CsvV1Importer.parse(csv)
 
         val bagSupply = supplyTypeDao.getByKind(SupplyKind.BAG)

@@ -78,6 +78,8 @@
     <string name="settings_section_security">Security</string>
     <string name="settings_biometric_lock">Biometric Lock</string>
     <string name="settings_biometric_lock_sub">Require biometrics to edit counts</string>
+    <string name="settings_crash_reporting">Crash reports</string>
+    <string name="settings_crash_reporting_sub">Send anonymous crash reports to help fix bugs. No health data, no usage tracking. Off by default.</string>
     <string name="settings_section_data">Data</string>
     <string name="settings_backup">Backup &amp; Restore</string>
     <string name="settings_backup_sub">Export your event history as CSV</string>
@@ -94,6 +96,7 @@
     <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_import_complete_title">Import complete</string>
     <string name="settings_import_result">Inserted: %1$d\nSkipped (duplicates): %2$d\nParse errors: %3$d</string>
+    <string name="settings_import_too_large">File is too large to import (max 10 MB). Please use a smaller export file.</string>
     <string name="settings_dev_on_title">Dev mode ON</string>
     <string name="settings_dev_off_title">Dev mode OFF</string>
     <string name="settings_dev_on_body">Dev mode is active. Data is shared with production — use the dev mode flag to guard test-only UI in future phases.</string>
@@ -152,6 +155,18 @@
     <string name="onboarding_print_later">Print labels later</string>
     <string name="onboarding_step_indicator">Step %1$d of 3</string>
     <string name="cd_view_day">View events for day %1$d</string>
+
+    <!-- Accessibility: supply row controls (Manage Supplies) -->
+    <string name="cd_decrement_supply">Remove one box of %1$s</string>
+    <string name="cd_increment_supply">Add one box of %1$s</string>
+    <string name="cd_edit_supply_count">Edit %1$s count</string>
+    <!-- Accessibility: color picker swatches -->
+    <string name="cd_color_swatch">Color option %1$d</string>
+    <string name="cd_color_swatch_selected">Color option %1$d, selected</string>
+    <!-- Accessibility: stats sparkline -->
+    <string name="cd_sparkline">%1$d changes charted</string>
+    <!-- Accessibility: event card custom actions -->
+    <string name="action_edit_event">Edit event</string>
 
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Privacy Policy</string>

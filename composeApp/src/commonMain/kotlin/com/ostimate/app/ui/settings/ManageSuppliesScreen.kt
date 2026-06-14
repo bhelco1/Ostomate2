@@ -57,9 +57,17 @@ import com.ostimate.app.domain.SupplyKind
 import com.ostimate.app.resources.Res
 import com.ostimate.app.resources.action_cancel
 import com.ostimate.app.resources.action_save
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import com.ostimate.app.resources.cd_add_supply
 import com.ostimate.app.resources.cd_back
+import com.ostimate.app.resources.cd_color_swatch
+import com.ostimate.app.resources.cd_color_swatch_selected
+import com.ostimate.app.resources.cd_decrement_supply
 import com.ostimate.app.resources.cd_edit_supply
+import com.ostimate.app.resources.cd_edit_supply_count
+import com.ostimate.app.resources.cd_increment_supply
 import com.ostimate.app.resources.manage_supplies_add_button
 import com.ostimate.app.resources.manage_supplies_add_title
 import com.ostimate.app.resources.manage_supplies_archive
@@ -196,6 +204,9 @@ private fun SupplyRow(
     onEditDetails: () -> Unit,
 ) {
     val accent = supplyColor(supply.kind, supply.colorIndex)
+    val decrementLabel = stringResource(Res.string.cd_decrement_supply, supply.name)
+    val incrementLabel = stringResource(Res.string.cd_increment_supply, supply.name)
+    val editCountLabel = stringResource(Res.string.cd_edit_supply_count, supply.name)
     Row(
         modifier =
             Modifier
@@ -203,13 +214,14 @@ private fun SupplyRow(
                 .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Color dot
+        // Color dot (decorative)
         Box(
             modifier =
                 Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(accent),
+                    .background(accent)
+                    .semantics { contentDescription = "" },
         )
         Spacer(Modifier.width(12.dp))
 
@@ -225,7 +237,7 @@ private fun SupplyRow(
         // − / count / + inline controls
         IconButton(
             onClick = { onAdjust(-supply.boxSize) },
-            modifier = Modifier.testTag("decrementBox_${supply.id}"),
+            modifier = Modifier.testTag("decrementBox_${supply.id}").semantics { contentDescription = decrementLabel },
         ) {
             Text(
                 "−",
@@ -238,13 +250,13 @@ private fun SupplyRow(
             style = MaterialTheme.typography.titleMedium,
             modifier =
                 Modifier
-                    .clickable(onClick = onEditCount)
+                    .clickable(onClickLabel = editCountLabel, onClick = onEditCount)
                     .padding(horizontal = 4.dp)
                     .testTag("supplyCount_${supply.id}"),
         )
         IconButton(
             onClick = { onAdjust(+supply.boxSize) },
-            modifier = Modifier.testTag("incrementBox_${supply.id}"),
+            modifier = Modifier.testTag("incrementBox_${supply.id}").semantics { contentDescription = incrementLabel },
         ) {
             Text(
                 "+",
@@ -440,12 +452,13 @@ private fun ColorPickerRow(
     onSelect: (Int) -> Unit,
 ) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier.fillMaxWidth(),
     ) {
         CUSTOM_COLORS.forEachIndexed { index, color ->
             ColorSwatch(
                 color = color,
+                index = index,
                 isSelected = index == selected,
                 onClick = { onSelect(index) },
             )
@@ -456,14 +469,17 @@ private fun ColorPickerRow(
 @Composable
 private fun ColorSwatch(
     color: Color,
+    index: Int,
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
+    val unselectedLabel = stringResource(Res.string.cd_color_swatch, index + 1)
+    val selectedLabel = stringResource(Res.string.cd_color_swatch_selected, index + 1)
     Box(
         contentAlignment = Alignment.Center,
         modifier =
             Modifier
-                .size(28.dp)
+                .size(36.dp)
                 .clip(CircleShape)
                 .background(color)
                 .then(
@@ -473,7 +489,14 @@ private fun ColorSwatch(
                         Modifier
                     },
                 )
-                .clickable(onClick = onClick),
+                .clickable(
+                    onClickLabel = if (isSelected) selectedLabel else unselectedLabel,
+                    onClick = onClick,
+                )
+                .semantics {
+                    contentDescription = if (isSelected) selectedLabel else unselectedLabel
+                    stateDescription = if (isSelected) selectedLabel else unselectedLabel
+                },
     ) {
         if (isSelected) {
             Icon(

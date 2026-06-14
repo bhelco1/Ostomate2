@@ -1,0 +1,26 @@
+Ostomate is a private, local-first ostomy supply tracker built for everyday use.
+
+STAYING STOCKED SHOULDN'T REQUIRE A SPREADSHEET
+
+Ostomate learns your change frequency and predicts when each supply is running low — so you get a reminder before you're caught short, not after.
+
+WHAT IT DOES
+
+• One-tap logging — record a change in under two seconds from the home screen, a home screen widget, or by scanning a QR sticker you print once and stick anywhere
+• Smart predictions — average change interval updates automatically with every log; days-remaining estimates improve over time as Ostomate learns your rhythm
+• Inventory tracking — on-hand counts update when you log; the home screen shows a warning banner when you're running low
+• Calendar view — see your full change history at a glance; tap any day for a detail sheet where you can edit or delete events
+• Stats — weekly, monthly, and yearly summaries; per-supply counts and average interval; trend sparkline
+• Custom supplies — add any ostomy product beyond the built-in bag and flange types; set your own box sizes, reorder thresholds, and color coding
+• Event notes and tags — optionally attach a note (leak, skin irritation, routine) to any logged change for richer history
+• Backup and restore — export your full history as a CSV and restore it on a new device; imports from Ostomate v1 too
+
+PRIVACY FIRST
+
+Everything stays on your device. No account required. No iCloud sync. No analytics or tracking of any kind. Your health data is yours alone.
+
+ACCESSIBLE
+
+Full VoiceOver support — every button, card, and control is labeled and reachable by screen reader. High-contrast color pairs, minimum 44 pt touch targets throughout.
+
+FREE — no subscriptions, no ads, no in-app purchases.

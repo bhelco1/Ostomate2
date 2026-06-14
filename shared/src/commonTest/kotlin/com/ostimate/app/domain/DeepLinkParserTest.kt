@@ -64,4 +64,19 @@ class DeepLinkParserTest {
     fun rejectsEmptyString() {
         assertNull(DeepLinkParser.parse(""))
     }
+
+    @Test
+    fun parsesCustomSupplyIdLink() {
+        assertEquals("id:42", DeepLinkParser.parse("ostimate://log?item=id:42"))
+    }
+
+    @Test
+    fun rejectsNonNumericCustomId() {
+        assertNull(DeepLinkParser.parse("ostimate://log?item=id:abc"))
+    }
+
+    @Test
+    fun rejectsEmptyCustomId() {
+        assertNull(DeepLinkParser.parse("ostimate://log?item=id:"))
+    }
 }

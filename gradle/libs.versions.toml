@@ -1,5 +1,6 @@
 [versions]
 agp = "9.0.1"
+sentry = "7.19.0"
 glance = "1.1.1"
 detekt = "1.23.8"
 kotest = "5.9.1"
@@ -59,6 +60,7 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
+sentry-android = { module = "io.sentry:sentry-android", version.ref = "sentry" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }

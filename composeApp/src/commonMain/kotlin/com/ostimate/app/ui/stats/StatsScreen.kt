@@ -33,7 +33,10 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.ostimate.app.resources.Res
+import com.ostimate.app.resources.cd_sparkline
 import com.ostimate.app.resources.stats_avg_days
 import com.ostimate.app.resources.stats_changes_count
 import com.ostimate.app.resources.stats_days_between
@@ -178,8 +181,9 @@ private fun Sparkline(
     modifier: Modifier = Modifier,
 ) {
     val points = remember(timestamps) { timestamps }
+    val sparklineDesc = stringResource(Res.string.cd_sparkline, points.size)
 
-    androidx.compose.foundation.Canvas(modifier = modifier) {
+    androidx.compose.foundation.Canvas(modifier = modifier.semantics { contentDescription = sparklineDesc }) {
         if (points.size < 2) return@Canvas
         val minT = points.first().toFloat()
         val maxT = points.last().toFloat()
