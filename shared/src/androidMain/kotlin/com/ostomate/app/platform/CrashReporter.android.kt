@@ -30,6 +30,9 @@ actual class CrashReporter(private val context: Context) {
             options.tracesSampleRate = null
             options.maxBreadcrumbs = 0
             options.isEnableUserInteractionBreadcrumbs = false
+            // libsentry.so crashes in sentry_add_breadcrumb on SentryExecutorS thread;
+            // JVM-level crash reporting is sufficient for our opt-in reporter.
+            options.isEnableNdk = false
             options.beforeSend = SentryOptions.BeforeSendCallback { event, _ -> scrub(event) }
         }
     }
