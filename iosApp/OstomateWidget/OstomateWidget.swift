@@ -22,19 +22,19 @@ struct WidgetRow: Identifiable {
     }
 
     var logURL: URL {
-        URL(string: "ostimate://log?item=\(deepLinkItem)")!
+        URL(string: "ostomate://log?item=\(deepLinkItem)")!
     }
 }
 
 // MARK: - Provider
 // NOTE: Real data requires an App Group shared container so the widget extension
 // can read the same Room/SQLite database as the main app. Steps:
-//   1. Enable App Groups capability on both targets (same group ID, e.g. "group.com.ostimate.app").
+//   1. Enable App Groups capability on both targets (same group ID, e.g. "group.com.ostomate.app").
 //   2. Configure Room's SQLite path to live in the shared container.
 //   3. Open the DB here using SQLite / GRDB / or re-expose via a shared framework.
 // Until then, the widget shows placeholder data.
 
-struct OstimateProvider: TimelineProvider {
+struct OstomateProvider: TimelineProvider {
     func placeholder(in context: Context) -> SupplyEntry {
         SupplyEntry(date: Date(), rows: placeholderRows())
     }
@@ -59,12 +59,12 @@ struct OstimateProvider: TimelineProvider {
 
 // MARK: - Views
 
-struct OstimateWidgetEntryView: View {
-    var entry: OstimateProvider.Entry
+struct OstomateWidgetEntryView: View {
+    var entry: OstomateProvider.Entry
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Ostimate")
+            Text("Ostomate")
                 .font(.caption.bold())
                 .foregroundStyle(.blue)
 
@@ -98,15 +98,15 @@ struct OstimateWidgetEntryView: View {
 
 // MARK: - Widget
 
-struct OstimateWidget: Widget {
-    let kind = "OstimateWidget"
+struct OstomateWidget: Widget {
+    let kind = "OstomateWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: OstimateProvider()) { entry in
-            OstimateWidgetEntryView(entry: entry)
+        StaticConfiguration(kind: kind, provider: OstomateProvider()) { entry in
+            OstomateWidgetEntryView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Ostimate")
+        .configurationDisplayName("Ostomate")
         .description("Days remaining and quick log for your ostomy supplies.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
@@ -115,7 +115,7 @@ struct OstimateWidget: Widget {
 // MARK: - Preview
 
 #Preview(as: .systemMedium) {
-    OstimateWidget()
+    OstomateWidget()
 } timeline: {
     SupplyEntry(
         date: Date(),

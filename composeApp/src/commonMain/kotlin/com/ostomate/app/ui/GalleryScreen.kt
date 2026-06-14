@@ -1,4 +1,4 @@
-package com.ostimate.app.ui
+package com.ostomate.app.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,12 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.ui.components.LogButton
-import com.ostimate.app.ui.components.Pill
-import com.ostimate.app.ui.components.SupplyCard
-import com.ostimate.app.ui.components.WarningBanner
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.ui.components.LogButton
+import com.ostomate.app.ui.components.Pill
+import com.ostomate.app.ui.components.SupplyCard
+import com.ostomate.app.ui.components.WarningBanner
+import com.ostomate.app.ui.theme.supplyColor
 
 // Phase 1 exit screen — shows every design-system component with light/dark parity.
 // Navigate to it from HomeScreen during development; remove route in Phase 2.

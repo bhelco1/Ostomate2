@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
@@ -18,7 +18,7 @@ actual class FeedbackHelper {
 
         val body = buildBody(appVersion, model, osVersion)
 
-        val subject = "Ostimate 2.0 Feedback"
+        val subject = "Ostomate 2.0 Feedback"
         val encodedSubject = subject.replace(" ", "%20")
         val encodedBody =
             body
@@ -39,11 +39,11 @@ actual class FeedbackHelper {
         osVersion: String,
     ): String =
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "OSTIMATE 2.0 — FEEDBACK REPORT\n" +
+            "OSTOMATE 2.0 — FEEDBACK REPORT\n" +
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
             "\n" +
             "─── APP INFORMATION ───────────────\n" +
-            "App:      Ostimate 2.0\n" +
+            "App:      Ostomate 2.0\n" +
             "Version:  $appVersion\n" +
             "Platform: iOS\n" +
             "\n" +

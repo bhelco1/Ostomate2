@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 /**
  * Thin abstraction over the platform crash-reporting SDK (Sentry).

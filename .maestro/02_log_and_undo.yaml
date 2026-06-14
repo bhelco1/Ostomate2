@@ -1,4 +1,4 @@
-appId: com.ostimate.app
+appId: com.ostomate.app
 name: "Journey 2: Log + undo"
 ---
 - launchApp:
@@ -6,7 +6,7 @@ name: "Journey 2: Log + undo"
 
 # Wait for home screen to load
 - assertVisible:
-    text: "Ostimate"
+    text: "Ostomate"
     timeout: 5000
 
 # Tap the log button on the first supply card

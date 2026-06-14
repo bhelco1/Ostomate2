@@ -1,8 +1,8 @@
-package com.ostimate.app.ui.theme
+package com.ostomate.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-object OstimateColors {
+object OstomateColors {
     // Primary
     val Primary = Color(0xFF2563EB)
     val PrimaryDark = Color(0xFF60A5FA)

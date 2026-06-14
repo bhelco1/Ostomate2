@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 /**
  * Platform-specific file operations for backup/restore.

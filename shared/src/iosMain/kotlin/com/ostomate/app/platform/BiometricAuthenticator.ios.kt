@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import platform.LocalAuthentication.LAContext

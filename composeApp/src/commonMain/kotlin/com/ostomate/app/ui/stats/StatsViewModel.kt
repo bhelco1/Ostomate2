@@ -1,13 +1,13 @@
 @file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x deprecation — monthNumber/dayOfMonth
 
-package com.ostimate.app.ui.stats
+package com.ostomate.app.ui.stats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.domain.PredictionEngine
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.domain.PredictionEngine
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

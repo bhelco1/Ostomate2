@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -52,61 +52,61 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_cancel
-import com.ostimate.app.resources.action_save
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_save
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import com.ostimate.app.resources.cd_add_supply
-import com.ostimate.app.resources.cd_back
-import com.ostimate.app.resources.cd_color_swatch
-import com.ostimate.app.resources.cd_color_swatch_selected
-import com.ostimate.app.resources.cd_decrement_supply
-import com.ostimate.app.resources.cd_edit_supply
-import com.ostimate.app.resources.cd_edit_supply_count
-import com.ostimate.app.resources.cd_increment_supply
-import com.ostimate.app.resources.manage_supplies_add_button
-import com.ostimate.app.resources.manage_supplies_add_title
-import com.ostimate.app.resources.manage_supplies_archive
-import com.ostimate.app.resources.manage_supplies_box_size_label
-import com.ostimate.app.resources.manage_supplies_color_label
-import com.ostimate.app.resources.manage_supplies_edit_title
-import com.ostimate.app.resources.manage_supplies_name_label
-import com.ostimate.app.resources.manage_supplies_on_hand_box
-import com.ostimate.app.resources.manage_supplies_on_hand_label
-import com.ostimate.app.resources.manage_supplies_set_count_title
-import com.ostimate.app.resources.manage_supplies_title
-import com.ostimate.app.resources.manage_supplies_warn_days_label
-import com.ostimate.app.ui.theme.OstimateColors
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.resources.cd_add_supply
+import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.cd_color_swatch
+import com.ostomate.app.resources.cd_color_swatch_selected
+import com.ostomate.app.resources.cd_decrement_supply
+import com.ostomate.app.resources.cd_edit_supply
+import com.ostomate.app.resources.cd_edit_supply_count
+import com.ostomate.app.resources.cd_increment_supply
+import com.ostomate.app.resources.manage_supplies_add_button
+import com.ostomate.app.resources.manage_supplies_add_title
+import com.ostomate.app.resources.manage_supplies_archive
+import com.ostomate.app.resources.manage_supplies_box_size_label
+import com.ostomate.app.resources.manage_supplies_color_label
+import com.ostomate.app.resources.manage_supplies_edit_title
+import com.ostomate.app.resources.manage_supplies_name_label
+import com.ostomate.app.resources.manage_supplies_on_hand_box
+import com.ostomate.app.resources.manage_supplies_on_hand_label
+import com.ostomate.app.resources.manage_supplies_set_count_title
+import com.ostomate.app.resources.manage_supplies_title
+import com.ostomate.app.resources.manage_supplies_warn_days_label
+import com.ostomate.app.ui.theme.OstomateColors
+import com.ostomate.app.ui.theme.supplyColor
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val CUSTOM_COLORS =
     listOf(
-        OstimateColors.Custom0,
-        OstimateColors.Custom1,
-        OstimateColors.Custom2,
-        OstimateColors.Custom3,
-        OstimateColors.Custom4,
-        OstimateColors.Custom5,
-        OstimateColors.Custom6,
-        OstimateColors.Custom7,
+        OstomateColors.Custom0,
+        OstomateColors.Custom1,
+        OstomateColors.Custom2,
+        OstomateColors.Custom3,
+        OstomateColors.Custom4,
+        OstomateColors.Custom5,
+        OstomateColors.Custom6,
+        OstomateColors.Custom7,
     )
 
 private val CUSTOM_COLORS_DARK =
     listOf(
-        OstimateColors.Custom0Dark,
-        OstimateColors.Custom1Dark,
-        OstimateColors.Custom2Dark,
-        OstimateColors.Custom3Dark,
-        OstimateColors.Custom4Dark,
-        OstimateColors.Custom5Dark,
-        OstimateColors.Custom6Dark,
-        OstimateColors.Custom7Dark,
+        OstomateColors.Custom0Dark,
+        OstomateColors.Custom1Dark,
+        OstomateColors.Custom2Dark,
+        OstomateColors.Custom3Dark,
+        OstomateColors.Custom4Dark,
+        OstomateColors.Custom5Dark,
+        OstomateColors.Custom6Dark,
+        OstomateColors.Custom7Dark,
     )
 
 @OptIn(ExperimentalMaterial3Api::class)

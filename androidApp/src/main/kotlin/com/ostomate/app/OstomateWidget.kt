@@ -1,4 +1,4 @@
-package com.ostimate.app
+package com.ostomate.app
 
 import android.content.Context
 import android.content.Intent
@@ -25,10 +25,10 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.domain.PredictionEngine
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.domain.PredictionEngine
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.first
 import org.koin.core.context.GlobalContext
 import kotlin.math.roundToInt
@@ -48,7 +48,7 @@ private data class WidgetRow(
             }
 }
 
-class OstimateWidget : GlanceAppWidget() {
+class OstomateWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val rows = loadRows()
         provideContent { WidgetContent(rows) }
@@ -101,7 +101,7 @@ private fun WidgetContent(rows: List<WidgetRow>) {
         modifier = GlanceModifier.fillMaxSize().background(bg).padding(12.dp),
     ) {
         Text(
-            "Ostimate",
+            "Ostomate",
             style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, color = primary),
         )
         if (rows.isEmpty()) {
@@ -126,7 +126,7 @@ private fun WidgetRow(
     subtle: ColorProvider,
 ) {
     val logIntent =
-        Intent(Intent.ACTION_VIEW, Uri.parse("ostimate://log?item=${row.deepLinkItem}"))
+        Intent(Intent.ACTION_VIEW, Uri.parse("ostomate://log?item=${row.deepLinkItem}"))
             .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
 
     Row(
@@ -152,6 +152,6 @@ private fun WidgetRow(
     }
 }
 
-class OstimateWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = OstimateWidget()
+class OstomateWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = OstomateWidget()
 }

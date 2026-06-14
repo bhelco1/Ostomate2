@@ -1,4 +1,4 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

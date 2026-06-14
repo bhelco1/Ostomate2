@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG

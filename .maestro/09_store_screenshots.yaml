@@ -1,4 +1,4 @@
-appId: com.ostimate.app
+appId: com.ostomate.app
 name: "Store screenshots — phone"
 # Run after the app has real data (onboarding done + some events logged).
 # Usage: maestro test .maestro/09_store_screenshots.yaml \

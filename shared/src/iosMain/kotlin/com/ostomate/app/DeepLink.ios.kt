@@ -1,7 +1,7 @@
-package com.ostimate.app
+package com.ostomate.app
 
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.platform.DeepLinkBus
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.platform.DeepLinkBus
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform

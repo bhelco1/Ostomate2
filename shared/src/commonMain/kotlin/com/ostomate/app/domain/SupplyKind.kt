@@ -1,4 +1,4 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 /**
  * Built-in supply categories. BAG and FLANGE are the two seeded defaults that

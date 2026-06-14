@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import android.content.Context
 import io.sentry.Sentry

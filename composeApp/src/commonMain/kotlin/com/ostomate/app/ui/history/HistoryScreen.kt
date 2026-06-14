@@ -2,7 +2,7 @@
     "DEPRECATION",
 ) // kotlinx.datetime.Instant/monthNumber/dayOfMonth deprecated in 0.6.x but replacements not yet stable
 
-package com.ostimate.app.ui.history
+package com.ostomate.app.ui.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -67,30 +67,30 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.platform.formatTimestamp
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_cancel
-import com.ostimate.app.resources.action_save
-import com.ostimate.app.resources.action_undo
-import com.ostimate.app.resources.cd_back
-import com.ostimate.app.resources.action_edit_event
-import com.ostimate.app.resources.cd_delete
-import com.ostimate.app.resources.edit_event_date_label
-import com.ostimate.app.resources.edit_event_invalid_datetime
-import com.ostimate.app.resources.edit_event_note_label
-import com.ostimate.app.resources.edit_event_quick_tags
-import com.ostimate.app.resources.edit_event_time_label
-import com.ostimate.app.resources.edit_event_title
-import com.ostimate.app.resources.history_edited
-import com.ostimate.app.resources.history_event_deleted
-import com.ostimate.app.resources.history_filter_all
-import com.ostimate.app.resources.history_no_events
-import com.ostimate.app.ui.components.Pill
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.platform.formatTimestamp
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_save
+import com.ostomate.app.resources.action_undo
+import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.action_edit_event
+import com.ostomate.app.resources.cd_delete
+import com.ostomate.app.resources.edit_event_date_label
+import com.ostomate.app.resources.edit_event_invalid_datetime
+import com.ostomate.app.resources.edit_event_note_label
+import com.ostomate.app.resources.edit_event_quick_tags
+import com.ostomate.app.resources.edit_event_time_label
+import com.ostomate.app.resources.edit_event_title
+import com.ostomate.app.resources.history_edited
+import com.ostomate.app.resources.history_event_deleted
+import com.ostomate.app.resources.history_filter_all
+import com.ostomate.app.resources.history_no_events
+import com.ostomate.app.ui.components.Pill
 import org.jetbrains.compose.resources.stringResource
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.ui.theme.supplyColor
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

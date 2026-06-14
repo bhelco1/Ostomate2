@@ -1,16 +1,16 @@
-package com.ostimate.app
+package com.ostomate.app
 
 import android.app.Application
-import com.ostimate.app.data.settings.SettingsRepository
-import com.ostimate.app.di.initKoin
-import com.ostimate.app.platform.CrashReporter
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.di.initKoin
+import com.ostomate.app.platform.CrashReporter
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 
-class OstimateApp : Application() {
+class OstomateApp : Application() {
 
     private val settings: SettingsRepository by inject()
     private val crashReporter: CrashReporter by inject()
@@ -18,7 +18,7 @@ class OstimateApp : Application() {
     override fun onCreate() {
         super.onCreate()
         initKoin {
-            androidContext(this@OstimateApp)
+            androidContext(this@OstomateApp)
         }
         initCrashReporter()
     }

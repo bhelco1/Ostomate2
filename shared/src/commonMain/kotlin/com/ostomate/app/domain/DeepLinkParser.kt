@@ -1,14 +1,14 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 /**
- * Parses QR-sticker deep links of the form `ostimate://log?item=<supply>`.
+ * Parses QR-sticker deep links of the form `ostomate://log?item=<supply>`.
  *
  * Pure Kotlin (no platform Uri) so it runs and tests in commonMain.
  * Security posture (06-security-privacy.md): strict scheme + host match and a
  * supply allowlist — never act on anything else in the URI.
  */
 object DeepLinkParser {
-    private const val SCHEME_PREFIX = "ostimate://"
+    private const val SCHEME_PREFIX = "ostomate://"
     private const val HOST = "log"
     private val namedSupplies = setOf("bag", "flange")
     private val idItemRegex = Regex("""^id:\d+$""")

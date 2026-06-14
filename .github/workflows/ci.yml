@@ -1,5 +1,5 @@
-# Ostimate 2.0 CI — Phase 0 skeleton.
-# Cost rule (ostimate-2.0/07-business-plan.md): macOS runners bill at 10×,
+# Ostomate 2.0 CI — Phase 0 skeleton.
+# Cost rule (ostomate-2.0/07-business-plan.md): macOS runners bill at 10×,
 # so the iOS job runs on main merges and manual dispatch only, not on every PR push.
 # E2E (Maestro) runs on main merges and manual dispatch only — emulator start-up is slow.
 name: CI

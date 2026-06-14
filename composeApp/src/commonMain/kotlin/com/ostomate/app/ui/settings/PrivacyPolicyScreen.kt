@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,22 +21,22 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.cd_back
-import com.ostimate.app.resources.privacy_last_updated
-import com.ostimate.app.resources.privacy_section_account_body
-import com.ostimate.app.resources.privacy_section_account_title
-import com.ostimate.app.resources.privacy_section_analytics_body
-import com.ostimate.app.resources.privacy_section_analytics_title
-import com.ostimate.app.resources.privacy_section_backups_body
-import com.ostimate.app.resources.privacy_section_backups_title
-import com.ostimate.app.resources.privacy_section_contact_body
-import com.ostimate.app.resources.privacy_section_contact_title
-import com.ostimate.app.resources.privacy_section_deletion_body
-import com.ostimate.app.resources.privacy_section_deletion_title
-import com.ostimate.app.resources.privacy_section_local_body
-import com.ostimate.app.resources.privacy_section_local_title
-import com.ostimate.app.resources.privacy_title
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.privacy_last_updated
+import com.ostomate.app.resources.privacy_section_account_body
+import com.ostomate.app.resources.privacy_section_account_title
+import com.ostomate.app.resources.privacy_section_analytics_body
+import com.ostomate.app.resources.privacy_section_analytics_title
+import com.ostomate.app.resources.privacy_section_backups_body
+import com.ostomate.app.resources.privacy_section_backups_title
+import com.ostomate.app.resources.privacy_section_contact_body
+import com.ostomate.app.resources.privacy_section_contact_title
+import com.ostomate.app.resources.privacy_section_deletion_body
+import com.ostomate.app.resources.privacy_section_deletion_title
+import com.ostomate.app.resources.privacy_section_local_body
+import com.ostomate.app.resources.privacy_section_local_title
+import com.ostomate.app.resources.privacy_title
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)

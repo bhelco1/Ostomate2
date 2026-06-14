@@ -1,4 +1,4 @@
-package com.ostimate.app.data.settings
+package com.ostomate.app.data.settings
 
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

@@ -1,4 +1,4 @@
-package com.ostimate.app.data.settings
+package com.ostomate.app.data.settings
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

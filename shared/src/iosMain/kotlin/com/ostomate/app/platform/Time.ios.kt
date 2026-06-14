@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter

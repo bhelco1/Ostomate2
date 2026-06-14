@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 /**
  * Schedules a local notification [delaySeconds] from now.

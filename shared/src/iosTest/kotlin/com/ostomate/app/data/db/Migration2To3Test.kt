@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
@@ -20,8 +20,8 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalForeignApi::class)
 class Migration2To3Test {
     private val schemasDir =
-        requireNotNull(getenv("OSTIMATE_SCHEMAS_PATH")?.toKString()) {
-            "OSTIMATE_SCHEMAS_PATH env var not set (see shared/build.gradle.kts)"
+        requireNotNull(getenv("OSTOMATE_SCHEMAS_PATH")?.toKString()) {
+            "OSTOMATE_SCHEMAS_PATH env var not set (see shared/build.gradle.kts)"
         }
 
     private val dbFile = NSTemporaryDirectory() + "migration-2-3-test.db"
@@ -31,7 +31,7 @@ class Migration2To3Test {
             schemaDirectoryPath = schemasDir,
             fileName = dbFile,
             driver = BundledSQLiteDriver(),
-            databaseClass = OstimateDatabase::class,
+            databaseClass = OstomateDatabase::class,
         )
 
     @AfterTest

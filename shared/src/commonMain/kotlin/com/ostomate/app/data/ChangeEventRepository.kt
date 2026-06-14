@@ -1,12 +1,12 @@
-package com.ostimate.app.data
+package com.ostomate.app.data
 
-import com.ostimate.app.data.db.ChangeEventDao
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.data.db.SupplyTypeDao
-import com.ostimate.app.domain.DeepLinkParser
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.platform.currentTimeMillis
+import com.ostomate.app.data.db.ChangeEventDao
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.domain.DeepLinkParser
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.Flow
 
 private const val DEEP_LINK_DEBOUNCE_MS = 3_000L

@@ -1,4 +1,4 @@
-# Ostimate 2.0 — Claude Code Project Instructions
+# Ostomate 2.0 — Claude Code Project Instructions
 
 Cross-platform (Android + iOS) ostomy supply tracker. Ground-up rewrite of Ostomate v1,
 which lives at `~/Projects/Ostomate` and stays untouched in maintenance mode (it is
@@ -31,7 +31,7 @@ push to GitHub (no remote yet — CI never exercised), run on physical devices.
 
 Kotlin 2.3.21 · Compose Multiplatform 1.11.0 · Room KMP 2.8.4 (KSP 2.3.9) · Koin 4.2.1 ·
 nav-compose · Gradle version catalog (`gradle/libs.versions.toml`) · min Android API 26.
-Package `com.ostimate.app`, deep-link scheme `ostimate://log?item=bag|flange`.
+Package `com.ostomate.app`, deep-link scheme `ostomate://log?item=bag|flange`.
 
 ## Modules — keep this boundary
 
@@ -56,7 +56,7 @@ physical iPhone, or rely on CI's Apple-Silicon runners (`iosSimulatorArm64`).
 ./gradlew :shared:iosX64Test              # shared tests, local iOS simulator
 cd iosApp && xcodebuild -project iosApp.xcodeproj -target iosApp \
   -configuration Debug -sdk iphoneos CODE_SIGNING_ALLOWED=NO build   # iOS device build
-adb shell am start -a android.intent.action.VIEW -d "ostimate://log?item=bag" com.ostimate.app
+adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" com.ostomate.app
 ```
 
 ## Architecture rules (enforced; full text in 02-architecture.md)

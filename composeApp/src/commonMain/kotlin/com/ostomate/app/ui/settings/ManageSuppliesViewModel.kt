@@ -1,12 +1,12 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.data.settings.SettingsRepository
-import com.ostimate.app.platform.BiometricAuthenticator
-import com.ostimate.app.platform.BiometricResult
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.platform.BiometricAuthenticator
+import com.ostomate.app.platform.BiometricResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -1,16 +1,16 @@
 @file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x deprecates monthNumber/dayOfMonth but replacements don't compile
 
-package com.ostimate.app.ui.calendar
+package com.ostomate.app.ui.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.domain.CalendarAggregator
-import com.ostimate.app.domain.EventPoint
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.domain.CalendarAggregator
+import com.ostomate.app.domain.EventPoint
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +55,7 @@ data class CalendarUiState(
     val selectedDayLabel: String = "",
     val selectedDate: LocalDate? = null,
     val pendingUndo: ChangeEventEntity? = null,
-    val supplies: List<com.ostimate.app.data.db.SupplyTypeEntity> = emptyList(),
+    val supplies: List<com.ostomate.app.data.db.SupplyTypeEntity> = emptyList(),
 )
 
 class CalendarViewModel(

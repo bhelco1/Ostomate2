@@ -1,4 +1,4 @@
-appId: com.ostimate.app
+appId: com.ostomate.app
 name: "Journey 3: Edit/delete event from calendar day sheet"
 ---
 - launchApp:

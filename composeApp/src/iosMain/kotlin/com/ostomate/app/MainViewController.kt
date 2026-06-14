@@ -1,4 +1,4 @@
-package com.ostimate.app
+package com.ostomate.app
 
 import androidx.compose.ui.window.ComposeUIViewController
 

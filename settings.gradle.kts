@@ -1,4 +1,4 @@
-rootProject.name = "Ostimate2"
+rootProject.name = "Ostomate2"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 includeBuild("build-logic")

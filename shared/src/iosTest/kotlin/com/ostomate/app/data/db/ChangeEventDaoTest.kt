@@ -1,8 +1,8 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.Room
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 
 class ChangeEventDaoTest {
     // buildDatabase (not a bare builder) so the seed callback runs, as in production.
-    private val db: OstimateDatabase = buildDatabase(Room.inMemoryDatabaseBuilder<OstimateDatabase>())
+    private val db: OstomateDatabase = buildDatabase(Room.inMemoryDatabaseBuilder<OstomateDatabase>())
     private val supplyDao = db.supplyTypeDao()
     private val eventDao = db.changeEventDao()
 
@@ -97,7 +97,7 @@ class ChangeEventDaoTest {
     fun repositoryHandlesValidDeepLink() =
         runTest {
             val repository = ChangeEventRepository(eventDao, supplyDao)
-            assertEquals("Flange", repository.handleDeepLink("ostimate://log?item=flange"))
+            assertEquals("Flange", repository.handleDeepLink("ostomate://log?item=flange"))
             assertEquals(1, eventDao.count())
         }
 
@@ -105,7 +105,7 @@ class ChangeEventDaoTest {
     fun repositoryIgnoresInvalidDeepLink() =
         runTest {
             val repository = ChangeEventRepository(eventDao, supplyDao)
-            assertNull(repository.handleDeepLink("ostimate://log?item=evil"))
+            assertNull(repository.handleDeepLink("ostomate://log?item=evil"))
             assertEquals(0, eventDao.count())
         }
 }

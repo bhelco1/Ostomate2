@@ -1,4 +1,4 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.int

@@ -1,5 +1,5 @@
 plugins {
-    id("ostimate.kmp-library")
+    id("ostomate.kmp-library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
@@ -12,7 +12,7 @@ kotlin {
     iosX64()
 
     androidLibrary {
-        namespace = "com.ostimate.app.shared"
+        namespace = "com.ostomate.app.shared"
         withHostTestBuilder {
         }
     }
@@ -46,7 +46,7 @@ kotlin {
 // The migration test reads exported schema JSONs from the source tree. SIMCTL_CHILD_
 // makes simctl forward the variable into the spawned simulator test process.
 tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
-    environment("SIMCTL_CHILD_OSTIMATE_SCHEMAS_PATH", layout.projectDirectory.dir("schemas").asFile.absolutePath)
+    environment("SIMCTL_CHILD_OSTOMATE_SCHEMAS_PATH", layout.projectDirectory.dir("schemas").asFile.absolutePath)
 }
 
 room {

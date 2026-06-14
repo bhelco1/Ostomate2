@@ -1,8 +1,8 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.platform.Notifier
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.platform.Notifier
 
 /**
  * Schedules (or replaces) one reorder reminder per supply based on current predictions.

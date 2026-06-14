@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts

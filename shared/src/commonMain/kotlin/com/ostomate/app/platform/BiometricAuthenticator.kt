@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 sealed interface BiometricResult {
     data object Success : BiometricResult

@@ -1,12 +1,12 @@
-package com.ostimate.app.di
+package com.ostomate.app.di
 
-import com.ostimate.app.ui.calendar.CalendarViewModel
-import com.ostimate.app.ui.history.HistoryViewModel
-import com.ostimate.app.ui.home.HomeViewModel
-import com.ostimate.app.ui.onboarding.OnboardingViewModel
-import com.ostimate.app.ui.settings.ManageSuppliesViewModel
-import com.ostimate.app.ui.settings.SettingsViewModel
-import com.ostimate.app.ui.stats.StatsViewModel
+import com.ostomate.app.ui.calendar.CalendarViewModel
+import com.ostomate.app.ui.history.HistoryViewModel
+import com.ostomate.app.ui.home.HomeViewModel
+import com.ostomate.app.ui.onboarding.OnboardingViewModel
+import com.ostomate.app.ui.settings.ManageSuppliesViewModel
+import com.ostomate.app.ui.settings.SettingsViewModel
+import com.ostomate.app.ui.stats.StatsViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration

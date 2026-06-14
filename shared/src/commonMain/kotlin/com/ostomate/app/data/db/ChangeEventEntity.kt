@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

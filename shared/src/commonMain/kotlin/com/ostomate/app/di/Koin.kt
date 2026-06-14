@@ -1,14 +1,14 @@
-package com.ostimate.app.di
+package com.ostomate.app.di
 
-import com.ostimate.app.data.BackupRepository
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.data.db.ChangeEventDao
-import com.ostimate.app.data.db.OstimateDatabase
-import com.ostimate.app.data.db.SupplyTypeDao
-import com.ostimate.app.data.db.buildDatabase
-import com.ostimate.app.data.settings.SettingsRepository
-import com.ostimate.app.domain.NotificationScheduler
+import com.ostomate.app.data.BackupRepository
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.data.db.ChangeEventDao
+import com.ostomate.app.data.db.OstomateDatabase
+import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.data.db.buildDatabase
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.domain.NotificationScheduler
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -18,9 +18,9 @@ expect val platformModule: Module
 
 val dataModule =
     module {
-        single<OstimateDatabase> { buildDatabase(get()) }
-        single<ChangeEventDao> { get<OstimateDatabase>().changeEventDao() }
-        single<SupplyTypeDao> { get<OstimateDatabase>().supplyTypeDao() }
+        single<OstomateDatabase> { buildDatabase(get()) }
+        single<ChangeEventDao> { get<OstomateDatabase>().changeEventDao() }
+        single<SupplyTypeDao> { get<OstomateDatabase>().supplyTypeDao() }
         singleOf(::ChangeEventRepository)
         singleOf(::SupplyRepository)
         singleOf(::SettingsRepository)

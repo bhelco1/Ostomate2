@@ -1,8 +1,8 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyKind
 
 /**
  * A supply catalog row (v2 data model in 02-architecture.md). Supply types are

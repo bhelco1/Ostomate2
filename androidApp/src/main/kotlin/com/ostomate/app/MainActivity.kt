@@ -1,4 +1,4 @@
-package com.ostimate.app
+package com.ostomate.app
 
 import android.Manifest
 import android.content.Intent
@@ -9,10 +9,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.platform.CurrentActivityHolder
-import com.ostimate.app.platform.DeepLinkBus
-import com.ostimate.app.platform.LastCrashStore
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.platform.CurrentActivityHolder
+import com.ostomate.app.platform.DeepLinkBus
+import com.ostomate.app.platform.LastCrashStore
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 

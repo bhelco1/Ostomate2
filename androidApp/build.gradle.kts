@@ -1,7 +1,7 @@
 import java.util.Properties
 
 plugins {
-    id("ostimate.android-app")
+    id("ostomate.android-app")
     alias(libs.plugins.composeCompiler)
 }
 
@@ -12,12 +12,12 @@ val localProps = Properties().apply {
 }
 
 android {
-    namespace = "com.ostimate.app"
+    namespace = "com.ostomate.app"
     buildFeatures {
         buildConfig = true
     }
     defaultConfig {
-        applicationId = "com.ostimate.app"
+        applicationId = "com.ostomate.app"
         versionCode = 1
         versionName = "1.0"
         // local.properties: SENTRY_DSN=https://...  CI: -PSENTRY_DSN=https://...

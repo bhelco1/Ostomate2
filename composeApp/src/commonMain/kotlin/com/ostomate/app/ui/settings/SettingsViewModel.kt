@@ -1,12 +1,12 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.BackupRepository
-import com.ostimate.app.data.ImportSummary
-import com.ostimate.app.data.settings.AppSettings
-import com.ostimate.app.data.settings.SettingsRepository
-import com.ostimate.app.platform.CrashReporter
+import com.ostomate.app.data.BackupRepository
+import com.ostomate.app.data.ImportSummary
+import com.ostomate.app.data.settings.AppSettings
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.platform.CrashReporter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

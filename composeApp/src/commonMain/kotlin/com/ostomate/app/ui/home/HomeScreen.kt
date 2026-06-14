@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x monthNumber/dayOfMonth/dayOfWeek deprecation
 
-package com.ostimate.app.ui.home
+package com.ostomate.app.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,13 +24,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_undo
-import com.ostimate.app.resources.home_no_supplies
-import com.ostimate.app.resources.home_overflow_view_history
-import com.ostimate.app.resources.home_snackbar_logged
-import com.ostimate.app.resources.home_snackbar_logged_count
-import com.ostimate.app.ui.components.SupplyCard
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_undo
+import com.ostomate.app.resources.home_no_supplies
+import com.ostomate.app.resources.home_overflow_view_history
+import com.ostomate.app.resources.home_snackbar_logged
+import com.ostomate.app.resources.home_snackbar_logged_count
+import com.ostomate.app.ui.components.SupplyCard
 import kotlinx.datetime.Clock
 import org.jetbrains.compose.resources.stringResource
 import kotlinx.datetime.TimeZone
@@ -93,7 +93,7 @@ fun HomeScreen(
         ) {
             item {
                 Column {
-                    Text("Ostimate", style = MaterialTheme.typography.headlineMedium)
+                    Text("Ostomate", style = MaterialTheme.typography.headlineMedium)
                     Text(
                         todayDateLabel(),
                         style = MaterialTheme.typography.bodySmall,

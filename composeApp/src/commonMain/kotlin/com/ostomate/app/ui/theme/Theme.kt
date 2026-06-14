@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.theme
+package com.ostomate.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -6,32 +6,32 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyKind
 
 @Composable
-fun OstimateTheme(content: @Composable () -> Unit) {
+fun OstomateTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
     val colorScheme =
         if (dark) {
             darkColorScheme(
-                primary = OstimateColors.PrimaryDark,
-                background = OstimateColors.BackgroundDark,
-                surface = OstimateColors.SurfaceDark,
-                onBackground = OstimateColors.TextPrimaryDark,
-                onSurface = OstimateColors.TextPrimaryDark,
-                outline = OstimateColors.DividerDark,
+                primary = OstomateColors.PrimaryDark,
+                background = OstomateColors.BackgroundDark,
+                surface = OstomateColors.SurfaceDark,
+                onBackground = OstomateColors.TextPrimaryDark,
+                onSurface = OstomateColors.TextPrimaryDark,
+                outline = OstomateColors.DividerDark,
             )
         } else {
             lightColorScheme(
-                primary = OstimateColors.Primary,
-                background = OstimateColors.Background,
-                surface = OstimateColors.Surface,
-                onBackground = OstimateColors.TextPrimary,
-                onSurface = OstimateColors.TextPrimary,
-                outline = OstimateColors.Divider,
+                primary = OstomateColors.Primary,
+                background = OstomateColors.Background,
+                surface = OstomateColors.Surface,
+                onBackground = OstomateColors.TextPrimary,
+                onSurface = OstomateColors.TextPrimary,
+                outline = OstomateColors.Divider,
             )
         }
-    MaterialTheme(colorScheme = colorScheme, typography = OstimateTypography, content = content)
+    MaterialTheme(colorScheme = colorScheme, typography = OstomateTypography, content = content)
 }
 
 @Composable
@@ -41,8 +41,8 @@ fun supplyColor(
 ): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
-        SupplyKind.BAG -> if (dark) OstimateColors.BagDark else OstimateColors.Bag
-        SupplyKind.FLANGE -> if (dark) OstimateColors.FlangeDark else OstimateColors.Flange
+        SupplyKind.BAG -> if (dark) OstomateColors.BagDark else OstomateColors.Bag
+        SupplyKind.FLANGE -> if (dark) OstomateColors.FlangeDark else OstomateColors.Flange
         SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark)
     }
 }
@@ -54,8 +54,8 @@ fun supplyPillBg(
 ): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
-        SupplyKind.BAG -> if (dark) OstimateColors.BagPillBgDark else OstimateColors.BagPillBg
-        SupplyKind.FLANGE -> if (dark) OstimateColors.FlangePillBgDark else OstimateColors.FlangePillBg
+        SupplyKind.BAG -> if (dark) OstomateColors.BagPillBgDark else OstomateColors.BagPillBg
+        SupplyKind.FLANGE -> if (dark) OstomateColors.FlangePillBgDark else OstomateColors.FlangePillBg
         SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark).copy(alpha = 0.15f)
     }
 }
@@ -67,8 +67,8 @@ fun supplyPillText(
 ): Color {
     val dark = isSystemInDarkTheme()
     return when (kind) {
-        SupplyKind.BAG -> if (dark) OstimateColors.BagPillTextDark else OstimateColors.BagPillText
-        SupplyKind.FLANGE -> if (dark) OstimateColors.FlangePillTextDark else OstimateColors.FlangePillText
+        SupplyKind.BAG -> if (dark) OstomateColors.BagPillTextDark else OstomateColors.BagPillText
+        SupplyKind.FLANGE -> if (dark) OstomateColors.FlangePillTextDark else OstomateColors.FlangePillText
         SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark)
     }
 }
@@ -79,15 +79,15 @@ private fun customSupplyColor(
 ): Color {
     val light =
         arrayOf(
-            OstimateColors.Custom0, OstimateColors.Custom1, OstimateColors.Custom2,
-            OstimateColors.Custom3, OstimateColors.Custom4, OstimateColors.Custom5,
-            OstimateColors.Custom6, OstimateColors.Custom7,
+            OstomateColors.Custom0, OstomateColors.Custom1, OstomateColors.Custom2,
+            OstomateColors.Custom3, OstomateColors.Custom4, OstomateColors.Custom5,
+            OstomateColors.Custom6, OstomateColors.Custom7,
         )
     val darkPalette =
         arrayOf(
-            OstimateColors.Custom0Dark, OstimateColors.Custom1Dark, OstimateColors.Custom2Dark,
-            OstimateColors.Custom3Dark, OstimateColors.Custom4Dark, OstimateColors.Custom5Dark,
-            OstimateColors.Custom6Dark, OstimateColors.Custom7Dark,
+            OstomateColors.Custom0Dark, OstomateColors.Custom1Dark, OstomateColors.Custom2Dark,
+            OstomateColors.Custom3Dark, OstomateColors.Custom4Dark, OstomateColors.Custom5Dark,
+            OstomateColors.Custom6Dark, OstomateColors.Custom7Dark,
         )
     val palette = if (dark) darkPalette else light
     return if (colorIndex != null && colorIndex in palette.indices) {
@@ -98,10 +98,10 @@ private fun customSupplyColor(
 }
 
 @Composable
-fun warnBg(): Color = if (isSystemInDarkTheme()) OstimateColors.WarnBgDark else OstimateColors.WarnBg
+fun warnBg(): Color = if (isSystemInDarkTheme()) OstomateColors.WarnBgDark else OstomateColors.WarnBg
 
 @Composable
-fun warnBorder(): Color = if (isSystemInDarkTheme()) OstimateColors.WarnBorderDark else OstimateColors.WarnBorder
+fun warnBorder(): Color = if (isSystemInDarkTheme()) OstomateColors.WarnBorderDark else OstomateColors.WarnBorder
 
 @Composable
-fun warnText(): Color = if (isSystemInDarkTheme()) OstimateColors.WarnTextDark else OstimateColors.WarnText
+fun warnText(): Color = if (isSystemInDarkTheme()) OstomateColors.WarnTextDark else OstomateColors.WarnText

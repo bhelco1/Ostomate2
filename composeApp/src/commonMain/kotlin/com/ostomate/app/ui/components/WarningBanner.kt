@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.components
+package com.ostomate.app.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
@@ -17,9 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.ui.theme.warnBg
-import com.ostimate.app.ui.theme.warnBorder
-import com.ostimate.app.ui.theme.warnText
+import com.ostomate.app.ui.theme.warnBg
+import com.ostomate.app.ui.theme.warnBorder
+import com.ostomate.app.ui.theme.warnText
 
 @Composable
 fun WarningBanner(

@@ -1,12 +1,12 @@
-package com.ostimate.app.data
+package com.ostomate.app.data
 
-import com.ostimate.app.data.db.ChangeEventDao
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.SupplyTypeDao
-import com.ostimate.app.domain.CsvExporter
-import com.ostimate.app.domain.CsvV1Importer
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.platform.currentTimeMillis
+import com.ostomate.app.data.db.ChangeEventDao
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.domain.CsvExporter
+import com.ostomate.app.domain.CsvV1Importer
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.first
 
 data class ImportSummary(

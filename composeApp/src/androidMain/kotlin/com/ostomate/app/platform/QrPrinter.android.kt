@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import android.content.Context
 import android.graphics.Canvas
@@ -20,8 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.domain.SupplyKind
 import java.io.FileOutputStream
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -29,7 +29,7 @@ actual class QrPrinter(private val context: Context) {
     actual fun print(supplies: List<SupplyTypeEntity>) {
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
         printManager.print(
-            "Ostimate QR Labels",
+            "Ostomate QR Labels",
             QrLabelsPrintAdapter(context, supplies),
             PrintAttributes.Builder()
                 .setMediaSize(PrintAttributes.MediaSize.NA_LETTER)
@@ -66,7 +66,7 @@ private class QrLabelsPrintAdapter(
         printAttributes = newAttributes
         val info =
             PrintDocumentInfo
-                .Builder("ostimate_qr_labels.pdf")
+                .Builder("ostomate_qr_labels.pdf")
                 .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
                 .setPageCount(1)
                 .build()
@@ -187,6 +187,6 @@ private class QrLabelsPrintAdapter(
                 SupplyKind.FLANGE -> "flange"
                 SupplyKind.CUSTOM -> "id:${supply.id}"
             }
-        return "ostimate://log?item=$item"
+        return "ostomate://log?item=$item"
     }
 }

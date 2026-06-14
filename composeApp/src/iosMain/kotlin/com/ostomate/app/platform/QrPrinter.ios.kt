@@ -1,8 +1,8 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.ostimate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.db.SupplyTypeEntity
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class QrPrinter {

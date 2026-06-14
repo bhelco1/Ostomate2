@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
@@ -22,8 +22,8 @@ class Migration1To2Test {
     // Set on KotlinNativeSimulatorTest tasks in shared/build.gradle.kts — the
     // schema JSONs live in the source tree, not the simulator sandbox.
     private val schemasDir =
-        requireNotNull(getenv("OSTIMATE_SCHEMAS_PATH")?.toKString()) {
-            "OSTIMATE_SCHEMAS_PATH env var not set (see shared/build.gradle.kts)"
+        requireNotNull(getenv("OSTOMATE_SCHEMAS_PATH")?.toKString()) {
+            "OSTOMATE_SCHEMAS_PATH env var not set (see shared/build.gradle.kts)"
         }
 
     private val dbFile = NSTemporaryDirectory() + "migration-1-2-test.db"
@@ -33,7 +33,7 @@ class Migration1To2Test {
             schemaDirectoryPath = schemasDir,
             fileName = dbFile,
             driver = BundledSQLiteDriver(),
-            databaseClass = OstimateDatabase::class,
+            databaseClass = OstomateDatabase::class,
         )
 
     @AfterTest

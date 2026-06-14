@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.components
+package com.ostomate.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -11,9 +11,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.ui.theme.supplyPillBg
-import com.ostimate.app.ui.theme.supplyPillText
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.ui.theme.supplyPillBg
+import com.ostomate.app.ui.theme.supplyPillText
 
 // Pills always carry a text label — color is never the only signal (a11y rule from 03-ui-ux-design.md).
 @Composable

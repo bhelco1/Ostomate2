@@ -26,10 +26,10 @@
 	<array>
 		<dict>
 			<key>CFBundleURLName</key>
-			<string>com.ostimate.app.deeplink</string>
+			<string>com.ostomate.app.deeplink</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>ostimate</string>
+				<string>ostomate</string>
 			</array>
 		</dict>
 	</array>

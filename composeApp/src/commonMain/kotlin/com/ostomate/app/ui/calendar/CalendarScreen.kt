@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x deprecation — see CalendarViewModel
 
-package com.ostimate.app.ui.calendar
+package com.ostomate.app.ui.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -64,27 +64,27 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.platform.formatTimestamp
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_cancel
-import com.ostimate.app.resources.action_undo
-import com.ostimate.app.resources.calendar_add_entry_button
-import com.ostimate.app.resources.calendar_add_entry_question
-import com.ostimate.app.resources.calendar_add_entry_title
-import com.ostimate.app.resources.calendar_event_deleted
-import com.ostimate.app.resources.calendar_no_events_today
-import com.ostimate.app.resources.action_edit_event
-import com.ostimate.app.resources.cd_delete_event
-import com.ostimate.app.resources.cd_next_month
-import com.ostimate.app.resources.cd_previous_month
-import com.ostimate.app.resources.cd_view_day
-import com.ostimate.app.ui.components.Pill
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.platform.formatTimestamp
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_undo
+import com.ostomate.app.resources.calendar_add_entry_button
+import com.ostomate.app.resources.calendar_add_entry_question
+import com.ostomate.app.resources.calendar_add_entry_title
+import com.ostomate.app.resources.calendar_event_deleted
+import com.ostomate.app.resources.calendar_no_events_today
+import com.ostomate.app.resources.action_edit_event
+import com.ostomate.app.resources.cd_delete_event
+import com.ostomate.app.resources.cd_next_month
+import com.ostomate.app.resources.cd_previous_month
+import com.ostomate.app.resources.cd_view_day
+import com.ostomate.app.ui.components.Pill
 import org.jetbrains.compose.resources.stringResource
-import com.ostimate.app.ui.history.EditEventDialog
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.ui.history.EditEventDialog
+import com.ostomate.app.ui.theme.supplyColor
 import kotlinx.datetime.LocalDate
 import org.koin.compose.viewmodel.koinViewModel
 

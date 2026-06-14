@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.stats
+package com.ostomate.app.ui.stats
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,17 +35,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.cd_sparkline
-import com.ostimate.app.resources.stats_avg_days
-import com.ostimate.app.resources.stats_changes_count
-import com.ostimate.app.resources.stats_days_between
-import com.ostimate.app.resources.stats_no_events
-import com.ostimate.app.resources.stats_period_month
-import com.ostimate.app.resources.stats_period_week
-import com.ostimate.app.resources.stats_period_year
-import com.ostimate.app.ui.components.Pill
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.cd_sparkline
+import com.ostomate.app.resources.stats_avg_days
+import com.ostomate.app.resources.stats_changes_count
+import com.ostomate.app.resources.stats_days_between
+import com.ostomate.app.resources.stats_no_events
+import com.ostomate.app.resources.stats_period_month
+import com.ostomate.app.resources.stats_period_week
+import com.ostomate.app.resources.stats_period_year
+import com.ostomate.app.ui.components.Pill
+import com.ostomate.app.ui.theme.supplyColor
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt

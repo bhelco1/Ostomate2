@@ -1,8 +1,8 @@
-package com.ostimate.app.data
+package com.ostomate.app.data
 
-import com.ostimate.app.data.db.SupplyTypeDao
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.Flow
 
 class SupplyRepository(private val dao: SupplyTypeDao) {

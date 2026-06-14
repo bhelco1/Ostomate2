@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.components
+package com.ostomate.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -34,17 +34,17 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.cd_supply_more_options
-import com.ostimate.app.resources.supply_days_remaining
-import com.ostimate.app.resources.supply_edit_count_label
-import com.ostimate.app.resources.supply_log_button_label
-import com.ostimate.app.resources.supply_no_data
-import com.ostimate.app.resources.supply_on_hand
-import com.ostimate.app.resources.supply_warning_banner
-import com.ostimate.app.resources.supply_zero_days
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.cd_supply_more_options
+import com.ostomate.app.resources.supply_days_remaining
+import com.ostomate.app.resources.supply_edit_count_label
+import com.ostomate.app.resources.supply_log_button_label
+import com.ostomate.app.resources.supply_no_data
+import com.ostomate.app.resources.supply_on_hand
+import com.ostomate.app.resources.supply_warning_banner
+import com.ostomate.app.resources.supply_zero_days
+import com.ostomate.app.ui.theme.supplyColor
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 

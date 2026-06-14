@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,7 @@ import androidx.core.content.pm.PackageInfoCompat
 
 actual class FeedbackHelper(private val context: Context) {
     actual fun launch() {
-        val subject = "Ostimate 2.0 Feedback"
+        val subject = "Ostomate 2.0 Feedback"
         val body = buildBody()
 
         val intent =
@@ -31,7 +31,7 @@ actual class FeedbackHelper(private val context: Context) {
         val crashInfo = buildCrashInfo()
 
         return "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
-            "OSTIMATE 2.0 — FEEDBACK REPORT\n" +
+            "OSTOMATE 2.0 — FEEDBACK REPORT\n" +
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
             "\n" +
             "─── APP INFORMATION ───────────────\n" +
@@ -56,7 +56,7 @@ actual class FeedbackHelper(private val context: Context) {
             val pi = pm.getPackageInfo(context.packageName, 0)
             val versionCode = PackageInfoCompat.getLongVersionCode(pi)
             buildString {
-                appendLine("App:          Ostimate 2.0")
+                appendLine("App:          Ostomate 2.0")
                 appendLine("Version name: ${pi.versionName ?: "unknown"}")
                 appendLine("Version code: $versionCode")
                 append("Package:      ${context.packageName}")

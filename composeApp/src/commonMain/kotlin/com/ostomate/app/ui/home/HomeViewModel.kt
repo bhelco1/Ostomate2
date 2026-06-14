@@ -1,13 +1,13 @@
-package com.ostimate.app.ui.home
+package com.ostomate.app.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.domain.NotificationScheduler
-import com.ostimate.app.domain.PredictionEngine
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.domain.NotificationScheduler
+import com.ostomate.app.domain.PredictionEngine
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

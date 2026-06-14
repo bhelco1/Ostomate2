@@ -1,4 +1,4 @@
-# Ostimate 2.0
+# Ostomate 2.0
 
 Cross-platform (Android + iOS) ostomy supply tracker. Ground-up rewrite of
 [Ostomate v1](../Ostomate) in Kotlin Multiplatform with Compose Multiplatform UI.
@@ -37,7 +37,7 @@ xcodebuild -project iosApp.xcodeproj -target iosApp -configuration Debug \
 
 Deep-link test (Android, with device):
 ```bash
-adb shell am start -a android.intent.action.VIEW -d "ostimate://log?item=bag" com.ostimate.app
+adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" com.ostomate.app
 ```
 
 ## Conventions

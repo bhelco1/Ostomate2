@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.runtime.Composable
 

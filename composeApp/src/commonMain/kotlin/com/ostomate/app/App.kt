@@ -1,4 +1,4 @@
-package com.ostimate.app
+package com.ostomate.app
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,26 +30,26 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.ostimate.app.data.settings.SettingsRepository
-import com.ostimate.app.platform.DeepLinkBus
-import com.ostimate.app.ui.calendar.CalendarScreen
-import com.ostimate.app.ui.history.HistoryScreen
-import com.ostimate.app.ui.home.HomeScreen
-import com.ostimate.app.ui.onboarding.OnboardingScreen
-import com.ostimate.app.ui.settings.ManageSuppliesScreen
-import com.ostimate.app.ui.settings.PrivacyPolicyScreen
-import com.ostimate.app.ui.settings.QrLabelsScreen
-import com.ostimate.app.ui.settings.ReorderWarningsScreen
-import com.ostimate.app.ui.settings.SettingsScreen
-import com.ostimate.app.ui.stats.StatsScreen
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.deeplink_logged
-import com.ostimate.app.resources.deeplink_unrecognized
-import com.ostimate.app.resources.nav_calendar
-import com.ostimate.app.resources.nav_home
-import com.ostimate.app.resources.nav_settings
-import com.ostimate.app.resources.nav_stats
-import com.ostimate.app.ui.theme.OstimateTheme
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.platform.DeepLinkBus
+import com.ostomate.app.ui.calendar.CalendarScreen
+import com.ostomate.app.ui.history.HistoryScreen
+import com.ostomate.app.ui.home.HomeScreen
+import com.ostomate.app.ui.onboarding.OnboardingScreen
+import com.ostomate.app.ui.settings.ManageSuppliesScreen
+import com.ostomate.app.ui.settings.PrivacyPolicyScreen
+import com.ostomate.app.ui.settings.QrLabelsScreen
+import com.ostomate.app.ui.settings.ReorderWarningsScreen
+import com.ostomate.app.ui.settings.SettingsScreen
+import com.ostomate.app.ui.stats.StatsScreen
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.deeplink_logged
+import com.ostomate.app.resources.deeplink_unrecognized
+import com.ostomate.app.resources.nav_calendar
+import com.ostomate.app.resources.nav_home
+import com.ostomate.app.resources.nav_settings
+import com.ostomate.app.resources.nav_stats
+import com.ostomate.app.ui.theme.OstomateTheme
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -74,7 +74,7 @@ import org.koin.compose.koinInject
 
 @Composable
 fun App() {
-    OstimateTheme {
+    OstomateTheme {
         Surface(Modifier.fillMaxSize()) {
             val settingsRepo = koinInject<SettingsRepository>()
             val settings by settingsRepo.settings.collectAsState(initial = null)

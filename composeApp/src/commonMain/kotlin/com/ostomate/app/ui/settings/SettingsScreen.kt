@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -32,43 +32,43 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.platform.FeedbackHelper
-import com.ostimate.app.platform.FileSharer
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_ok
-import com.ostimate.app.resources.settings_app_version
-import com.ostimate.app.resources.settings_backup
-import com.ostimate.app.resources.settings_backup_sub
-import com.ostimate.app.resources.settings_biometric_lock
-import com.ostimate.app.resources.settings_biometric_lock_sub
-import com.ostimate.app.resources.settings_crash_reporting
-import com.ostimate.app.resources.settings_crash_reporting_sub
-import com.ostimate.app.resources.settings_dev_off_body
-import com.ostimate.app.resources.settings_dev_off_title
-import com.ostimate.app.resources.settings_dev_on_body
-import com.ostimate.app.resources.settings_dev_on_title
-import com.ostimate.app.resources.settings_export
-import com.ostimate.app.resources.settings_feedback
-import com.ostimate.app.resources.settings_feedback_sub
-import com.ostimate.app.resources.settings_import
-import com.ostimate.app.resources.settings_import_complete_title
-import com.ostimate.app.resources.settings_import_result
-import com.ostimate.app.resources.settings_import_too_large
-import com.ostimate.app.resources.settings_import_v1
-import com.ostimate.app.resources.settings_import_v1_sub
-import com.ostimate.app.resources.settings_manage_supplies
-import com.ostimate.app.resources.settings_manage_supplies_sub
-import com.ostimate.app.resources.settings_print_qr
-import com.ostimate.app.resources.settings_print_qr_sub
-import com.ostimate.app.resources.settings_privacy_policy
-import com.ostimate.app.resources.settings_reorder_warnings
-import com.ostimate.app.resources.settings_reorder_warnings_sub
-import com.ostimate.app.resources.settings_section_about
-import com.ostimate.app.resources.settings_section_about_dev
-import com.ostimate.app.resources.settings_section_data
-import com.ostimate.app.resources.settings_section_inventory
-import com.ostimate.app.resources.settings_section_security
-import com.ostimate.app.resources.settings_section_support
+import com.ostomate.app.platform.FeedbackHelper
+import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_ok
+import com.ostomate.app.resources.settings_app_version
+import com.ostomate.app.resources.settings_backup
+import com.ostomate.app.resources.settings_backup_sub
+import com.ostomate.app.resources.settings_biometric_lock
+import com.ostomate.app.resources.settings_biometric_lock_sub
+import com.ostomate.app.resources.settings_crash_reporting
+import com.ostomate.app.resources.settings_crash_reporting_sub
+import com.ostomate.app.resources.settings_dev_off_body
+import com.ostomate.app.resources.settings_dev_off_title
+import com.ostomate.app.resources.settings_dev_on_body
+import com.ostomate.app.resources.settings_dev_on_title
+import com.ostomate.app.resources.settings_export
+import com.ostomate.app.resources.settings_feedback
+import com.ostomate.app.resources.settings_feedback_sub
+import com.ostomate.app.resources.settings_import
+import com.ostomate.app.resources.settings_import_complete_title
+import com.ostomate.app.resources.settings_import_result
+import com.ostomate.app.resources.settings_import_too_large
+import com.ostomate.app.resources.settings_import_v1
+import com.ostomate.app.resources.settings_import_v1_sub
+import com.ostomate.app.resources.settings_manage_supplies
+import com.ostomate.app.resources.settings_manage_supplies_sub
+import com.ostomate.app.resources.settings_print_qr
+import com.ostomate.app.resources.settings_print_qr_sub
+import com.ostomate.app.resources.settings_privacy_policy
+import com.ostomate.app.resources.settings_reorder_warnings
+import com.ostomate.app.resources.settings_reorder_warnings_sub
+import com.ostomate.app.resources.settings_section_about
+import com.ostomate.app.resources.settings_section_about_dev
+import com.ostomate.app.resources.settings_section_data
+import com.ostomate.app.resources.settings_section_inventory
+import com.ostomate.app.resources.settings_section_security
+import com.ostomate.app.resources.settings_section_support
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -242,7 +242,7 @@ fun SettingsScreen(
                             viewModel.exportCsv { csv ->
                                 fileSharer.shareText(
                                     content = csv,
-                                    fileName = "ostimate_backup.csv",
+                                    fileName = "ostomate_backup.csv",
                                     mimeType = "text/csv",
                                 )
                             }
@@ -305,7 +305,7 @@ fun SettingsScreen(
                         }
                     },
             )
-            SettingsItem(title = "Ostimate", subtitle = stringResource(Res.string.settings_app_version))
+            SettingsItem(title = "Ostomate", subtitle = stringResource(Res.string.settings_app_version))
             ListItem(
                 headlineContent = {
                     Text(

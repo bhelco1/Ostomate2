@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 import kotlinx.datetime.Instant
 import kotlin.test.Test

@@ -1,9 +1,9 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 import android.content.Context
 
 object LastCrashStore {
-    private const val PREFS_NAME = "ostimate_crash"
+    private const val PREFS_NAME = "ostomate_crash"
     private const val KEY_CRASH = "last_crash"
     private const val MAX_TRACE_CHARS = 4_000
 

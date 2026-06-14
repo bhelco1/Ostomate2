@@ -1,4 +1,4 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 object PredictionEngine {
     private const val MILLIS_PER_DAY = 86_400_000.0

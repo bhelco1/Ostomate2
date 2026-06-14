@@ -1,23 +1,23 @@
-package com.ostimate.app.di
+package com.ostomate.app.di
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.RoomDatabase
-import com.ostimate.app.data.db.OstimateDatabase
-import com.ostimate.app.data.db.databaseBuilder
-import com.ostimate.app.data.settings.settingsDataStore
-import com.ostimate.app.platform.BiometricAuthenticator
-import com.ostimate.app.platform.CrashReporter
-import com.ostimate.app.platform.FeedbackHelper
-import com.ostimate.app.platform.FileSharer
-import com.ostimate.app.platform.Notifier
+import com.ostomate.app.data.db.OstomateDatabase
+import com.ostomate.app.data.db.databaseBuilder
+import com.ostomate.app.data.settings.settingsDataStore
+import com.ostomate.app.platform.BiometricAuthenticator
+import com.ostomate.app.platform.CrashReporter
+import com.ostomate.app.platform.FeedbackHelper
+import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.Notifier
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual val platformModule: Module =
     module {
-        single<RoomDatabase.Builder<OstimateDatabase>> { databaseBuilder(androidContext()) }
+        single<RoomDatabase.Builder<OstomateDatabase>> { databaseBuilder(androidContext()) }
         single<DataStore<Preferences>> { settingsDataStore(androidContext()) }
         single { Notifier(androidContext()) }
         single { BiometricAuthenticator() }

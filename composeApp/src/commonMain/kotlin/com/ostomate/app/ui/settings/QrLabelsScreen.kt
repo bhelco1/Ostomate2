@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -40,20 +40,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.domain.SupplyKind
-import com.ostimate.app.platform.FileSharer
-import com.ostimate.app.platform.rememberQrPrinter
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.cd_back
-import com.ostimate.app.resources.cd_qr_code_for
-import com.ostimate.app.resources.cd_share_all_links
-import com.ostimate.app.resources.qr_labels_no_supplies
-import com.ostimate.app.resources.qr_labels_print
-import com.ostimate.app.resources.qr_labels_share_link
-import com.ostimate.app.resources.qr_labels_title
-import com.ostimate.app.resources.qr_links_header
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.rememberQrPrinter
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.cd_qr_code_for
+import com.ostomate.app.resources.cd_share_all_links
+import com.ostomate.app.resources.qr_labels_no_supplies
+import com.ostomate.app.resources.qr_labels_print
+import com.ostomate.app.resources.qr_labels_share_link
+import com.ostomate.app.resources.qr_labels_title
+import com.ostomate.app.resources.qr_links_header
+import com.ostomate.app.ui.theme.supplyColor
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -91,7 +91,7 @@ fun QrLabelsScreen(
                                 }
                             fileSharer.shareText(
                                 content = "$qrLinksHeader\n\n$urls",
-                                fileName = "ostimate-qr-links.txt",
+                                fileName = "ostomate-qr-links.txt",
                                 mimeType = "text/plain",
                             )
                         },
@@ -189,7 +189,7 @@ private fun QrLabelCard(
                 onClick = {
                     fileSharer.shareText(
                         content = "${supply.name}\n$url",
-                        fileName = "ostimate-qr-link.txt",
+                        fileName = "ostomate-qr-link.txt",
                         mimeType = "text/plain",
                     )
                 },
@@ -214,5 +214,5 @@ private fun supplyDeepLinkUrl(supply: SupplyTypeEntity): String {
             SupplyKind.FLANGE -> "flange"
             SupplyKind.CUSTOM -> "id:${supply.id}"
         }
-    return "ostimate://log?item=$item"
+    return "ostomate://log?item=$item"
 }

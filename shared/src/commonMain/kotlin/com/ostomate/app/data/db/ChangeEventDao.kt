@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -6,7 +6,7 @@ import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import com.ostimate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.Flow
 
 /** An event joined with the catalog fields the UI needs to render it. */

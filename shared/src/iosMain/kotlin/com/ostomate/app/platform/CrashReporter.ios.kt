@@ -1,4 +1,4 @@
-package com.ostimate.app.platform
+package com.ostomate.app.platform
 
 // iOS Sentry integration is deferred: add `Sentry` via Swift Package Manager in
 // iosApp/iosApp, call SentrySDK.start in the Swift entry point (AppDelegate or

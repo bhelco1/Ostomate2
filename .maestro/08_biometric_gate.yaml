@@ -1,4 +1,4 @@
-appId: com.ostimate.app
+appId: com.ostomate.app
 name: "Journey 8: Biometric gate on edit count"
 ---
 - launchApp:

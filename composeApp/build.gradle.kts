@@ -1,12 +1,12 @@
 plugins {
-    id("ostimate.kmp-library")
+    id("ostomate.kmp-library")
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
 }
 
 compose.resources {
-    packageOfResClass = "com.ostimate.app.resources"
+    packageOfResClass = "com.ostomate.app.resources"
 }
 
 kotlin {
@@ -24,7 +24,7 @@ kotlin {
     }
 
     androidLibrary {
-        namespace = "com.ostimate.app.compose"
+        namespace = "com.ostomate.app.compose"
         androidResources {
             enable = true
         }

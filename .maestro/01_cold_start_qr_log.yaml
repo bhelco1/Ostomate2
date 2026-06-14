@@ -1,10 +1,10 @@
-appId: com.ostimate.app
+appId: com.ostomate.app
 name: "Journey 1: Cold-start QR log"
 ---
 # Launch via deep link (simulates QR scan)
 - launchApp:
     arguments:
-      url: "ostimate://log?item=bag"
+      url: "ostomate://log?item=bag"
     clearState: true
 
 # Confirmation snackbar should appear

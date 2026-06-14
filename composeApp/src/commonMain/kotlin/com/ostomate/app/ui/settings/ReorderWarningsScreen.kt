@@ -1,4 +1,4 @@
-package com.ostimate.app.ui.settings
+package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -41,20 +41,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
-import com.ostimate.app.data.db.SupplyTypeEntity
-import com.ostimate.app.resources.Res
-import com.ostimate.app.resources.action_cancel
-import com.ostimate.app.resources.action_save
-import com.ostimate.app.resources.cd_back
-import com.ostimate.app.resources.cd_edit_threshold
-import com.ostimate.app.resources.manage_supplies_warn_days_label
-import com.ostimate.app.resources.reorder_warnings_days_suffix
-import com.ostimate.app.resources.reorder_warnings_description
-import com.ostimate.app.resources.reorder_warnings_dialog_body
-import com.ostimate.app.resources.reorder_warnings_dialog_title
-import com.ostimate.app.resources.reorder_warnings_title
-import com.ostimate.app.resources.reorder_warnings_warn_after
-import com.ostimate.app.ui.theme.supplyColor
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_save
+import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.cd_edit_threshold
+import com.ostomate.app.resources.manage_supplies_warn_days_label
+import com.ostomate.app.resources.reorder_warnings_days_suffix
+import com.ostomate.app.resources.reorder_warnings_description
+import com.ostomate.app.resources.reorder_warnings_dialog_body
+import com.ostomate.app.resources.reorder_warnings_dialog_title
+import com.ostomate.app.resources.reorder_warnings_title
+import com.ostomate.app.resources.reorder_warnings_warn_after
+import com.ostomate.app.ui.theme.supplyColor
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

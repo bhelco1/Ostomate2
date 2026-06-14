@@ -1,4 +1,4 @@
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -7,42 +7,42 @@ import kotlin.test.assertNull
 class DeepLinkParserTest {
     @Test
     fun parsesBagLink() {
-        assertEquals("bag", DeepLinkParser.parse("ostimate://log?item=bag"))
+        assertEquals("bag", DeepLinkParser.parse("ostomate://log?item=bag"))
     }
 
     @Test
     fun parsesFlangeLink() {
-        assertEquals("flange", DeepLinkParser.parse("ostimate://log?item=flange"))
+        assertEquals("flange", DeepLinkParser.parse("ostomate://log?item=flange"))
     }
 
     @Test
     fun isCaseInsensitive() {
-        assertEquals("bag", DeepLinkParser.parse("OSTIMATE://LOG?ITEM=BAG"))
+        assertEquals("bag", DeepLinkParser.parse("OSTOMATE://LOG?ITEM=BAG"))
     }
 
     @Test
     fun toleratesSurroundingWhitespace() {
-        assertEquals("bag", DeepLinkParser.parse("  ostimate://log?item=bag "))
+        assertEquals("bag", DeepLinkParser.parse("  ostomate://log?item=bag "))
     }
 
     @Test
     fun toleratesTrailingSlashOnHost() {
-        assertEquals("bag", DeepLinkParser.parse("ostimate://log/?item=bag"))
+        assertEquals("bag", DeepLinkParser.parse("ostomate://log/?item=bag"))
     }
 
     @Test
     fun picksItemAmongOtherParams() {
-        assertEquals("flange", DeepLinkParser.parse("ostimate://log?source=qr&item=flange"))
+        assertEquals("flange", DeepLinkParser.parse("ostomate://log?source=qr&item=flange"))
     }
 
     @Test
     fun rejectsUnknownSupply() {
-        assertNull(DeepLinkParser.parse("ostimate://log?item=pouch"))
+        assertNull(DeepLinkParser.parse("ostomate://log?item=pouch"))
     }
 
     @Test
     fun rejectsWrongHost() {
-        assertNull(DeepLinkParser.parse("ostimate://login?item=bag"))
+        assertNull(DeepLinkParser.parse("ostomate://login?item=bag"))
     }
 
     @Test
@@ -52,12 +52,12 @@ class DeepLinkParserTest {
 
     @Test
     fun rejectsMissingQuery() {
-        assertNull(DeepLinkParser.parse("ostimate://log"))
+        assertNull(DeepLinkParser.parse("ostomate://log"))
     }
 
     @Test
     fun rejectsMissingItemParam() {
-        assertNull(DeepLinkParser.parse("ostimate://log?source=qr"))
+        assertNull(DeepLinkParser.parse("ostomate://log?source=qr"))
     }
 
     @Test
@@ -67,16 +67,16 @@ class DeepLinkParserTest {
 
     @Test
     fun parsesCustomSupplyIdLink() {
-        assertEquals("id:42", DeepLinkParser.parse("ostimate://log?item=id:42"))
+        assertEquals("id:42", DeepLinkParser.parse("ostomate://log?item=id:42"))
     }
 
     @Test
     fun rejectsNonNumericCustomId() {
-        assertNull(DeepLinkParser.parse("ostimate://log?item=id:abc"))
+        assertNull(DeepLinkParser.parse("ostomate://log?item=id:abc"))
     }
 
     @Test
     fun rejectsEmptyCustomId() {
-        assertNull(DeepLinkParser.parse("ostimate://log?item=id:"))
+        assertNull(DeepLinkParser.parse("ostomate://log?item=id:"))
     }
 }

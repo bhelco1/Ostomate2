@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.ConstructedBy
 import androidx.room.Database
@@ -16,21 +16,21 @@ import kotlinx.coroutines.IO
     version = 3,
     exportSchema = true,
 )
-@ConstructedBy(OstimateDatabaseConstructor::class)
-abstract class OstimateDatabase : RoomDatabase() {
+@ConstructedBy(OstomateDatabaseConstructor::class)
+abstract class OstomateDatabase : RoomDatabase() {
     abstract fun supplyTypeDao(): SupplyTypeDao
 
     abstract fun changeEventDao(): ChangeEventDao
 
     companion object {
-        const val FILE_NAME = "ostimate_database.db"
+        const val FILE_NAME = "ostomate_database.db"
     }
 }
 
 // Room's KSP compiler generates the per-platform actuals for this constructor.
 @Suppress("KotlinNoActualForExpect", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-expect object OstimateDatabaseConstructor : RoomDatabaseConstructor<OstimateDatabase> {
-    override fun initialize(): OstimateDatabase
+expect object OstomateDatabaseConstructor : RoomDatabaseConstructor<OstomateDatabase> {
+    override fun initialize(): OstomateDatabase
 }
 
 /**
@@ -105,7 +105,7 @@ val MIGRATION_2_3 =
         }
     }
 
-fun buildDatabase(builder: RoomDatabase.Builder<OstimateDatabase>): OstimateDatabase =
+fun buildDatabase(builder: RoomDatabase.Builder<OstomateDatabase>): OstomateDatabase =
     builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)

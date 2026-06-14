@@ -1,4 +1,4 @@
-package com.ostimate.app.data.db
+package com.ostomate.app.data.db
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -8,7 +8,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 @OptIn(ExperimentalForeignApi::class)
-fun databaseBuilder(): RoomDatabase.Builder<OstimateDatabase> {
+fun databaseBuilder(): RoomDatabase.Builder<OstomateDatabase> {
     val documentsUrl =
         NSFileManager.defaultManager.URLForDirectory(
             directory = NSDocumentDirectory,
@@ -18,7 +18,7 @@ fun databaseBuilder(): RoomDatabase.Builder<OstimateDatabase> {
             error = null,
         )
     val path = requireNotNull(documentsUrl?.path) { "Could not resolve documents directory" }
-    return Room.databaseBuilder<OstimateDatabase>(
-        name = "$path/${OstimateDatabase.FILE_NAME}",
+    return Room.databaseBuilder<OstomateDatabase>(
+        name = "$path/${OstomateDatabase.FILE_NAME}",
     )
 }

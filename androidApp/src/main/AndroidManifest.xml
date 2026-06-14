@@ -7,7 +7,7 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".OstimateApp"
+        android:name=".OstomateApp"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
@@ -27,18 +27,18 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="ostimate" android:host="log" />
+                <data android:scheme="ostomate" android:host="log" />
             </intent-filter>
         </activity>
         <receiver
-            android:name=".OstimateWidgetReceiver"
+            android:name=".OstomateWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/ostimate_widget_info" />
+                android:resource="@xml/ostomate_widget_info" />
         </receiver>
 
         <provider

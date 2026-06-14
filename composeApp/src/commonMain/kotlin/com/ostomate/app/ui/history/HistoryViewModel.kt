@@ -1,13 +1,13 @@
-package com.ostimate.app.ui.history
+package com.ostomate.app.ui.history
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ostimate.app.data.ChangeEventRepository
-import com.ostimate.app.data.SupplyRepository
-import com.ostimate.app.data.db.ChangeEventEntity
-import com.ostimate.app.data.db.ChangeEventWithSupply
-import com.ostimate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.SupplyTypeEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

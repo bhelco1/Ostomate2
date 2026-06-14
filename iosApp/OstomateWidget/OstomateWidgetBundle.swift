@@ -2,8 +2,8 @@ import WidgetKit
 import SwiftUI
 
 @main
-struct OstimateWidgetBundle: WidgetBundle {
+struct OstomateWidgetBundle: WidgetBundle {
     var body: some Widget {
-        OstimateWidget()
+        OstomateWidget()
     }
 }

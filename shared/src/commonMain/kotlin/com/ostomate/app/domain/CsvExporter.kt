@@ -1,12 +1,12 @@
 @file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x
 
-package com.ostimate.app.domain
+package com.ostomate.app.domain
 
-import com.ostimate.app.data.db.ChangeEventWithSupply
+import com.ostomate.app.data.db.ChangeEventWithSupply
 import kotlinx.datetime.Instant
 
 /**
- * Generates the Ostimate v2 CSV format.
+ * Generates the Ostomate v2 CSV format.
  * Header: supply_id,supply_name,supply_kind,timestamp_millis,edited_at_millis,note
  */
 object CsvExporter {
@@ -37,7 +37,7 @@ object CsvExporter {
 }
 
 /**
- * Parses the Ostimate v1 CSV format:
+ * Parses the Ostomate v1 CSV format:
  * Header: id,type,timestamp_iso8601
  * type = BAG | FLANGE
  */
