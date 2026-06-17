@@ -4,6 +4,11 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 - launchApp:
     clearState: true
 
+# Skip onboarding — clearState resets the onboarding flag.
+- tapOn:
+    text: "Skip"
+    optional: true
+
 # Log an event first so there's something to edit
 - tapOn:
     id: "logButton"
@@ -25,16 +30,16 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 - tapOn:
     text: "Calendar"
 - assertVisible:
-    text: "Calendar*"
+    text: "Calendar"
     timeout: 3000
 
-# Tap on today's date cell (today should have a pill)
+# Tap on today's date cell (testTag added to DayCell when day.isToday)
 - tapOn:
     id: "dayCell_today"
 
-# Day detail sheet appears
+# Day detail sheet appears — "+ Add an entry for this day" is always shown
 - assertVisible:
-    text: "Events"
+    text: "+ Add an entry*"
     timeout: 2000
 
 # Swipe down to dismiss sheet
@@ -42,7 +47,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     direction: DOWN
     duration: 500
 
-# Navigate to History to verify
+# Navigate to History via supply card overflow
 - tapOn:
     text: "Home"
 - tapOn:
@@ -54,7 +59,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     text: "Bag*"
     timeout: 3000
 
-# Swipe to delete the event
+# Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox)
 - swipe:
     element:
       id: "eventRow"

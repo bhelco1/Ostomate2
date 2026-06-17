@@ -4,6 +4,11 @@ name: "Journey 5: Backup round-trip"
 - launchApp:
     clearState: true
 
+# Skip onboarding — clearState resets the onboarding flag.
+- tapOn:
+    text: "Skip"
+    optional: true
+
 # Log a few events
 - tapOn:
     id: "logButton"
@@ -19,15 +24,13 @@ name: "Journey 5: Backup round-trip"
 - tapOn:
     text: "Settings"
 - assertVisible:
-    text: "Backup"
+    text: "Backup*"
     timeout: 3000
 
-# Export CSV
+# Export CSV — triggers Android share sheet
 - tapOn:
     text: "Export"
 - waitForAnimationToEnd
 
-# Note: share sheet appears here (cannot fully automate sharing in Maestro)
-# Dismiss the share sheet
+# Share sheet cannot be fully automated; dismiss it
 - pressKey: BACK
-    optional: true

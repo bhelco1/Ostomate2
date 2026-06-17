@@ -1,13 +1,19 @@
 appId: com.ostomate.app
 name: "Journey 1: Cold-start QR log"
 ---
-# Launch via deep link (simulates QR scan)
+# Launch with deep link (simulates QR scan on cold start)
 - launchApp:
     arguments:
       url: "ostomate://log?item=bag"
     clearState: true
 
-# Confirmation snackbar should appear
+# Skip onboarding — clearState resets the onboarding flag.
+# DB is seeded with Bag + Flange on fresh create, so supplies exist after skip.
+- tapOn:
+    text: "Skip"
+    optional: true
+
+# After MainApp composes, the buffered DeepLinkBus event fires the snackbar.
 - assertVisible:
     text: "Logged:*"
     timeout: 4000
@@ -15,8 +21,10 @@ name: "Journey 1: Cold-start QR log"
 # Navigate to History to verify event was created
 - tapOn:
     text: "Home"
+    optional: true
 - tapOn:
-    id: "overflowButton_*"
+    id: "overflowButton"
+    index: 0
 - tapOn:
     text: "View history"
 

@@ -1,8 +1,18 @@
 appId: com.ostomate.app
-name: "Journey 8: Biometric gate on edit count"
+name: "Journey 8: Biometric gate on Settings"
 ---
 - launchApp:
     clearState: true
+
+# Skip onboarding — clearState resets the onboarding flag.
+- tapOn:
+    text: "Skip"
+    optional: true
+
+# Wait for home screen
+- assertVisible:
+    text: "Ostomate"
+    timeout: 5000
 
 # Enable biometric lock in Settings
 - tapOn:
@@ -12,21 +22,15 @@ name: "Journey 8: Biometric gate on edit count"
     timeout: 3000
 - tapOn:
     id: "biometricLockSwitch"
+
+# Navigate away then back to trigger the re-lock on ON_RESUME
 - tapOn:
     text: "Home"
-
-# Try to edit count — should trigger biometric
 - tapOn:
-    id: "overflowButton"
-    index: 0
-- tapOn:
-    text: "Edit count"
+    text: "Settings"
 
-# On emulator without biometrics: NotEnrolled → dialog opens automatically (v1 behavior)
+# On emulator without enrolled biometrics: NotEnrolled → auto-unlock.
+# Settings content becomes visible once auto-unlock completes.
 - assertVisible:
-    text: "Edit*count"
+    text: "Manage Supplies"
     timeout: 4000
-
-# Cancel without changing
-- tapOn:
-    text: "Cancel"

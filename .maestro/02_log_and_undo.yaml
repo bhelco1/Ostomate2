@@ -4,6 +4,11 @@ name: "Journey 2: Log + undo"
 - launchApp:
     clearState: true
 
+# Skip onboarding — clearState resets the onboarding flag.
+- tapOn:
+    text: "Skip"
+    optional: true
+
 # Wait for home screen to load
 - assertVisible:
     text: "Ostomate"
@@ -23,7 +28,7 @@ name: "Journey 2: Log + undo"
 - tapOn:
     text: "Undo"
 
-# Verify count unchanged (snackbar gone)
+# Verify snackbar gone
 - assertNotVisible:
     text: "logged"
     timeout: 2000

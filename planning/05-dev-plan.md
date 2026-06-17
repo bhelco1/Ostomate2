@@ -98,9 +98,15 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - `./gradlew :androidApp:installDebug`
 - Run manual device checklist from `04-test-plan.md`
 
-### 2.3 — Maestro E2E All Green ⬜
-- All `.maestro/` flows pass in CI
-- Fix any flows that fail
+### 2.3 — Maestro E2E All Green 🔧 (flows fixed, pending CI run)
+- Fixed all 5 CI flows (02–05, 08):
+  - All flows: added `tapOn: "Skip" optional: true` to handle fresh onboarding after `clearState: true`
+  - Flow 01: fixed wildcard `id: "overflowButton_*"` → `id: "overflowButton"` with `index: 0`
+  - Flow 03: fixed `id: "dayCell_today"` (added testTag to CalendarScreen), `text: "Events"` → `text: "+ Add an entry*"`, `id: "eventRow"` (added testTag to HistoryScreen)
+  - Flow 04: fixed button target (`editSupplyButton` → `supplyCount_*`) and dialog title assertion (`Edit*count` → `Set*count`)
+  - Flow 05: fixed invalid YAML on `pressKey: BACK` (removed misindented `optional: true`)
+  - Flow 08: rewrote biometric test — gate is on Settings screen, not Home overflow; now navigates back to Settings and asserts auto-unlock on emulator
+- Push to main to trigger CI `android-e2e` job
 
 ---
 

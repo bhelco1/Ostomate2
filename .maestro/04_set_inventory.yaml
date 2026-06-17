@@ -4,6 +4,11 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 - launchApp:
     clearState: true
 
+# Skip onboarding — clearState resets the onboarding flag.
+- tapOn:
+    text: "Skip"
+    optional: true
+
 # Wait for home screen
 - assertVisible:
     text: "Ostomate"
@@ -23,17 +28,20 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     text: "Manage Supplies"
     timeout: 3000
 
-# Tap the edit button on the first supply (Bag)
+# Tap the on-hand count number to open the set-count dialog
+# testTag is "supplyCount_${id}" — use index 0 for the first supply
 - tapOn:
-    id: "editSupplyButton"
+    id: "supplyCount_*"
     index: 0
 
-# Edit count dialog should appear
+# Dialog title is "Set Bag count" (manage_supplies_set_count_title = "Set %1$s count")
 - assertVisible:
-    text: "Edit*count"
+    text: "Set*count"
     timeout: 3000
 
-# Clear the field and type 12
+# Clear field and type 12
+- tapOn:
+    id: "editCountField"
 - clearText
 - inputText: "12"
 
@@ -41,17 +49,16 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 - tapOn:
     text: "Save"
 
-# Verify updated count is visible
+# Count row shows "12 on hand · box of 30" — assert on substring
 - assertVisible:
-    text: "12 on hand"
+    text: "12 on hand*"
     timeout: 3000
 
-# Go back to Settings and re-enter to verify persistence
+# Navigate back via Settings nav to verify persistence across re-entry
 - tapOn:
     text: "Settings"
-
 - tapOn:
     text: "Manage Supplies"
 - assertVisible:
-    text: "12 on hand"
+    text: "12 on hand*"
     timeout: 3000
