@@ -41,11 +41,11 @@ Package `com.ostomate.app`, deep-link scheme `ostomate://log?item=bag|flange`.
 | `composeApp` | All CMP UI, ViewModels, theme, `initKoin`. iOS arm64-only (CMP dropped iosX64). Builds `Shared.framework` for Xcode. |
 | `androidApp` / `iosApp` | Thin launchers + platform glue (deep-link entry, app icons, widgets later). |
 
-## Hardware constraint (Intel Mac, i7-9750H)
+## Hardware (Apple Silicon M1)
 
-CMP 1.11+ has no Intel-simulator artifacts, so the full app cannot run in the local iOS
-simulator. Logic tests CAN: `./gradlew :shared:iosX64Test`. Full iOS app: build for a
-physical iPhone, or rely on CI's Apple-Silicon runners (`iosSimulatorArm64`).
+Full Compose Multiplatform iOS app runs in the local simulator. Use `iosSimulatorArm64`
+targets for all local iOS work. The `iosX64` target in `shared` remains for CI
+compatibility but is not needed locally.
 
 ## Commands
 
@@ -53,7 +53,7 @@ physical iPhone, or rely on CI's Apple-Silicon runners (`iosSimulatorArm64`).
 ./gradlew :androidApp:assembleDebug       # Android APK
 ./gradlew :androidApp:installDebug        # install on connected device
 ./gradlew :shared:testAndroidHostTest     # shared tests, JVM (fast)
-./gradlew :shared:iosX64Test              # shared tests, local iOS simulator
+./gradlew :shared:iosSimulatorArm64Test   # shared tests, local iOS simulator (M1)
 cd iosApp && xcodebuild -project iosApp.xcodeproj -target iosApp \
   -configuration Debug -sdk iphoneos CODE_SIGNING_ALLOWED=NO build   # iOS device build
 adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" com.ostomate.app
