@@ -101,6 +101,9 @@
     <string name="settings_dev_off_title">Dev mode OFF</string>
     <string name="settings_dev_on_body">Dev mode is active. Data is shared with production — use the dev mode flag to guard test-only UI in future phases.</string>
     <string name="settings_dev_off_body">Dev mode disabled.</string>
+    <string name="settings_locked_prompt">Unlock settings with biometrics</string>
+    <string name="settings_unlock">Unlock</string>
+    <string name="settings_biometric_failed">Authentication failed. Tap Unlock to try again.</string>
 
     <!-- Manage Supplies screen -->
     <string name="manage_supplies_title">Manage Supplies</string>

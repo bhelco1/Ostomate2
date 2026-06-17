@@ -7,7 +7,7 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0 | KMP spike — prove the stack | ✅ Complete |
-| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2–1.5 ⬜) |
+| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2 ✅, 1.3–1.5 ⬜) |
 | 2 | Physical device validation | ⬜ |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
@@ -36,15 +36,18 @@ All wiring was in place before Phase 1 began:
 
 **Remaining:** verify on physical device (covered in Phase 2).
 
-### 1.2 — Wire Biometric Auth into Settings ⬜
+### 1.2 — Wire Biometric Auth into Settings ✅
 
-`BiometricAuthenticator` expect/actual is implemented but verify it is properly integrated into `SettingsViewModel` and `SettingsScreen`.
+`BiometricAuthenticator` injected into `SettingsViewModel`. Lock gate added to `SettingsScreen`:
 
-- Settings screen must be locked on every visit
-- Unlock via `BiometricAuthenticator.authenticate()`
+- `isLocked` initialized in ViewModel `init` from persisted `lockSettings` setting
+- `LaunchedEffect(isLocked)` auto-triggers the biometric prompt on entry
 - `BiometricResult.NotEnrolled` → auto-unlock (matches v1 behavior)
-- `BiometricResult.Failed` → show error, stay locked
-- Re-locks on navigate-away
+- `BiometricResult.Failed` → shows error text, stays locked; Unlock button to retry
+- `ON_RESUME` lifecycle observer calls `relockIfNeeded()` — covers tab-switching away and back
+- Lock overlay (`Box` + `Column` + lock icon) shown instead of settings content when locked
+
+**Remaining:** verify on physical device (covered in Phase 2).
 
 ### 1.3 — Verify Backup Round-Trip ⬜
 

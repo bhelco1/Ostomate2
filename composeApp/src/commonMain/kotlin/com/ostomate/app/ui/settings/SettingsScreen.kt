@@ -1,6 +1,8 @@
 package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,8 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +26,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -27,11 +35,15 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.resources.Res
@@ -39,6 +51,7 @@ import com.ostomate.app.resources.action_ok
 import com.ostomate.app.resources.settings_app_version
 import com.ostomate.app.resources.settings_backup
 import com.ostomate.app.resources.settings_backup_sub
+import com.ostomate.app.resources.settings_biometric_failed
 import com.ostomate.app.resources.settings_biometric_lock
 import com.ostomate.app.resources.settings_biometric_lock_sub
 import com.ostomate.app.resources.settings_crash_reporting
@@ -56,6 +69,7 @@ import com.ostomate.app.resources.settings_import_result
 import com.ostomate.app.resources.settings_import_too_large
 import com.ostomate.app.resources.settings_import_v1
 import com.ostomate.app.resources.settings_import_v1_sub
+import com.ostomate.app.resources.settings_locked_prompt
 import com.ostomate.app.resources.settings_manage_supplies
 import com.ostomate.app.resources.settings_manage_supplies_sub
 import com.ostomate.app.resources.settings_print_qr
@@ -69,6 +83,7 @@ import com.ostomate.app.resources.settings_section_data
 import com.ostomate.app.resources.settings_section_inventory
 import com.ostomate.app.resources.settings_section_security
 import com.ostomate.app.resources.settings_section_support
+import com.ostomate.app.resources.settings_unlock
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -87,9 +102,26 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
+    val isLocked by viewModel.isLocked.collectAsState()
+    val authError by viewModel.authError.collectAsState()
     val fileSharer = koinInject<FileSharer>()
     val feedbackHelper = koinInject<FeedbackHelper>()
 
+    val lockedPrompt = stringResource(Res.string.settings_locked_prompt)
+
+    // Re-lock whenever this screen resumes (covers tab switching).
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.relockIfNeeded()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    // Hoist all remember state above the lock gate to respect Compose composition rules.
     var importTrigger by remember { mutableIntStateOf(0) }
     var showImportResult by remember { mutableStateOf(false) }
 
@@ -98,6 +130,32 @@ fun SettingsScreen(
     var devTapWindowStart by remember { mutableLongStateOf(0L) }
     var showDevModeToast by remember { mutableStateOf(false) }
 
+    // Auto-trigger biometric prompt when the lock gate appears.
+    LaunchedEffect(isLocked) {
+        if (isLocked) viewModel.unlock(lockedPrompt)
+    }
+
+    if (isLocked) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Icon(Icons.Filled.Lock, contentDescription = null)
+                Text(lockedPrompt, style = MaterialTheme.typography.titleMedium)
+                if (authError) {
+                    Text(
+                        stringResource(Res.string.settings_biometric_failed),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                Button(onClick = { viewModel.unlock(lockedPrompt) }) {
+                    Text(stringResource(Res.string.settings_unlock))
+                }
+            }
+        }
+    } else {
     FileImportLauncher(
         trigger = importTrigger,
         mimeType = "text/csv",
@@ -324,6 +382,7 @@ fun SettingsScreen(
             Spacer(Modifier.height(16.dp))
         }
     }
+    } // end else (not locked)
 }
 
 @Composable
