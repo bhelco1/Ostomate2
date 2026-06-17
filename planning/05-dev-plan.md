@@ -7,7 +7,7 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0 | KMP spike — prove the stack | ✅ Complete |
-| 1 | Wire platform features + stabilize | 🔄 In progress |
+| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2–1.5 ⬜) |
 | 2 | Physical device validation | ⬜ |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
@@ -25,21 +25,16 @@ Proven: Android APK + iOS device build, Room KMP CRUD on iOS simulator, deep lin
 
 **Goal:** All implemented expect/actual features are wired and exercised. No new features.
 
-### 1.1 — Wire Notifications ⬜
+### 1.1 — Wire Notifications ✅ Already implemented
 
-`Notifier` and `NotificationScheduler` exist but are not called at startup.
+All wiring was in place before Phase 1 began:
+- `Notifier` registered in both platform Koin modules (Android: WorkManager, iOS: UNUserNotificationCenter)
+- `NotificationScheduler` registered in `dataModule`
+- `HomeViewModel.init` calls `reschedule()` reactively on every supply/event change
+- Android: `POST_NOTIFICATIONS` permission requested in `MainActivity.onCreate()`
+- iOS: authorization requested inside `Notifier.ios.kt` on first `schedule()` call
 
-**Android:**
-- Call `NotificationScheduler.schedule()` from `OstimatApplication.onCreate()`
-- Request `POST_NOTIFICATIONS` permission on Android 13+ (API 33+) at first launch
-- Verify WorkManager job fires when days remaining < threshold
-
-**iOS:**
-- Call `NotificationScheduler.schedule()` from `iOSApp.init()` or `MainViewController`
-- UNUserNotificationCenter authorization is requested on first `Notifier.schedule()` call (already in the actual impl)
-- Verify notification fires on device
-
-**Test:** Reduce a supply type's inventory count to trigger the threshold. Verify notification appears on both platforms.
+**Remaining:** verify on physical device (covered in Phase 2).
 
 ### 1.2 — Wire Biometric Auth into Settings ⬜
 

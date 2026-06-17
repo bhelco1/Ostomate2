@@ -23,8 +23,9 @@ Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 CI green on GitHub Actions. All expect/actual implementations exist (Notifier,
 BiometricAuthenticator, CrashReporter, FeedbackHelper, FileSharer). All screens built.
 
-**Phase 1 remaining:** wire Notifier into app startup, verify biometric lock in Settings,
-verify backup round-trip, wire CrashReporter to Firebase. See `planning/05-dev-plan.md`.
+**Phase 1 remaining:** verify biometric lock in Settings (1.2), verify backup round-trip
+(1.3), wire CrashReporter to Firebase (1.4). Notifications already fully wired (1.1 ✅).
+See `planning/05-dev-plan.md`.
 
 ## Stack
 
