@@ -7,25 +7,24 @@ Bobby's daily driver until Phase 2 exit). The folders `~/Projects/Ostimate` and
 
 ## Source of truth for all decisions
 
-The full planning doc set lives in the v1 repo: `~/Projects/Ostomate/ostimate-2.0/`
-- `01-product-spec.md` — features, parity matrix, personas
-- `02-architecture.md` — module layout, tech stack, architecture rules
-- `03-ui-ux-design.md` + `design-mockups/index.html` — design system and visual mockups
-- `04-test-plan.md` — test pyramid, coverage gates, E2E journeys
-- `05-dev-plan.md` — **current phase and checklist; update it as items complete**
-- `06-security-privacy.md` — privacy posture (local-first, no analytics), threat model
-- `07-business-plan.md` — cost rules (no new recurring costs without justification)
+Planning docs live in `planning/` within this repo:
+- `planning/01-product-spec.md` — features, platform requirements, testing requirements
+- `planning/02-architecture.md` — module layout, tech stack, architecture rules
+- `planning/04-test-plan.md` — test pyramid, coverage gates, E2E journeys
+- `planning/05-dev-plan.md` — **current phase and checklist; update it as items complete**
+- `planning/06-security-privacy.md` — privacy posture (local-first, no analytics), threat model
+- `planning/07-business-plan.md` — cost rules (no new recurring costs without justification)
 
-Specialist agents (product-manager, uiux-designer, mobile-developer, qa-engineer,
-security-engineer, cfo, release-engineer, accessibility-specialist) are defined in
-`~/Projects/Ostomate/.claude/agents/`.
+Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
-## Current status (2026-06-12)
+## Current status (2026-06-17)
 
-**Phase 0 spike, mostly done.** Proven: Android APK + unsigned iOS device build, Room KMP
-CRUD on iOS simulator (17 tests green), deep links both platforms, nav-compose, CI
-skeleton. Remaining: notifications + biometrics expect/actual, first migration test,
-push to GitHub (no remote yet — CI never exercised), run on physical devices.
+**Phase 0 complete. Phase 1 in progress.** 60 shared tests green on iOS simulator (M1).
+CI green on GitHub Actions. All expect/actual implementations exist (Notifier,
+BiometricAuthenticator, CrashReporter, FeedbackHelper, FileSharer). All screens built.
+
+**Phase 1 remaining:** wire Notifier into app startup, verify biometric lock in Settings,
+verify backup round-trip, wire CrashReporter to Firebase. See `planning/05-dev-plan.md`.
 
 ## Stack
 
