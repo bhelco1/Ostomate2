@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 data class BackupUiState(
     val exportedCsv: String? = null,
@@ -49,19 +52,21 @@ class SettingsViewModel(
         }
     }
 
-    fun exportCsv(onReady: (String) -> Unit) {
+    fun exportCsv(onReady: (content: String, fileName: String) -> Unit) {
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
+            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val ts = "${now.year}-${now.monthNumber.toString().padStart(2, '0')}-${now.dayOfMonth.toString().padStart(2, '0')}_${now.hour.toString().padStart(2, '0')}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
             val csv = backupRepository.exportCsv()
             _backupState.value = _backupState.value.copy(isBusy = false)
-            onReady(csv)
+            onReady(csv, "ostomate_backup_$ts.csv")
         }
     }
 
-    fun importV1Csv(csvContent: String) {
+    fun importCsv(csvContent: String) {
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
-            val summary = backupRepository.importV1Csv(csvContent)
+            val summary = backupRepository.importCsv(csvContent)
             _backupState.value =
                 _backupState.value.copy(
                     isBusy = false,

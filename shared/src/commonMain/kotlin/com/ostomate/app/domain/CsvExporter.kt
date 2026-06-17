@@ -1,4 +1,4 @@
-@file:Suppress("DEPRECATION") // kotlinx-datetime 0.6.x
+@file:Suppress("DEPRECATION") // kotlinx-datetime 0.7.x deprecates some Instant APIs
 
 package com.ostomate.app.domain
 
@@ -33,6 +33,67 @@ object CsvExporter {
     private fun escapeCsv(value: String): String {
         if (!value.contains(',') && !value.contains('"') && !value.contains('\n')) return value
         return "\"${value.replace("\"", "\"\"")}\""
+    }
+}
+
+/**
+ * Parses the Ostomate v2 CSV format (produced by CsvExporter):
+ * Header: supply_id,supply_name,supply_kind,timestamp_millis,edited_at_millis,note
+ */
+object CsvV2Importer {
+    private const val V2_HEADER_PREFIX = "supply_id,supply_name,supply_kind,timestamp_millis"
+
+    fun isV2(csv: String): Boolean = csv.trimStart().startsWith(V2_HEADER_PREFIX)
+
+    data class V2Row(val supplyKind: String, val timestampMillis: Long, val note: String?)
+
+    data class ParseResult(val rows: List<V2Row>, val parseErrors: Int)
+
+    fun parse(csv: String): ParseResult {
+        val lines = csv.lines()
+        if (lines.isEmpty()) return ParseResult(emptyList(), 0)
+        val dataLines = lines.drop(1)
+        var errors = 0
+        val rows =
+            dataLines.mapNotNull { line ->
+                val trimmed = line.trim()
+                if (trimmed.isEmpty()) return@mapNotNull null
+                val parts = parseLine(trimmed)
+                if (parts.size < 4) {
+                    errors++
+                    return@mapNotNull null
+                }
+                val supplyKind = parts[2].uppercase().trim()
+                val timestampMillis =
+                    parts[3].trim().toLongOrNull() ?: run {
+                        errors++
+                        return@mapNotNull null
+                    }
+                val note = if (parts.size >= 6) parts[5].takeIf { it.isNotEmpty() } else null
+                V2Row(supplyKind, timestampMillis, note)
+            }
+        return ParseResult(rows, errors)
+    }
+
+    private fun parseLine(line: String): List<String> {
+        val result = mutableListOf<String>()
+        val current = StringBuilder()
+        var inQuotes = false
+        var i = 0
+        while (i < line.length) {
+            val c = line[i]
+            when {
+                c == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> {
+                    current.append('"'); i++
+                }
+                c == '"' -> inQuotes = !inQuotes
+                c == ',' && !inQuotes -> { result.add(current.toString()); current.clear() }
+                else -> current.append(c)
+            }
+            i++
+        }
+        result.add(current.toString())
+        return result
     }
 }
 

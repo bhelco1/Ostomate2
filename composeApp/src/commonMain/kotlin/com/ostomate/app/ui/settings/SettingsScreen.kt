@@ -104,7 +104,7 @@ fun SettingsScreen(
             mimeType = "text/csv",
             onContent = { content ->
                 if (content != null) {
-                    viewModel.importV1Csv(content)
+                    viewModel.importCsv(content)
                     showImportResult = true
                 }
             },
@@ -243,10 +243,10 @@ fun SettingsScreen(
                     trailingContent = {
                         TextButton(
                             onClick = {
-                                viewModel.exportCsv { csv ->
+                                viewModel.exportCsv { csv, fileName ->
                                     fileSharer.shareText(
                                         content = csv,
-                                        fileName = "ostomate_backup.csv",
+                                        fileName = fileName,
                                         mimeType = "text/csv",
                                     )
                                 }

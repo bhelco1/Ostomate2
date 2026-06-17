@@ -81,11 +81,11 @@
     <string name="settings_crash_reporting">Crash reports</string>
     <string name="settings_crash_reporting_sub">Send anonymous crash reports to help fix bugs. No health data, no usage tracking. Off by default.</string>
     <string name="settings_section_data">Data</string>
-    <string name="settings_backup">Backup &amp; Restore</string>
+    <string name="settings_backup">Backup</string>
     <string name="settings_backup_sub">Export your event history as CSV</string>
     <string name="settings_export">Export</string>
-    <string name="settings_import_v1">Import from v1</string>
-    <string name="settings_import_v1_sub">Bring over your Ostomate v1 CSV export</string>
+    <string name="settings_import_v1">Restore from backup</string>
+    <string name="settings_import_v1_sub">Import a previously exported Ostomate CSV</string>
     <string name="settings_import">Import</string>
     <string name="settings_section_support">Support</string>
     <string name="settings_feedback">Send Feedback</string>

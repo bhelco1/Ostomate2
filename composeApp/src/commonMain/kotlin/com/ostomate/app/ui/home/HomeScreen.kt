@@ -31,7 +31,6 @@ import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
 import com.ostomate.app.resources.home_snackbar_logged_count
 import com.ostomate.app.ui.components.SupplyCard
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -138,7 +137,7 @@ fun HomeScreen(
 
 private fun todayDateLabel(): String {
     val tz = TimeZone.currentSystemDefault()
-    val now = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds()).toLocalDateTime(tz)
+    val now = Clock.System.now().toLocalDateTime(tz)
     val dow =
         now.dayOfWeek.name
             .lowercase()

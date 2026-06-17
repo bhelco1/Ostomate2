@@ -81,11 +81,11 @@
     <string name="settings_crash_reporting">Informes de fallos</string>
     <string name="settings_crash_reporting_sub">Enviar informes anónimos de fallos para ayudar a corregir errores. Sin datos de salud, sin seguimiento de uso. Desactivado por defecto.</string>
     <string name="settings_section_data">Datos</string>
-    <string name="settings_backup">Copia de seguridad y restauración</string>
+    <string name="settings_backup">Copia de seguridad</string>
     <string name="settings_backup_sub">Exportar historial de eventos como CSV</string>
     <string name="settings_export">Exportar</string>
-    <string name="settings_import_v1">Importar de v1</string>
-    <string name="settings_import_v1_sub">Importar tu exportación CSV de Ostomate v1</string>
+    <string name="settings_import_v1">Restaurar desde copia de seguridad</string>
+    <string name="settings_import_v1_sub">Importar un CSV de Ostomate exportado previamente</string>
     <string name="settings_import">Importar</string>
     <string name="settings_section_support">Soporte</string>
     <string name="settings_feedback">Enviar comentarios</string>

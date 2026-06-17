@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION") // kotlinx-datetime 0.7.x deprecates monthNumber/dayOfMonth
+
 package com.ostomate.app.domain
 
 import kotlinx.datetime.Instant
