@@ -94,9 +94,12 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - Install via Xcode or `ios-deploy`
 - Run manual device checklist from `04-test-plan.md`
 
-### 2.2 — Android Physical Device ⬜
+### 2.2 — Android Physical Device ✅
 - `./gradlew :androidApp:installDebug`
 - Run manual device checklist from `04-test-plan.md`
+- All 11 checklist items passed on Pixel 8 Pro
+- Fixed: biometric gate moved from Settings screen to count-editing action only
+- Fixed: biometric session resets on ManageSupplies exit
 
 ### 2.3 — Maestro E2E All Green 🔧 (flows fixed, pending CI run)
 - Fixed all 5 CI flows (02–05, 08):
