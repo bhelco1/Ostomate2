@@ -29,7 +29,7 @@ actual class Notifier {
                 }
             val trigger =
                 UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(
-                    timeInterval = delaySeconds.toDouble(),
+                    timeInterval = delaySeconds.toDouble().coerceAtLeast(1.0),
                     repeats = false,
                 )
             // Remove pending notification with same tag before re-adding
