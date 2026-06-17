@@ -75,6 +75,10 @@ class ManageSuppliesViewModel(
         _editCountTarget.value = null
     }
 
+    fun resetSession() {
+        _sessionUnlocked.value = false
+    }
+
     fun setOnHand(
         id: Long,
         count: Int,

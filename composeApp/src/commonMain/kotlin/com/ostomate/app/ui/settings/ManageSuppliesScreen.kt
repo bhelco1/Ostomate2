@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -116,6 +117,10 @@ fun ManageSuppliesScreen(
     viewModel: ManageSuppliesViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    DisposableEffect(Unit) {
+        onDispose { viewModel.resetSession() }
+    }
 
     // Precise-count edit dialog
     val countTarget = uiState.editCountTarget
