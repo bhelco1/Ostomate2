@@ -50,6 +50,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.ostomate.app.data.db.SupplyTypeEntity
@@ -57,9 +60,6 @@ import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_cancel
 import com.ostomate.app.resources.action_save
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
 import com.ostomate.app.resources.cd_add_supply
 import com.ostomate.app.resources.cd_back
 import com.ostomate.app.resources.cd_color_swatch
@@ -156,7 +156,10 @@ fun ManageSuppliesScreen(
                 title = { Text(stringResource(Res.string.manage_supplies_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.cd_back),
+                        )
                     }
                 },
             )
@@ -355,7 +358,10 @@ private fun EditSupplyDialog(
                 )
 
                 if (supply.kind == SupplyKind.CUSTOM) {
-                    Text(stringResource(Res.string.manage_supplies_color_label), style = MaterialTheme.typography.labelMedium)
+                    Text(
+                        stringResource(Res.string.manage_supplies_color_label),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
                     ColorPickerRow(selected = selectedColor, onSelect = { selectedColor = it })
                 }
 
@@ -365,7 +371,10 @@ private fun EditSupplyDialog(
                         onClick = onArchive,
                         modifier = Modifier.testTag("archiveSupplyButton"),
                     ) {
-                        Text(stringResource(Res.string.manage_supplies_archive), color = MaterialTheme.colorScheme.error)
+                        Text(
+                            stringResource(Res.string.manage_supplies_archive),
+                            color = MaterialTheme.colorScheme.error,
+                        )
                     }
                 }
             }
@@ -425,7 +434,10 @@ private fun AddCustomSupplyDialog(
                     singleLine = true,
                 )
 
-                Text(stringResource(Res.string.manage_supplies_color_label), style = MaterialTheme.typography.labelMedium)
+                Text(
+                    stringResource(Res.string.manage_supplies_color_label),
+                    style = MaterialTheme.typography.labelMedium,
+                )
                 ColorPickerRow(selected = selectedColor, onSelect = { selectedColor = it })
             }
         },

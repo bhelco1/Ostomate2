@@ -73,10 +73,10 @@ import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.platform.formatTimestamp
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_edit_event
 import com.ostomate.app.resources.action_save
 import com.ostomate.app.resources.action_undo
 import com.ostomate.app.resources.cd_back
-import com.ostomate.app.resources.action_edit_event
 import com.ostomate.app.resources.cd_delete
 import com.ostomate.app.resources.edit_event_date_label
 import com.ostomate.app.resources.edit_event_invalid_datetime
@@ -89,13 +89,13 @@ import com.ostomate.app.resources.history_event_deleted
 import com.ostomate.app.resources.history_filter_all
 import com.ostomate.app.resources.history_no_events
 import com.ostomate.app.ui.components.Pill
-import org.jetbrains.compose.resources.stringResource
 import com.ostomate.app.ui.theme.supplyColor
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val QUICK_TAGS = listOf("Routine", "Leak", "Skin irritation")
@@ -109,6 +109,7 @@ private val MONTH_ABBR =
 
 private sealed class HistoryItem {
     data class DayHeader(val label: String) : HistoryItem()
+
     data class Event(val row: ChangeEventWithSupply) : HistoryItem()
 }
 
@@ -359,16 +360,28 @@ private fun EventCard(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                customActions = buildList {
-                    add(CustomAccessibilityAction(label = editLabel) { onClick(); true })
-                    if (onDelete != null) {
-                        add(CustomAccessibilityAction(label = deleteLabel) { onDelete(); true })
-                    }
+        modifier =
+            Modifier.fillMaxWidth()
+                .semantics(mergeDescendants = true) {
+                    customActions =
+                        buildList {
+                            add(
+                                CustomAccessibilityAction(label = editLabel) {
+                                    onClick()
+                                    true
+                                },
+                            )
+                            if (onDelete != null) {
+                                add(
+                                    CustomAccessibilityAction(label = deleteLabel) {
+                                        onDelete()
+                                        true
+                                    },
+                                )
+                            }
+                        }
                 }
-            }
-            .clickable(onClick = onClick, onClickLabel = editLabel),
+                .clickable(onClick = onClick, onClickLabel = editLabel),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),

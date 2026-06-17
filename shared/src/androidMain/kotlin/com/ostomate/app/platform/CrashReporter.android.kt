@@ -9,7 +9,10 @@ import io.sentry.android.core.SentryAndroid
 actual class CrashReporter(private val context: Context) {
     private var currentDsn: String = ""
 
-    actual fun init(dsn: String, enabled: Boolean) {
+    actual fun init(
+        dsn: String,
+        enabled: Boolean,
+    ) {
         currentDsn = dsn
         if (enabled && dsn.isNotBlank()) start()
     }

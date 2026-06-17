@@ -170,7 +170,10 @@ class CalendarViewModel(
         viewModelScope.launch { eventRepository.update(event) }
     }
 
-    fun addEventForDate(supplyId: Long, date: LocalDate) {
+    fun addEventForDate(
+        supplyId: Long,
+        date: LocalDate,
+    ) {
         viewModelScope.launch {
             val noon =
                 LocalDateTime(date.year, date.monthNumber, date.dayOfMonth, 12, 0)

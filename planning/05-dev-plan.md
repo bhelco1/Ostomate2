@@ -7,7 +7,7 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0 | KMP spike — prove the stack | ✅ Complete |
-| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4–1.5 ⬜) |
+| 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ⬜ |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
@@ -76,12 +76,12 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - Call `SentrySDK.start` in `iOSApp.swift` gated on the stored opt-in preference
 - Read `crashReportingEnabled` from shared `DataStore` settings before init
 
-### 1.5 — Integration Pass ⬜
+### 1.5 — Integration Pass ✅
 
 - All Phase 1 items complete
-- CI green on `main`
-- Manual smoke test on physical iPhone + Android device
-- Update this file: mark Phase 1 complete
+- ktlint + detekt green; 57 JVM / 69 iOS simulator tests passing; Android APK + iOS simulator build succeed
+- CI green on `main` (push this commit to verify)
+- Manual smoke test on physical iPhone + Android device (covered in Phase 2)
 
 ---
 

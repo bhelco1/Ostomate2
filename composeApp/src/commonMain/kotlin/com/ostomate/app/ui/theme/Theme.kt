@@ -79,15 +79,25 @@ private fun customSupplyColor(
 ): Color {
     val light =
         arrayOf(
-            OstomateColors.Custom0, OstomateColors.Custom1, OstomateColors.Custom2,
-            OstomateColors.Custom3, OstomateColors.Custom4, OstomateColors.Custom5,
-            OstomateColors.Custom6, OstomateColors.Custom7,
+            OstomateColors.Custom0,
+            OstomateColors.Custom1,
+            OstomateColors.Custom2,
+            OstomateColors.Custom3,
+            OstomateColors.Custom4,
+            OstomateColors.Custom5,
+            OstomateColors.Custom6,
+            OstomateColors.Custom7,
         )
     val darkPalette =
         arrayOf(
-            OstomateColors.Custom0Dark, OstomateColors.Custom1Dark, OstomateColors.Custom2Dark,
-            OstomateColors.Custom3Dark, OstomateColors.Custom4Dark, OstomateColors.Custom5Dark,
-            OstomateColors.Custom6Dark, OstomateColors.Custom7Dark,
+            OstomateColors.Custom0Dark,
+            OstomateColors.Custom1Dark,
+            OstomateColors.Custom2Dark,
+            OstomateColors.Custom3Dark,
+            OstomateColors.Custom4Dark,
+            OstomateColors.Custom5Dark,
+            OstomateColors.Custom6Dark,
+            OstomateColors.Custom7Dark,
         )
     val palette = if (dark) darkPalette else light
     return if (colorIndex != null && colorIndex in palette.indices) {

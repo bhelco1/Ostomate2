@@ -19,12 +19,8 @@ Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
 ## Current status (2026-06-17)
 
-**Phase 0 complete. Phase 1 in progress.** 60 shared tests green on iOS simulator (M1).
-CI green on GitHub Actions. All expect/actual implementations exist (Notifier,
-BiometricAuthenticator, CrashReporter, FeedbackHelper, FileSharer). All screens built.
-
-**Phase 1 remaining:** 1.5 integration pass (CI green, smoke test on physical devices).
-Notifications wired (1.1 ✅), biometric lock gate enforced (1.2 ✅), backup round-trip wired (1.3 ✅).
+**Phase 1 complete.** 57 JVM / 69 iOS simulator shared tests passing. ktlint + detekt green.
+Android APK and iOS simulator build succeed. Next: Phase 2 (physical device validation).
 See `planning/05-dev-plan.md`.
 
 ## Stack

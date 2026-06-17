@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.pdf.PdfDocument
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
@@ -98,11 +97,11 @@ private class QrLabelsPrintAdapter(
         pageWidth: Int,
         pageHeight: Int,
     ) {
-        val margin = 36f          // 0.5 inch in points
+        val margin = 36f // 0.5 inch in points
         val cols = 2
         val colWidth = (pageWidth - margin * (cols + 1)) / cols
         val qrSize = minOf(colWidth - 16f, 180f)
-        val cellHeight = qrSize + 56f  // QR + name + URL text
+        val cellHeight = qrSize + 56f // QR + name + URL text
 
         val namePaint =
             Paint().apply {

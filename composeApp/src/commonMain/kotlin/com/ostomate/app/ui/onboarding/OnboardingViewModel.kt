@@ -3,7 +3,6 @@ package com.ostomate.app.ui.onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.SupplyRepository
-import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.MutableStateFlow

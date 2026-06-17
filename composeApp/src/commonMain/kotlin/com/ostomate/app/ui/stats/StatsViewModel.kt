@@ -85,12 +85,13 @@ private fun buildSummaryLine(rows: List<SupplyStats>): String? {
     if (withAvg.isEmpty()) return null
     return withAvg.joinToString(" and ") { row ->
         val avg = row.avgDaysBetween!!
-        val formatted = if (avg == avg.toLong().toDouble()) {
-            "${avg.toLong()}"
-        } else {
-            val tenths = kotlin.math.round(avg * 10).toLong()
-            "${tenths / 10}.${tenths % 10}"
-        }
+        val formatted =
+            if (avg == avg.toLong().toDouble()) {
+                "${avg.toLong()}"
+            } else {
+                val tenths = kotlin.math.round(avg * 10).toLong()
+                "${tenths / 10}.${tenths % 10}"
+            }
         "${row.supplyName.lowercase()} every $formatted days"
     }.let { "You change $it on average." }
 }

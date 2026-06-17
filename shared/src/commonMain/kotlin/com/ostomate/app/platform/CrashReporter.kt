@@ -7,7 +7,10 @@ package com.ostomate.app.platform
  */
 expect class CrashReporter {
     /** Called once at app startup with the stored preference. */
-    fun init(dsn: String, enabled: Boolean)
+    fun init(
+        dsn: String,
+        enabled: Boolean,
+    )
 
     /** Called when the user toggles the Settings switch at runtime. */
     fun setEnabled(enabled: Boolean)

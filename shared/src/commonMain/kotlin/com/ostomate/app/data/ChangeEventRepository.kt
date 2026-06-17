@@ -16,6 +16,7 @@ class ChangeEventRepository(
     private val supplyTypeDao: SupplyTypeDao,
 ) {
     private val lastScanMillis = mutableMapOf<String, Long>()
+
     fun observeEvents(): Flow<List<ChangeEventWithSupply>> = eventDao.observeAllWithSupply()
 
     fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> = eventDao.observeBySupply(supplyTypeId)

@@ -1,6 +1,5 @@
 package com.ostomate.app
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -32,6 +30,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.DeepLinkBus
+import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.deeplink_logged
+import com.ostomate.app.resources.deeplink_unrecognized
+import com.ostomate.app.resources.nav_calendar
+import com.ostomate.app.resources.nav_home
+import com.ostomate.app.resources.nav_settings
+import com.ostomate.app.resources.nav_stats
 import com.ostomate.app.ui.calendar.CalendarScreen
 import com.ostomate.app.ui.history.HistoryScreen
 import com.ostomate.app.ui.home.HomeScreen
@@ -42,13 +47,6 @@ import com.ostomate.app.ui.settings.QrLabelsScreen
 import com.ostomate.app.ui.settings.ReorderWarningsScreen
 import com.ostomate.app.ui.settings.SettingsScreen
 import com.ostomate.app.ui.stats.StatsScreen
-import com.ostomate.app.resources.Res
-import com.ostomate.app.resources.deeplink_logged
-import com.ostomate.app.resources.deeplink_unrecognized
-import com.ostomate.app.resources.nav_calendar
-import com.ostomate.app.resources.nav_home
-import com.ostomate.app.resources.nav_settings
-import com.ostomate.app.resources.nav_stats
 import com.ostomate.app.ui.theme.OstomateTheme
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource

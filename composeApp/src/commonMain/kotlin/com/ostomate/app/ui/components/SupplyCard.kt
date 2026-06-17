@@ -45,8 +45,8 @@ import com.ostomate.app.resources.supply_on_hand
 import com.ostomate.app.resources.supply_warning_banner
 import com.ostomate.app.resources.supply_zero_days
 import com.ostomate.app.ui.theme.supplyColor
-import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun SupplyCard(
@@ -129,7 +129,10 @@ fun SupplyCard(
                 } else {
                     Modifier
                 }
-            Row(verticalAlignment = Alignment.Bottom, modifier = countRowModifier.semantics(mergeDescendants = true) {}) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = countRowModifier.semantics(mergeDescendants = true) {},
+            ) {
                 Text(
                     text = onHand.toString(),
                     style = MaterialTheme.typography.displayMedium,
@@ -152,12 +155,13 @@ fun SupplyCard(
             daysRemaining?.let { days ->
                 if (days < warnThresholdDays) {
                     WarningBanner(
-                        message = stringResource(
-                            Res.string.supply_warning_banner,
-                            days.roundToInt(),
-                            name.lowercase(),
-                            warnThresholdDays,
-                        ),
+                        message =
+                            stringResource(
+                                Res.string.supply_warning_banner,
+                                days.roundToInt(),
+                                name.lowercase(),
+                                warnThresholdDays,
+                            ),
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.ostomate.app.ui.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.foundation.background
 import androidx.compose.ui.unit.dp
 import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.resources.Res
@@ -90,7 +90,10 @@ fun ReorderWarningsScreen(
                 title = { Text(stringResource(Res.string.reorder_warnings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.cd_back),
+                        )
                     }
                 },
             )

@@ -25,6 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -43,8 +45,6 @@ import com.ostomate.app.resources.onboarding_print_later
 import com.ostomate.app.resources.onboarding_qr_body
 import com.ostomate.app.resources.onboarding_qr_hint
 import com.ostomate.app.resources.onboarding_qr_title
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import com.ostomate.app.resources.onboarding_skip
 import com.ostomate.app.resources.onboarding_step_indicator
 import com.ostomate.app.resources.onboarding_supplies_subtitle
@@ -137,10 +137,11 @@ private fun SuppliesStep(
                 SupplyKind.FLANGE to stringResource(Res.string.onboarding_kind_flange),
             ).forEach { (kind, label) ->
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .semantics(mergeDescendants = true) {},
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .semantics(mergeDescendants = true) {},
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -222,8 +223,13 @@ private fun CountsStep(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            TextButton(onClick = onBack, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.onboarding_back)) }
-            Button(onClick = onNext, modifier = Modifier.weight(2f).height(52.dp)) { Text(stringResource(Res.string.onboarding_next)) }
+            TextButton(
+                onClick = onBack,
+                modifier = Modifier.weight(1f),
+            ) { Text(stringResource(Res.string.onboarding_back)) }
+            Button(onClick = onNext, modifier = Modifier.weight(2f).height(52.dp)) {
+                Text(stringResource(Res.string.onboarding_next))
+            }
         }
     }
 }

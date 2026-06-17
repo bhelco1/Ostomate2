@@ -1,7 +1,6 @@
 package com.ostomate.app.ui.settings
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,7 +47,10 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 title = { Text(stringResource(Res.string.privacy_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.cd_back),
+                        )
                     }
                 },
             )

@@ -6,10 +6,11 @@ plugins {
 }
 
 // local.properties is gitignored; read it manually so secrets stay out of gradle.properties
-val localProps = Properties().apply {
-    val f = rootProject.file("local.properties")
-    if (f.exists()) load(f.reader())
-}
+val localProps =
+    Properties().apply {
+        val f = rootProject.file("local.properties")
+        if (f.exists()) load(f.reader())
+    }
 
 android {
     namespace = "com.ostomate.app"

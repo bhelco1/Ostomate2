@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -70,22 +69,22 @@ import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.platform.formatTimestamp
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.action_edit_event
 import com.ostomate.app.resources.action_undo
 import com.ostomate.app.resources.calendar_add_entry_button
 import com.ostomate.app.resources.calendar_add_entry_question
 import com.ostomate.app.resources.calendar_add_entry_title
 import com.ostomate.app.resources.calendar_event_deleted
 import com.ostomate.app.resources.calendar_no_events_today
-import com.ostomate.app.resources.action_edit_event
 import com.ostomate.app.resources.cd_delete_event
 import com.ostomate.app.resources.cd_next_month
 import com.ostomate.app.resources.cd_previous_month
 import com.ostomate.app.resources.cd_view_day
 import com.ostomate.app.ui.components.Pill
-import org.jetbrains.compose.resources.stringResource
 import com.ostomate.app.ui.history.EditEventDialog
 import com.ostomate.app.ui.theme.supplyColor
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val WEEKDAY_LABELS = listOf("S", "M", "T", "W", "T", "F", "S")
@@ -171,7 +170,10 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = viewModel::prevMonth) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_previous_month))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(Res.string.cd_previous_month),
+                    )
                 }
                 Text(
                     text = uiState.monthLabel,
@@ -181,7 +183,10 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                     textAlign = TextAlign.Center,
                 )
                 IconButton(onClick = viewModel::nextMonth) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = stringResource(Res.string.cd_next_month))
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(Res.string.cd_next_month),
+                    )
                 }
             }
 
@@ -228,7 +233,15 @@ private fun DayCell(
                 .defaultMinSize(minHeight = 48.dp)
                 .clickable(
                     enabled = day.isCurrentMonth,
-                    onClickLabel = if (day.isCurrentMonth) stringResource(Res.string.cd_view_day, day.date.dayOfMonth) else null,
+                    onClickLabel =
+                        if (day.isCurrentMonth) {
+                            stringResource(
+                                Res.string.cd_view_day,
+                                day.date.dayOfMonth,
+                            )
+                        } else {
+                            null
+                        },
                     onClick = onClick,
                 )
                 .padding(2.dp),
@@ -338,14 +351,22 @@ private fun DayEventCard(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier.fillMaxWidth()
-            .semantics(mergeDescendants = true) {
-                customActions = listOf(
-                    CustomAccessibilityAction(label = editLabel) { onEdit(); true },
-                    CustomAccessibilityAction(label = deleteLabel) { onDelete(); true },
-                )
-            }
-            .clickable(onClick = onEdit, onClickLabel = editLabel),
+        modifier =
+            Modifier.fillMaxWidth()
+                .semantics(mergeDescendants = true) {
+                    customActions =
+                        listOf(
+                            CustomAccessibilityAction(label = editLabel) {
+                                onEdit()
+                                true
+                            },
+                            CustomAccessibilityAction(label = deleteLabel) {
+                                onDelete()
+                                true
+                            },
+                        )
+                }
+                .clickable(onClick = onEdit, onClickLabel = editLabel),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),

@@ -112,11 +112,12 @@ fun SettingsScreen(
     // Re-lock whenever this screen resumes (covers tab switching).
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.relockIfNeeded()
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    viewModel.relockIfNeeded()
+                }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -156,232 +157,237 @@ fun SettingsScreen(
             }
         }
     } else {
-    FileImportLauncher(
-        trigger = importTrigger,
-        mimeType = "text/csv",
-        onContent = { content ->
-            if (content != null) {
-                viewModel.importV1Csv(content)
-                showImportResult = true
-            }
-        },
-    )
-
-    val importSummary = backupState.lastImportSummary
-    if (showImportResult && importSummary != null) {
-        val dismiss = {
-            showImportResult = false
-            viewModel.clearImportSummary()
-        }
-        AlertDialog(
-            onDismissRequest = dismiss,
-            title = { Text(stringResource(Res.string.settings_import_complete_title)) },
-            text = {
-                if (importSummary.oversized) {
-                    Text(stringResource(Res.string.settings_import_too_large))
-                } else {
-                    Text(
-                        stringResource(
-                            Res.string.settings_import_result,
-                            importSummary.inserted,
-                            importSummary.skipped,
-                            importSummary.parseErrors,
-                        ),
-                    )
+        FileImportLauncher(
+            trigger = importTrigger,
+            mimeType = "text/csv",
+            onContent = { content ->
+                if (content != null) {
+                    viewModel.importV1Csv(content)
+                    showImportResult = true
                 }
             },
-            confirmButton = {
-                TextButton(onClick = dismiss) { Text(stringResource(Res.string.action_ok)) }
-            },
         )
-    }
 
-    if (showDevModeToast) {
-        AlertDialog(
-            onDismissRequest = { showDevModeToast = false },
-            title = {
-                Text(
-                    if (settings.devMode) {
-                        stringResource(Res.string.settings_dev_on_title)
+        val importSummary = backupState.lastImportSummary
+        if (showImportResult && importSummary != null) {
+            val dismiss = {
+                showImportResult = false
+                viewModel.clearImportSummary()
+            }
+            AlertDialog(
+                onDismissRequest = dismiss,
+                title = { Text(stringResource(Res.string.settings_import_complete_title)) },
+                text = {
+                    if (importSummary.oversized) {
+                        Text(stringResource(Res.string.settings_import_too_large))
                     } else {
-                        stringResource(Res.string.settings_dev_off_title)
-                    },
-                )
-            },
-            text = {
-                Text(
-                    if (settings.devMode) {
-                        stringResource(Res.string.settings_dev_on_body)
-                    } else {
-                        stringResource(Res.string.settings_dev_off_body)
-                    },
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = { showDevModeToast = false }) { Text(stringResource(Res.string.action_ok)) }
-            },
-        )
-    }
-
-    Scaffold(contentWindowInsets = WindowInsets(0)) { innerPadding ->
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState()),
-        ) {
-            Spacer(Modifier.height(12.dp))
-
-            SettingsSectionHeader(stringResource(Res.string.settings_section_inventory))
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_manage_supplies)) },
-                supportingContent = { Text(stringResource(Res.string.settings_manage_supplies_sub)) },
-                modifier = Modifier.clickable(
-                    onClickLabel = stringResource(Res.string.settings_manage_supplies),
-                    onClick = { onNavigateToManageSupplies() },
-                ),
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                        Text(
+                            stringResource(
+                                Res.string.settings_import_result,
+                                importSummary.inserted,
+                                importSummary.skipped,
+                                importSummary.parseErrors,
+                            ),
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = dismiss) { Text(stringResource(Res.string.action_ok)) }
+                },
             )
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_print_qr)) },
-                supportingContent = { Text(stringResource(Res.string.settings_print_qr_sub)) },
-                modifier = Modifier.clickable(
-                    onClickLabel = stringResource(Res.string.settings_print_qr),
-                    onClick = { onNavigateToQrLabels() },
-                ),
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_reorder_warnings)) },
-                supportingContent = { Text(stringResource(Res.string.settings_reorder_warnings_sub)) },
-                modifier = Modifier.clickable(
-                    onClickLabel = stringResource(Res.string.settings_reorder_warnings),
-                    onClick = { onNavigateToReorderWarnings() },
-                ),
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
+        }
 
-            HorizontalDivider()
-            SettingsSectionHeader(stringResource(Res.string.settings_section_security))
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_biometric_lock)) },
-                supportingContent = { Text(stringResource(Res.string.settings_biometric_lock_sub)) },
-                trailingContent = {
-                    Switch(
-                        checked = settings.lockSettings,
-                        onCheckedChange = viewModel::setLockSettings,
-                        modifier = Modifier.testTag("biometricLockSwitch"),
+        if (showDevModeToast) {
+            AlertDialog(
+                onDismissRequest = { showDevModeToast = false },
+                title = {
+                    Text(
+                        if (settings.devMode) {
+                            stringResource(Res.string.settings_dev_on_title)
+                        } else {
+                            stringResource(Res.string.settings_dev_off_title)
+                        },
                     )
                 },
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_crash_reporting)) },
-                supportingContent = { Text(stringResource(Res.string.settings_crash_reporting_sub)) },
-                trailingContent = {
-                    Switch(
-                        checked = settings.crashReportingEnabled,
-                        onCheckedChange = viewModel::setCrashReporting,
-                        modifier = Modifier.testTag("crashReportingSwitch"),
+                text = {
+                    Text(
+                        if (settings.devMode) {
+                            stringResource(Res.string.settings_dev_on_body)
+                        } else {
+                            stringResource(Res.string.settings_dev_off_body)
+                        },
                     )
                 },
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                confirmButton = {
+                    TextButton(onClick = { showDevModeToast = false }) { Text(stringResource(Res.string.action_ok)) }
+                },
             )
+        }
 
-            HorizontalDivider()
-            SettingsSectionHeader(stringResource(Res.string.settings_section_data))
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_backup)) },
-                supportingContent = { Text(stringResource(Res.string.settings_backup_sub)) },
-                trailingContent = {
-                    TextButton(
-                        onClick = {
-                            viewModel.exportCsv { csv ->
-                                fileSharer.shareText(
-                                    content = csv,
-                                    fileName = "ostomate_backup.csv",
-                                    mimeType = "text/csv",
-                                )
+        Scaffold(contentWindowInsets = WindowInsets(0)) { innerPadding ->
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .verticalScroll(rememberScrollState()),
+            ) {
+                Spacer(Modifier.height(12.dp))
+
+                SettingsSectionHeader(stringResource(Res.string.settings_section_inventory))
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_manage_supplies)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_manage_supplies_sub)) },
+                    modifier =
+                        Modifier.clickable(
+                            onClickLabel = stringResource(Res.string.settings_manage_supplies),
+                            onClick = { onNavigateToManageSupplies() },
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_print_qr)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_print_qr_sub)) },
+                    modifier =
+                        Modifier.clickable(
+                            onClickLabel = stringResource(Res.string.settings_print_qr),
+                            onClick = { onNavigateToQrLabels() },
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_reorder_warnings)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_reorder_warnings_sub)) },
+                    modifier =
+                        Modifier.clickable(
+                            onClickLabel = stringResource(Res.string.settings_reorder_warnings),
+                            onClick = { onNavigateToReorderWarnings() },
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+
+                HorizontalDivider()
+                SettingsSectionHeader(stringResource(Res.string.settings_section_security))
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_biometric_lock)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_biometric_lock_sub)) },
+                    trailingContent = {
+                        Switch(
+                            checked = settings.lockSettings,
+                            onCheckedChange = viewModel::setLockSettings,
+                            modifier = Modifier.testTag("biometricLockSwitch"),
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_crash_reporting)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_crash_reporting_sub)) },
+                    trailingContent = {
+                        Switch(
+                            checked = settings.crashReportingEnabled,
+                            onCheckedChange = viewModel::setCrashReporting,
+                            modifier = Modifier.testTag("crashReportingSwitch"),
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+
+                HorizontalDivider()
+                SettingsSectionHeader(stringResource(Res.string.settings_section_data))
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_backup)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_backup_sub)) },
+                    trailingContent = {
+                        TextButton(
+                            onClick = {
+                                viewModel.exportCsv { csv ->
+                                    fileSharer.shareText(
+                                        content = csv,
+                                        fileName = "ostomate_backup.csv",
+                                        mimeType = "text/csv",
+                                    )
+                                }
+                            },
+                            enabled = !backupState.isBusy,
+                        ) {
+                            Text(stringResource(Res.string.settings_export))
+                        }
+                    },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_import_v1)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_import_v1_sub)) },
+                    trailingContent = {
+                        TextButton(
+                            onClick = { importTrigger++ },
+                            enabled = !backupState.isBusy,
+                        ) {
+                            Text(stringResource(Res.string.settings_import))
+                        }
+                    },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+
+                HorizontalDivider()
+                SettingsSectionHeader(stringResource(Res.string.settings_section_support))
+                ListItem(
+                    headlineContent = { Text(stringResource(Res.string.settings_feedback)) },
+                    supportingContent = { Text(stringResource(Res.string.settings_feedback_sub)) },
+                    modifier =
+                        Modifier.clickable(
+                            onClickLabel = stringResource(Res.string.settings_feedback),
+                            onClick = { feedbackHelper.launch() },
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
+
+                HorizontalDivider()
+                // Tap 5× in 2 s to toggle dev mode
+                SettingsSectionHeader(
+                    title =
+                        if (settings.devMode) {
+                            stringResource(Res.string.settings_section_about_dev)
+                        } else {
+                            stringResource(Res.string.settings_section_about)
+                        },
+                    modifier =
+                        Modifier.clickable {
+                            val now = Clock.System.now().toEpochMilliseconds()
+                            if (now - devTapWindowStart > DEV_MODE_WINDOW_MS) {
+                                devTapCount = 1
+                                devTapWindowStart = now
+                            } else {
+                                devTapCount++
+                            }
+                            if (devTapCount >= DEV_MODE_TAPS_REQUIRED) {
+                                devTapCount = 0
+                                viewModel.setDevMode(!settings.devMode)
+                                showDevModeToast = true
                             }
                         },
-                        enabled = !backupState.isBusy,
-                    ) {
-                        Text(stringResource(Res.string.settings_export))
-                    }
-                },
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_import_v1)) },
-                supportingContent = { Text(stringResource(Res.string.settings_import_v1_sub)) },
-                trailingContent = {
-                    TextButton(
-                        onClick = { importTrigger++ },
-                        enabled = !backupState.isBusy,
-                    ) {
-                        Text(stringResource(Res.string.settings_import))
-                    }
-                },
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-
-            HorizontalDivider()
-            SettingsSectionHeader(stringResource(Res.string.settings_section_support))
-            ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_feedback)) },
-                supportingContent = { Text(stringResource(Res.string.settings_feedback_sub)) },
-                modifier = Modifier.clickable(
-                    onClickLabel = stringResource(Res.string.settings_feedback),
-                    onClick = { feedbackHelper.launch() },
-                ),
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
-
-            HorizontalDivider()
-            // Tap 5× in 2 s to toggle dev mode
-            SettingsSectionHeader(
-                title =
-                    if (settings.devMode) {
-                        stringResource(Res.string.settings_section_about_dev)
-                    } else {
-                        stringResource(Res.string.settings_section_about)
+                )
+                SettingsItem(title = "Ostomate", subtitle = stringResource(Res.string.settings_app_version))
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            stringResource(Res.string.settings_privacy_policy),
+                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     },
-                modifier =
-                    Modifier.clickable {
-                        val now = Clock.System.now().toEpochMilliseconds()
-                        if (now - devTapWindowStart > DEV_MODE_WINDOW_MS) {
-                            devTapCount = 1
-                            devTapWindowStart = now
-                        } else {
-                            devTapCount++
-                        }
-                        if (devTapCount >= DEV_MODE_TAPS_REQUIRED) {
-                            devTapCount = 0
-                            viewModel.setDevMode(!settings.devMode)
-                            showDevModeToast = true
-                        }
-                    },
-            )
-            SettingsItem(title = "Ostomate", subtitle = stringResource(Res.string.settings_app_version))
-            ListItem(
-                headlineContent = {
-                    Text(
-                        stringResource(Res.string.settings_privacy_policy),
-                        color = MaterialTheme.colorScheme.primary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                },
-                modifier = Modifier.clickable(
-                    onClickLabel = stringResource(Res.string.settings_privacy_policy),
-                    onClick = { onNavigateToPrivacyPolicy() },
-                ),
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
-            )
+                    modifier =
+                        Modifier.clickable(
+                            onClickLabel = stringResource(Res.string.settings_privacy_policy),
+                            onClick = { onNavigateToPrivacyPolicy() },
+                        ),
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                )
 
-            Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(16.dp))
+            }
         }
-    }
     } // end else (not locked)
 }
 

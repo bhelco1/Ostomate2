@@ -31,12 +31,12 @@ import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
 import com.ostomate.app.resources.home_snackbar_logged_count
 import com.ostomate.app.ui.components.SupplyCard
-import kotlin.time.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Clock
 
 private val MONTH_NAMES =
     arrayOf(
