@@ -89,10 +89,21 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 
 **Goal:** App runs correctly on real hardware. All Maestro E2E flows pass.
 
-### 2.1 — iOS Physical Device ⬜
+### 2.1 — iOS Physical Device ✅
 - Build for device: `xcodebuild -project iosApp.xcodeproj -target iosApp -configuration Debug -sdk iphoneos ARCHS=arm64`
 - Install via Xcode or `ios-deploy`
 - Run manual device checklist from `04-test-plan.md`
+  - [x] 1. Launch / onboarding
+  - [x] 2. Log bag change
+  - [x] 3. QR deep link
+  - [x] 4. Calendar
+  - [x] 5. Biometric lock
+  - [x] 6. Manage Supplies
+  - [x] 7. QR Labels
+  - [x] 8. Export CSV
+  - [x] 9. Notifications
+  - [x] 10. Dark mode
+  - [x] 11. VoiceOver
 
 ### 2.2 — Android Physical Device ✅
 - `./gradlew :androidApp:installDebug`
