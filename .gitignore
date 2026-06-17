@@ -3,6 +3,10 @@
 *.jks
 *.p12
 
+# iOS secrets — DSN and other keys go in Secrets.swift / Secrets.xcconfig (both gitignored)
+iosApp/Configuration/Secrets.xcconfig
+iosApp/iosApp/Secrets.swift
+
 *.iml
 .kotlin
 .gradle

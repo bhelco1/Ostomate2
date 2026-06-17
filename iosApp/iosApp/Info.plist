@@ -33,6 +33,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>SentryDSN</key>
+	<string>$(SENTRY_DSN)</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

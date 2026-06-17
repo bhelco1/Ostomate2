@@ -60,20 +60,21 @@ All wiring was in place before Phase 1 began:
 
 **Remaining:** manual smoke test on physical device (covered in Phase 2).
 
-### 1.4 — Wire CrashReporter to Firebase ⬜
+### 1.4 — Wire CrashReporter to Sentry (iOS) ✅
 
-`CrashReporter` expect/actual stubs exist.
+Android is fully wired: `sentry-android` dep, `CrashReporter.android.kt`, `OstomateApp.init()` reads `SENTRY_DSN` from `BuildConfig`.
+iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 
-**Human steps:**
-1. Create Firebase project → Add Android app (`com.ostomate.app`) + iOS app (`com.ostomate.app`)
-2. Download `google-services.json` → `androidApp/`
-3. Download `GoogleService-Info.plist` → `iosApp/iosApp/`
-4. Base64 encode both → add as GitHub Secrets (`GOOGLE_SERVICES_JSON`, `GOOGLE_SERVICE_INFO_PLIST`)
+**Human steps (Xcode):**
+1. In Xcode: File → Add Package Dependencies → `https://github.com/getsentry/sentry-cocoa`, version `~> 8.0`
+2. Link `Sentry` framework to the `iosApp` target
+3. Add `SENTRY_DSN` to `iosApp/Configuration/Config.xcconfig` (local only, git-ignored)
+4. Add `SENTRY_DSN` as a GitHub Secret for CI
 
 **Code steps:**
-- Add Firebase Crashlytics SDK to `androidApp/build.gradle.kts` and `iosApp` (via SPM or CocoaPods)
-- Wire `CrashReporter.record(throwable)` to the existing Android/iOS actuals
-- Release builds only — debug builds should not send crash reports
+- Expose `SENTRY_DSN` via `Info.plist` entry (read from xcconfig)
+- Call `SentrySDK.start` in `iOSApp.swift` gated on the stored opt-in preference
+- Read `crashReportingEnabled` from shared `DataStore` settings before init
 
 ### 1.5 — Integration Pass ⬜
 

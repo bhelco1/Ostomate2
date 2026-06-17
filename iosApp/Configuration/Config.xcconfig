@@ -1,3 +1,8 @@
 TEAM_ID=
 BUNDLE_ID=com.ostomate.app
 APP_NAME=Ostomate
+
+// Local secrets (gitignored). Create iosApp/Configuration/Secrets.xcconfig with:
+//   SENTRY_DSN=https://your-key@o123.ingest.sentry.io/456
+SENTRY_DSN=
+#include? "Secrets.xcconfig"

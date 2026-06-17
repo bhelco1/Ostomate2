@@ -1,9 +1,8 @@
 package com.ostomate.app.platform
 
-// iOS Sentry integration is deferred: add `Sentry` via Swift Package Manager in
-// iosApp/iosApp, call SentrySDK.start in the Swift entry point (AppDelegate or
-// iosApp.swift), and read the crashReportingEnabled setting there.
-// This no-op stub keeps the expect/actual contract satisfied in the meantime.
+// Sentry is initialized from Swift in iOSApp.swift via SentryBridgeKt.sentryEnabled().
+// The Kotlin expect/actual contract is satisfied here with no-ops; the SDK is not
+// available to call from Kotlin. Changes to setEnabled() take effect on next launch.
 actual class CrashReporter {
     actual fun init(dsn: String, enabled: Boolean) {}
     actual fun setEnabled(enabled: Boolean) {}
