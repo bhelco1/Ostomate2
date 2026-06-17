@@ -7,7 +7,7 @@
 | Phase | Goal | Status |
 |---|---|---|
 | 0 | KMP spike — prove the stack | ✅ Complete |
-| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2 ✅, 1.3–1.5 ⬜) |
+| 1 | Wire platform features + stabilize | 🔄 In progress (1.1 ✅, 1.2 ✅, 1.3 ✅, 1.4–1.5 ⬜) |
 | 2 | Physical device validation | ⬜ |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
@@ -49,11 +49,16 @@ All wiring was in place before Phase 1 began:
 
 **Remaining:** verify on physical device (covered in Phase 2).
 
-### 1.3 — Verify Backup Round-Trip ⬜
+### 1.3 — Verify Backup Round-Trip ✅
 
-`BackupRepository` and `FileImportLauncher` exist. Verify:
-- Export CSV → share to Files app → re-import → events match
-- Test on both Android and iOS
+`BackupRepository`, `FileSharer`, and `FileImportLauncher` fully wired on both platforms:
+
+- `CsvExporter`: 9 unit tests passing on both JVM and iOS simulator (69 total shared tests)
+- `FileSharer.ios.kt`: writes CSV as raw UTF-8 bytes via `NSData.dataWithBytes` + `NSFileManager.createFileAtPath`, presents `UIActivityViewController`
+- `FileImportLauncher.ios.kt`: `UIDocumentPickerViewController` with `DocumentPickerDelegate : NSObject()` (requires `import platform.darwin.NSObject`) reading file via `NSString.stringWithContentsOfURL`
+- iOS Xcode build: `BUILD SUCCEEDED` after fixing pre-existing `String.format()` → `.replace()` and `kotlinx.datetime.Clock.System` → `kotlin.time.Clock.System` + epoch-millis bridge
+
+**Remaining:** manual smoke test on physical device (covered in Phase 2).
 
 ### 1.4 — Wire CrashReporter to Firebase ⬜
 

@@ -104,7 +104,7 @@ private fun MainApp() {
         DeepLinkBus.events.collect { supplyName ->
             val message =
                 if (supplyName != null) {
-                    loggedMsg.format(supplyName)
+                    loggedMsg.replace("%1\$s", supplyName)
                 } else {
                     unrecognizedMsg
                 }

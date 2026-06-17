@@ -31,10 +31,11 @@ import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
 import com.ostomate.app.resources.home_snackbar_logged_count
 import com.ostomate.app.ui.components.SupplyCard
-import kotlinx.datetime.Clock
-import org.jetbrains.compose.resources.stringResource
+import kotlin.time.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val MONTH_NAMES =
@@ -60,9 +61,9 @@ fun HomeScreen(
         val onHand = uiState.undoOnHand
         val message =
             if (onHand != null) {
-                loggedCountFmt.format(name, onHand)
+                loggedCountFmt.replace("%1\$s", name).replace("%2\$d", onHand.toString())
             } else {
-                loggedFmt.format(name)
+                loggedFmt.replace("%1\$s", name)
             }
         val result =
             snackbarHostState.showSnackbar(
@@ -137,7 +138,7 @@ fun HomeScreen(
 
 private fun todayDateLabel(): String {
     val tz = TimeZone.currentSystemDefault()
-    val now = Clock.System.now().toLocalDateTime(tz)
+    val now = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds()).toLocalDateTime(tz)
     val dow =
         now.dayOfWeek.name
             .lowercase()
