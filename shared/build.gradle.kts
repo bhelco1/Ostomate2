@@ -23,6 +23,7 @@ kotlin {
             implementation(libs.androidx.work.runtime)
             api(libs.androidx.biometric)
             implementation(libs.sentry.android)
+            implementation(libs.zxing.core)
         }
         commonMain.dependencies {
             implementation(libs.koin.core)

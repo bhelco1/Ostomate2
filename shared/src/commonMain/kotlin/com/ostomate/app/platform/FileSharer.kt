@@ -12,6 +12,12 @@ expect class FileSharer {
         mimeType: String,
     )
 
+    fun shareBytes(
+        bytes: ByteArray,
+        fileName: String,
+        mimeType: String,
+    )
+
     fun openFilePicker(
         mimeType: String,
         onResult: (String?) -> Unit,

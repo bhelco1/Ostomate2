@@ -20,8 +20,15 @@ actual class FileSharer {
         fileName: String,
         mimeType: String,
     ) {
+        shareBytes(content.encodeToByteArray(), fileName, mimeType)
+    }
+
+    actual fun shareBytes(
+        bytes: ByteArray,
+        fileName: String,
+        mimeType: String,
+    ) {
         val path = NSTemporaryDirectory() + fileName
-        val bytes = content.encodeToByteArray()
         val nsData = bytes.usePinned { NSData.dataWithBytes(it.addressOf(0), bytes.size.toULong()) }
         NSFileManager.defaultManager.createFileAtPath(path, contents = nsData, attributes = null)
         val fileURL = NSURL.fileURLWithPath(path)

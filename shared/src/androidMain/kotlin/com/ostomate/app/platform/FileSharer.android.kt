@@ -17,8 +17,16 @@ actual class FileSharer {
         fileName: String,
         mimeType: String,
     ) {
+        shareBytes(content.encodeToByteArray(), fileName, mimeType)
+    }
+
+    actual fun shareBytes(
+        bytes: ByteArray,
+        fileName: String,
+        mimeType: String,
+    ) {
         val file = File(activity.cacheDir, fileName)
-        file.writeText(content)
+        file.writeBytes(bytes)
         val uri: Uri =
             FileProvider.getUriForFile(
                 activity,

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.QrCodeEncoder
 import com.ostomate.app.platform.rememberQrPrinter
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.cd_back
@@ -190,11 +191,14 @@ private fun QrLabelCard(
 
             TextButton(
                 onClick = {
-                    fileSharer.shareText(
-                        content = "${supply.name}\n$url",
-                        fileName = "ostomate-qr-link.txt",
-                        mimeType = "text/plain",
-                    )
+                    val png = QrCodeEncoder.encodeToPng(url, 512)
+                    if (png.isNotEmpty()) {
+                        fileSharer.shareBytes(
+                            bytes = png,
+                            fileName = "${supply.name}-qr.png",
+                            mimeType = "image/png",
+                        )
+                    }
                 },
                 contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp),
             ) {
