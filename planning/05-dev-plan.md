@@ -8,7 +8,7 @@
 |---|---|---|
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
-| 2 | Physical device validation | ⬜ |
+| 2 | Physical device validation | ✅ Complete |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -112,7 +112,7 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - Fixed: biometric gate moved from Settings screen to count-editing action only
 - Fixed: biometric session resets on ManageSupplies exit
 
-### 2.3 — Maestro E2E All Green 🔧 (flows fixed, pending CI run)
+### 2.3 — Maestro E2E All Green ✅
 - Fixed all 5 CI flows (02–05, 08):
   - All flows: added `tapOn: "Skip" optional: true` to handle fresh onboarding after `clearState: true`
   - Flow 01: fixed wildcard `id: "overflowButton_*"` → `id: "overflowButton"` with `index: 0`
