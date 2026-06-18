@@ -81,8 +81,10 @@ fun QrLabelsScreen(
                     }
                 },
                 actions = {
-                    TextButton(onClick = { qrPrinter.print(uiState.supplies) }) {
-                        Text(stringResource(Res.string.qr_labels_print))
+                    if (qrPrinter.isPrintingAvailable()) {
+                        TextButton(onClick = { qrPrinter.print(uiState.supplies) }) {
+                            Text(stringResource(Res.string.qr_labels_print))
+                        }
                     }
                     IconButton(
                         onClick = {

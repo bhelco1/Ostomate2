@@ -25,6 +25,8 @@ import java.io.FileOutputStream
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class QrPrinter(private val context: Context) {
+    actual fun isPrintingAvailable(): Boolean = true
+
     actual fun print(supplies: List<SupplyTypeEntity>) {
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
         printManager.print(

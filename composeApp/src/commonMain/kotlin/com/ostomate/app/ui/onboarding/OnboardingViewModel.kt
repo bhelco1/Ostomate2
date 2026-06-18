@@ -16,8 +16,8 @@ enum class OnboardingStep { SUPPLIES, COUNTS, QR_EXPLAINER }
 data class OnboardingUiState(
     val step: OnboardingStep = OnboardingStep.SUPPLIES,
     val selectedKinds: Set<SupplyKind> = setOf(SupplyKind.BAG, SupplyKind.FLANGE),
-    val bagCount: String = "0",
-    val flangeCount: String = "0",
+    val bagCount: String = "",
+    val flangeCount: String = "",
 )
 
 class OnboardingViewModel(
@@ -36,11 +36,13 @@ class OnboardingViewModel(
     }
 
     fun setBagCount(value: String) {
-        _uiState.value = _uiState.value.copy(bagCount = value.filter { it.isDigit() }.take(4))
+        val raw = value.filter { it.isDigit() }.take(4)
+        _uiState.value = _uiState.value.copy(bagCount = raw.toIntOrNull()?.toString() ?: "")
     }
 
     fun setFlangeCount(value: String) {
-        _uiState.value = _uiState.value.copy(flangeCount = value.filter { it.isDigit() }.take(4))
+        val raw = value.filter { it.isDigit() }.take(4)
+        _uiState.value = _uiState.value.copy(flangeCount = raw.toIntOrNull()?.toString() ?: "")
     }
 
     fun nextStep() {

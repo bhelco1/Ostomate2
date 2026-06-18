@@ -6,8 +6,10 @@ import com.ostomate.app.data.db.SupplyTypeEntity
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class QrPrinter {
+    actual fun isPrintingAvailable(): Boolean = false
+
     actual fun print(supplies: List<SupplyTypeEntity>) {
-        // TODO: iOS printing via UIPrintInteractionController
+        // TODO: iOS printing via UIPrintInteractionController (issue #7)
     }
 }
 

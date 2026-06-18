@@ -5,6 +5,7 @@ import com.ostomate.app.data.db.SupplyTypeEntity
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 expect class QrPrinter {
+    fun isPrintingAvailable(): Boolean
     fun print(supplies: List<SupplyTypeEntity>)
 }
 
