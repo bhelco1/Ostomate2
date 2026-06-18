@@ -153,7 +153,13 @@
     <string name="onboarding_qr_hint">Puedes imprimir etiquetas en cualquier momento desde Ajustes → Imprimir etiquetas QR.</string>
     <string name="onboarding_get_started">Comenzar</string>
     <string name="onboarding_print_later">Imprimir etiquetas después</string>
-    <string name="onboarding_step_indicator">Paso %1$d de 3</string>
+    <string name="onboarding_step_indicator">Paso %1$d de %2$d</string>
+    <string name="onboarding_appliance_title">¿Qué tipo de sistema de ostomía usas?</string>
+    <string name="onboarding_appliance_subtitle">Esto nos ayuda a configurar el seguimiento correcto para ti.</string>
+    <string name="onboarding_appliance_one_piece">Sistema de 1 pieza</string>
+    <string name="onboarding_appliance_one_piece_desc">La bolsa y la barrera de piel están combinadas en una pieza</string>
+    <string name="onboarding_appliance_two_piece">Sistema de 2 piezas</string>
+    <string name="onboarding_appliance_two_piece_desc">Bolsa y flange / placa de base separados</string>
     <string name="cd_view_day">Ver eventos del día %1$d</string>
 
     <!-- Accesibilidad: controles de fila de suministro -->

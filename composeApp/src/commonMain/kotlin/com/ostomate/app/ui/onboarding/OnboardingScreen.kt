@@ -1,6 +1,8 @@
 package com.ostomate.app.ui.onboarding
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +22,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,8 +37,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.ostomate.app.domain.ApplianceType
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.onboarding_appliance_one_piece
+import com.ostomate.app.resources.onboarding_appliance_one_piece_desc
+import com.ostomate.app.resources.onboarding_appliance_subtitle
+import com.ostomate.app.resources.onboarding_appliance_title
+import com.ostomate.app.resources.onboarding_appliance_two_piece
+import com.ostomate.app.resources.onboarding_appliance_two_piece_desc
 import com.ostomate.app.resources.onboarding_back
 import com.ostomate.app.resources.onboarding_bag_count_label
 import com.ostomate.app.resources.onboarding_counts_subtitle
@@ -71,7 +82,6 @@ fun OnboardingScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 40.dp),
     ) {
-        // Skip link (top-right)
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = {
                 viewModel.skip()
@@ -84,10 +94,22 @@ fun OnboardingScreen(
         Spacer(Modifier.height(16.dp))
 
         when (uiState.step) {
+            OnboardingStep.APPLIANCE_TYPE ->
+                ApplianceTypeStep(
+                    selected = uiState.applianceType,
+                    displayStep = uiState.displayStep,
+                    totalSteps = uiState.totalSteps,
+                    onSelect = viewModel::setApplianceType,
+                    onNext = viewModel::nextStep,
+                )
+
             OnboardingStep.SUPPLIES ->
                 SuppliesStep(
                     selectedKinds = uiState.selectedKinds,
+                    displayStep = uiState.displayStep,
+                    totalSteps = uiState.totalSteps,
                     onToggle = viewModel::toggleKind,
+                    onBack = viewModel::prevStep,
                     onNext = viewModel::nextStep,
                 )
 
@@ -96,6 +118,8 @@ fun OnboardingScreen(
                     selectedKinds = uiState.selectedKinds,
                     bagCount = uiState.bagCount,
                     flangeCount = uiState.flangeCount,
+                    displayStep = uiState.displayStep,
+                    totalSteps = uiState.totalSteps,
                     onBagCountChange = viewModel::setBagCount,
                     onFlangeCountChange = viewModel::setFlangeCount,
                     onBack = viewModel::prevStep,
@@ -104,6 +128,8 @@ fun OnboardingScreen(
 
             OnboardingStep.QR_EXPLAINER ->
                 QrExplainerStep(
+                    displayStep = uiState.displayStep,
+                    totalSteps = uiState.totalSteps,
                     onBack = viewModel::prevStep,
                     onDone = {
                         viewModel.finish()
@@ -115,14 +141,100 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun SuppliesStep(
-    selectedKinds: Set<SupplyKind>,
-    onToggle: (SupplyKind) -> Unit,
+private fun ApplianceTypeStep(
+    selected: ApplianceType,
+    displayStep: Int,
+    totalSteps: Int,
+    onSelect: (ApplianceType) -> Unit,
     onNext: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
         Column {
-            StepIndicator(step = 1)
+            StepIndicator(step = displayStep, total = totalSteps)
+            Spacer(Modifier.height(24.dp))
+            Text(
+                stringResource(Res.string.onboarding_appliance_title),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(Res.string.onboarding_appliance_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(24.dp))
+
+            listOf(
+                ApplianceType.ONE_PIECE to Pair(
+                    stringResource(Res.string.onboarding_appliance_one_piece),
+                    stringResource(Res.string.onboarding_appliance_one_piece_desc),
+                ),
+                ApplianceType.TWO_PIECE to Pair(
+                    stringResource(Res.string.onboarding_appliance_two_piece),
+                    stringResource(Res.string.onboarding_appliance_two_piece_desc),
+                ),
+            ).forEach { (type, labels) ->
+                val (title, desc) = labels
+                val isSelected = selected == type
+                val borderColor = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(
+                            width = if (isSelected) 2.dp else 1.dp,
+                            color = borderColor,
+                            shape = RoundedCornerShape(12.dp),
+                        )
+                        .clickable { onSelect(type) }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    RadioButton(
+                        selected = isSelected,
+                        onClick = { onSelect(type) },
+                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary),
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+                        Text(
+                            desc,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
+
+        Button(
+            onClick = onNext,
+            modifier = Modifier.fillMaxWidth().height(52.dp),
+        ) {
+            Text(stringResource(Res.string.onboarding_next))
+        }
+    }
+}
+
+@Composable
+private fun SuppliesStep(
+    selectedKinds: Set<SupplyKind>,
+    displayStep: Int,
+    totalSteps: Int,
+    onToggle: (SupplyKind) -> Unit,
+    onBack: () -> Unit,
+    onNext: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+        Column {
+            StepIndicator(step = displayStep, total = totalSteps)
             Spacer(Modifier.height(24.dp))
             Text(
                 stringResource(Res.string.onboarding_supplies_title),
@@ -167,12 +279,17 @@ private fun SuppliesStep(
             }
         }
 
-        Button(
-            onClick = onNext,
-            modifier = Modifier.fillMaxWidth().height(52.dp),
-            enabled = selectedKinds.isNotEmpty(),
-        ) {
-            Text(stringResource(Res.string.onboarding_next))
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            TextButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(Res.string.onboarding_back))
+            }
+            Button(
+                onClick = onNext,
+                modifier = Modifier.weight(2f).height(52.dp),
+                enabled = selectedKinds.isNotEmpty(),
+            ) {
+                Text(stringResource(Res.string.onboarding_next))
+            }
         }
     }
 }
@@ -182,6 +299,8 @@ private fun CountsStep(
     selectedKinds: Set<SupplyKind>,
     bagCount: String,
     flangeCount: String,
+    displayStep: Int,
+    totalSteps: Int,
     onBagCountChange: (String) -> Unit,
     onFlangeCountChange: (String) -> Unit,
     onBack: () -> Unit,
@@ -189,7 +308,7 @@ private fun CountsStep(
 ) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
         Column {
-            StepIndicator(step = 2)
+            StepIndicator(step = displayStep, total = totalSteps)
             Spacer(Modifier.height(24.dp))
             Text(
                 stringResource(Res.string.onboarding_counts_title),
@@ -243,12 +362,14 @@ private fun CountsStep(
 
 @Composable
 private fun QrExplainerStep(
+    displayStep: Int,
+    totalSteps: Int,
     onBack: () -> Unit,
     onDone: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
         Column {
-            StepIndicator(step = 3)
+            StepIndicator(step = displayStep, total = totalSteps)
             Spacer(Modifier.height(24.dp))
             Text(
                 stringResource(Res.string.onboarding_qr_title),
@@ -287,13 +408,13 @@ private fun QrExplainerStep(
 }
 
 @Composable
-private fun StepIndicator(step: Int) {
-    val label = stringResource(Res.string.onboarding_step_indicator, step)
+private fun StepIndicator(step: Int, total: Int) {
+    val label = stringResource(Res.string.onboarding_step_indicator, step, total)
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.semantics { contentDescription = label },
     ) {
-        (1..3).forEach { i ->
+        (1..total).forEach { i ->
             Spacer(
                 Modifier
                     .size(width = if (i == step) 24.dp else 8.dp, height = 8.dp)

@@ -6,7 +6,7 @@ Bugs and UX issues found during physical device testing. Work through these befo
 
 ## Setup / Onboarding
 
-### [ ] BUG-01: 1-piece appliance users cannot complete setup
+### [x] BUG-01: 1-piece appliance users cannot complete setup
 **Screen:** Setup/onboarding flow  
 **Problem:** No question for appliance type. Users with a 1-piece system hit a 2-piece workflow (separate bag + flange entries) and cannot get through setup.  
 **Fix:** Add a "1-piece or 2-piece appliance?" question early in setup. Store the preference. 1-piece users should only log one item per change with no separate flange entry. Preference must flow through throughout the app.
@@ -45,7 +45,7 @@ Bugs and UX issues found during physical device testing. Work through these befo
 **Problem:** The share sheet sends raw text data rather than an image of the QR code. The recipient gets a string that does not function as a QR code.  
 **Fix:** Render the QR code composable to a bitmap/image first, then share the image (PNG or PDF). Do not share the raw string.
 
-### [ ] BUG-07: Print button does not work with HP printer app on iPhone
+### [x] BUG-07: Print button does not work with HP printer app on iPhone
 **Screen:** QR Labels — Print  
 **Problem:** On an iPhone with the HP Smart app installed and a printer configured, tapping Print does nothing (or fails).  
 **Fix:** Investigate whether the iOS print path is using `UIPrintInteractionController` correctly. Ensure the printable content is provided as a `UIPrintPageRenderer` or `UIPrintFormatter` compatible type. Test with HP Smart.

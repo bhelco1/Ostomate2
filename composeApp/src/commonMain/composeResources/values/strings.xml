@@ -156,7 +156,13 @@
     <string name="onboarding_qr_hint">You can print labels anytime from Settings → Print QR Labels.</string>
     <string name="onboarding_get_started">Get started</string>
     <string name="onboarding_print_later">Print labels later</string>
-    <string name="onboarding_step_indicator">Step %1$d of 3</string>
+    <string name="onboarding_step_indicator">Step %1$d of %2$d</string>
+    <string name="onboarding_appliance_title">What type of appliance do you use?</string>
+    <string name="onboarding_appliance_subtitle">This helps us set up the right tracking for you.</string>
+    <string name="onboarding_appliance_one_piece">1-piece system</string>
+    <string name="onboarding_appliance_one_piece_desc">Pouch and skin barrier are combined in one piece</string>
+    <string name="onboarding_appliance_two_piece">2-piece system</string>
+    <string name="onboarding_appliance_two_piece_desc">Separate pouch and flange / wafer</string>
     <string name="cd_view_day">View events for day %1$d</string>
 
     <!-- Accessibility: supply row controls (Manage Supplies) -->

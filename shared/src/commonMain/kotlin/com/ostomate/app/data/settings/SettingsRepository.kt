@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.ostomate.app.domain.ApplianceType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -20,6 +21,7 @@ data class AppSettings(
     val localeOverride: String? = null,
     /** Opt-in Sentry crash reporting (default off, per privacy posture). */
     val crashReportingEnabled: Boolean = false,
+    val applianceType: ApplianceType = ApplianceType.TWO_PIECE,
 )
 
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
@@ -31,6 +33,9 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 lockSettings = prefs[LOCK_SETTINGS] ?: false,
                 localeOverride = prefs[LOCALE_OVERRIDE],
                 crashReportingEnabled = prefs[CRASH_REPORTING] ?: false,
+                applianceType = prefs[APPLIANCE_TYPE]?.let {
+                    runCatching { ApplianceType.valueOf(it) }.getOrNull()
+                } ?: ApplianceType.TWO_PIECE,
             )
         }
 
@@ -56,11 +61,16 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[CRASH_REPORTING] = enabled }
     }
 
+    suspend fun setApplianceType(type: ApplianceType) {
+        dataStore.edit { it[APPLIANCE_TYPE] = type.name }
+    }
+
     private companion object {
         val DEV_MODE = booleanPreferencesKey("devMode")
         val ONBOARDING_DONE = booleanPreferencesKey("onboardingDone")
         val LOCK_SETTINGS = booleanPreferencesKey("lockSettings")
         val LOCALE_OVERRIDE = stringPreferencesKey("localeOverride")
         val CRASH_REPORTING = booleanPreferencesKey("crashReportingEnabled")
+        val APPLIANCE_TYPE = stringPreferencesKey("applianceType")
     }
 }

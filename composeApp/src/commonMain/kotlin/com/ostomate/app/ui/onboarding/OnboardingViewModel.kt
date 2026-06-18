@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.SupplyRepository
 import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.domain.ApplianceType
 import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,14 +12,31 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-enum class OnboardingStep { SUPPLIES, COUNTS, QR_EXPLAINER }
+enum class OnboardingStep { APPLIANCE_TYPE, SUPPLIES, COUNTS, QR_EXPLAINER }
 
 data class OnboardingUiState(
-    val step: OnboardingStep = OnboardingStep.SUPPLIES,
+    val step: OnboardingStep = OnboardingStep.APPLIANCE_TYPE,
+    val applianceType: ApplianceType = ApplianceType.TWO_PIECE,
     val selectedKinds: Set<SupplyKind> = setOf(SupplyKind.BAG, SupplyKind.FLANGE),
     val bagCount: String = "",
     val flangeCount: String = "",
-)
+) {
+    val totalSteps: Int get() = if (applianceType == ApplianceType.ONE_PIECE) 3 else 4
+    val displayStep: Int get() = when (applianceType) {
+        ApplianceType.ONE_PIECE -> when (step) {
+            OnboardingStep.APPLIANCE_TYPE -> 1
+            OnboardingStep.SUPPLIES -> 2
+            OnboardingStep.COUNTS -> 2
+            OnboardingStep.QR_EXPLAINER -> 3
+        }
+        ApplianceType.TWO_PIECE -> when (step) {
+            OnboardingStep.APPLIANCE_TYPE -> 1
+            OnboardingStep.SUPPLIES -> 2
+            OnboardingStep.COUNTS -> 3
+            OnboardingStep.QR_EXPLAINER -> 4
+        }
+    }
+}
 
 class OnboardingViewModel(
     private val supplyRepository: SupplyRepository,
@@ -26,6 +44,17 @@ class OnboardingViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    fun setApplianceType(type: ApplianceType) {
+        _uiState.value = _uiState.value.copy(
+            applianceType = type,
+            selectedKinds = if (type == ApplianceType.ONE_PIECE) {
+                setOf(SupplyKind.BAG)
+            } else {
+                setOf(SupplyKind.BAG, SupplyKind.FLANGE)
+            },
+        )
+    }
 
     fun toggleKind(kind: SupplyKind) {
         val current = _uiState.value.selectedKinds
@@ -46,23 +75,29 @@ class OnboardingViewModel(
     }
 
     fun nextStep() {
-        val next =
-            when (_uiState.value.step) {
-                OnboardingStep.SUPPLIES -> OnboardingStep.COUNTS
-                OnboardingStep.COUNTS -> OnboardingStep.QR_EXPLAINER
-                OnboardingStep.QR_EXPLAINER -> return
-            }
-        _uiState.value = _uiState.value.copy(step = next)
+        val state = _uiState.value
+        val next = when (state.step) {
+            OnboardingStep.APPLIANCE_TYPE ->
+                if (state.applianceType == ApplianceType.ONE_PIECE) OnboardingStep.COUNTS
+                else OnboardingStep.SUPPLIES
+            OnboardingStep.SUPPLIES -> OnboardingStep.COUNTS
+            OnboardingStep.COUNTS -> OnboardingStep.QR_EXPLAINER
+            OnboardingStep.QR_EXPLAINER -> return
+        }
+        _uiState.value = state.copy(step = next)
     }
 
     fun prevStep() {
-        val prev =
-            when (_uiState.value.step) {
-                OnboardingStep.SUPPLIES -> return
-                OnboardingStep.COUNTS -> OnboardingStep.SUPPLIES
-                OnboardingStep.QR_EXPLAINER -> OnboardingStep.COUNTS
-            }
-        _uiState.value = _uiState.value.copy(step = prev)
+        val state = _uiState.value
+        val prev = when (state.step) {
+            OnboardingStep.APPLIANCE_TYPE -> return
+            OnboardingStep.SUPPLIES -> OnboardingStep.APPLIANCE_TYPE
+            OnboardingStep.COUNTS ->
+                if (state.applianceType == ApplianceType.ONE_PIECE) OnboardingStep.APPLIANCE_TYPE
+                else OnboardingStep.SUPPLIES
+            OnboardingStep.QR_EXPLAINER -> OnboardingStep.COUNTS
+        }
+        _uiState.value = state.copy(step = prev)
     }
 
     fun finish() {
@@ -70,7 +105,6 @@ class OnboardingViewModel(
             val state = _uiState.value
             val supplies = supplyRepository.observeSupplies().first()
 
-            // Update on-hand counts for supplies the user has selected
             supplies.forEach { supply ->
                 val newCount =
                     when {
@@ -83,6 +117,7 @@ class OnboardingViewModel(
                 supplyRepository.setOnHand(supply.id, newCount)
             }
 
+            settingsRepository.setApplianceType(state.applianceType)
             settingsRepository.setOnboardingDone(true)
         }
     }
