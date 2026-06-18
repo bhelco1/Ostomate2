@@ -153,12 +153,16 @@ private fun MainApp() {
                 NavigationBarItem(
                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_settings)) },
-                    selected = currentDestination?.hasRoute<SettingsDestination>() == true,
+                    selected = currentDestination?.hasRoute<SettingsDestination>() == true ||
+                        currentDestination?.hasRoute<ManageSuppliesDestination>() == true ||
+                        currentDestination?.hasRoute<ReorderWarningsDestination>() == true ||
+                        currentDestination?.hasRoute<PrivacyPolicyDestination>() == true ||
+                        currentDestination?.hasRoute<QrLabelsDestination>() == true,
                     onClick = {
                         navController.navigate(SettingsDestination) {
                             popUpTo(navController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
-                            restoreState = true
+                            restoreState = false
                         }
                     },
                 )
