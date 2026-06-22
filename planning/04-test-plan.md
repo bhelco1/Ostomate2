@@ -10,13 +10,11 @@
          [E2E]          Maestro — 5 flows in CI (Android only), iOS E2E = 0 (manual)
         [device]        Manual — physical iPhone + Android device checklist
       [UI / VM]         Not automated — 7 ViewModels, 0 tests; composables manual
-    [data tests]        9 SQLite tests (Room DAO + migrations) — iOS sim only*
-    [unit tests]        60 tests (pure domain + DataStore) — JVM + iOS simulator
+    [data tests]        9 SQLite tests (Room DAO + migrations) — JVM host + iOS sim
+    [unit tests]        60 tests (pure domain + DataStore) — JVM host + iOS sim
                         ────────────────────────────────────────────────
-                        69 shared tests total, all green
+                        69 shared tests, all green — every PR runs all 69 on ubuntu
 ```
-*Need native SQLite the ubuntu host JVM lacks; gated on PRs via a path-filtered
- iOS job (Phase 2.5.1), not the ubuntu run.
 
 ## Common Tests (`shared/commonTest`)
 
@@ -35,28 +33,31 @@ Run on **both** JVM (`testAndroidHostTest`, gated on every PR) and iOS simulator
 | SettingsRepositoryTest | 3 | DataStore read/write (moved from iosTest in 2.5.1) |
 | **Subtotal** | **60** | Run on JVM + iOS sim |
 
-## SQLite Tests (`shared/iosTest`)
+## SQLite Tests (Room DAO + migrations)
 
-Use a real SQLite driver. The android `sqlite-bundled` artifact ships only
-Android-ABI native libs, so these **cannot** run on the ubuntu host JVM — they
-run on the iOS simulator. As of 2.5.1 they are gated on PRs via a path-filtered
-iOS job (fires when iOS or DB-layer files change), not the ubuntu run.
+Use a real SQLite driver, and **run on both targets**. The assertions live once in
+`commonTest` (`ChangeEventDaoScenarios`, `MigrationScenarios`); thin per-platform
+test classes feed them the right driver:
 
-| Suite | Tests | What it covers |
+- **JVM host** (`androidHostTest`, gated on every PR): Robolectric supplies a
+  `Context` + a desktop-capable SQLite via `AndroidSQLiteDriver` — the
+  `sqlite-bundled` native is Android-ABI-only and can't load on a desktop JVM.
+- **iOS simulator** (`iosTest`): the bundled native driver — the real iOS path.
+
+| Scenario set | Tests | What it covers |
 |---|---|---|
-| ChangeEventDaoTest | 7 | Room CRUD: insert, query, delete |
-| Migration1To2Test | 1 | v1→v2 migration (direct `migrate()` on in-memory SQLite) |
-| Migration2To3Test | 1 | v2→v3 migration (adds colorIndex) |
-| **Subtotal** | **9** | iOS sim only |
+| ChangeEventDao | 7 | Room CRUD: seed, insert/join, delete, archive, repository |
+| Migration 1→2 | 1 | spike→catalog remap (direct `migrate()` on in-memory SQLite) |
+| Migration 2→3 | 1 | adds colorIndex |
+| **Subtotal** | **9** | JVM host + iOS sim |
 
-**Grand total: 69 shared tests.** JVM runs 60; iOS simulator runs all 69.
+**Grand total: 69 shared tests, run on both JVM host and iOS simulator.**
 
 > Migration tests call the `Migration.migrate()` functions directly (no
 > `MigrationTestHelper`, which is instrumentation-only on Android). Trade-off:
 > they validate the migration's data transformation but not that the resulting
 > schema matches the exported JSON — that drift is caught by Room's build-time
-> `exportSchema`. Running the 9 SQLite tests on the ubuntu JVM would need
-> Robolectric or a desktop SQLite provider (deferred — see `05-dev-plan.md` 2.5.1).
+> `exportSchema`.
 
 **Run locally:**
 ```bash

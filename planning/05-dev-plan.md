@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1 in progress) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1 ✅, 2.5.2+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -133,35 +133,39 @@ in `08-test-strategy.md` §7 (this is its rollout, ordered by
 risk-reduction-per-effort). Every item lands with its own tests; verify
 execution counts in `shared/build/test-results/`, not just BUILD SUCCESSFUL.
 
-### 2.5.1 — Close the PR gate 🚧 (mostly done 2026-06-22)
-*Highest impact, low effort, ~zero cost. Approved split in `08` §4.*
+### 2.5.1 — Close the PR gate ✅ (done 2026-06-22)
+*Highest impact. Approved split in `08` §4. Outcome: **all 69 shared tests now
+run on the ubuntu host JVM (`testAndroidHostTest`), so every PR gates them — at
+zero macOS cost.***
 
 **Done:**
-- [x] DataStore tests (`SettingsRepositoryTest`, 3) moved to `commonTest` — now
-      gate every ubuntu PR via `testAndroidHostTest` (JVM host: 57 → 60 green).
-- [x] Migration tests rewritten to call `Migration.migrate()` directly on an
-      in-memory SQLite connection (no `MigrationTestHelper`/`room.testing`/schema
-      env wiring — all removed). Still run on iOS sim (69 green).
-- [x] Test-platform seam added (`TestSupport.kt` expect + JVM/iOS actuals) so the
-      same data tests run on both targets.
-- [x] CI: `detect-changes` job + `ios` job now gates **PRs** (iOS shared tests +
-      unsigned iOS build) when iOS, DB-layer (`shared/.../data/db/`), schema, or
-      build files change; else `main`-only. Pure domain/UI/Android PRs stay
-      ubuntu-only — no extra macOS minutes.
+- [x] DataStore tests (`SettingsRepositoryTest`, 3) moved to `commonTest`; run on
+      JVM host + iOS sim (DataStore needs no native SQLite).
+- [x] The 9 SQLite tests (7 Room DAO + 2 migration) now run on **both** targets.
+      The android `sqlite-bundled` artifact ships only Android-ABI natives
+      (`UnsatisfiedLinkError: no sqliteJni`), so the JVM host run uses
+      **Robolectric + `AndroidSQLiteDriver`** (Robolectric supplies a `Context`
+      and a desktop-capable SQLite); iOS keeps the bundled native driver.
+- [x] Shared assertions extracted to `commonTest` (`ChangeEventDaoScenarios`,
+      `MigrationScenarios`); thin per-platform test classes feed them the right
+      driver. Logic written once, exercised on both targets.
+- [x] `buildDatabase(builder, driver = BundledSQLiteDriver())` — added a defaulted
+      driver param so tests can inject the framework driver; production unchanged.
+- [x] Migration tests call `Migration.migrate()` directly on an in-memory
+      connection (dropped `MigrationTestHelper`/`room.testing`/schema env wiring).
+- [x] New test deps (approved): `robolectric`, `androidx.test.core`,
+      `sqlite-framework` on `androidHostTest` only.
+- [x] CI: `detect-changes` + `ios` job still gates the **iOS build** on PRs when
+      iOS/DB/build files change (catches iOS-specific compile breaks); the iOS
+      test run validates the real native driver. Pure domain/UI/Android PRs stay
+      ubuntu-only.
 
-**Technical finding (changed the plan):** the 7 Room DAO + 2 migration tests use
-real SQLite. The android `sqlite-bundled` artifact ships only Android-ABI native
-libs (`UnsatisfiedLinkError: no sqliteJni`), so they **cannot** run on the ubuntu
-host JVM. They are instead gated pre-merge by the path-filtered macOS `ios` job
-above (cost incurred only on PRs that touch those paths).
+**Verified:** JVM host 69 green, iOS sim 69 green; ktlint clean for all new files.
 
-**Remaining (needs a decision):**
-- [ ] Run the 9 SQLite tests on the ubuntu JVM too (fully macOS-free PR gating).
-      Requires Robolectric or a desktop SQLite native provider — a new test
-      dependency + integration spike. **Ask before adding** (per CLAUDE.md). Until
-      then, migrations/DAO gate via the macOS path-filter job.
-- [ ] Optional: restore exported-schema-JSON validation (lost when dropping
-      `MigrationTestHelper`) as an iOS-only check, if belt-and-suspenders wanted.
+**Trade-off noted:** dropped `MigrationTestHelper`'s exported-schema-JSON
+validation (instrumentation-only on Android). Migration data-transform is still
+tested; schema drift is caught by Room's build-time `exportSchema`. Re-add as an
+optional check later if belt-and-suspenders wanted.
 
 ### 2.5.2 — Coverage measurement (JaCoCo) ⬜
 - Wire JaCoCo to `:shared:testAndroidHostTest` (Kover stays blocked; see

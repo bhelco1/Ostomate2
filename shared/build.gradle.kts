@@ -38,9 +38,14 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotest.property)
         }
-        // Room (DAO/migration) and DataStore tests now live in commonTest so they run on
-        // BOTH the JVM host (testAndroidHostTest, gated on every PR) and the iOS simulator.
-        // Driver (sqlite.bundled) and room-runtime are inherited from commonMain.
+        // DataStore tests live in commonTest (run on JVM host + iOS sim). The SQLite-backed
+        // Room tests run per-platform: iOS uses the bundled native driver; the JVM host uses
+        // Robolectric + AndroidSQLiteDriver (the bundled driver ships only Android-ABI natives).
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.androidx.test.core)
+            implementation(libs.sqlite.framework)
+        }
     }
 }
 
