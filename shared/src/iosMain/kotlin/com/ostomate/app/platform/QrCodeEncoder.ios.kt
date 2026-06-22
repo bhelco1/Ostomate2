@@ -17,7 +17,10 @@ import platform.UIKit.UIImagePNGRepresentation
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual object QrCodeEncoder {
-    actual fun encodeToPng(url: String, size: Int): ByteArray {
+    actual fun encodeToPng(
+        url: String,
+        size: Int,
+    ): ByteArray {
         val urlBytes = url.encodeToByteArray()
         val nsData = urlBytes.usePinned { NSData.dataWithBytes(it.addressOf(0), urlBytes.size.toULong()) }
 

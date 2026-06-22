@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -166,34 +166,38 @@ private fun ApplianceTypeStep(
             Spacer(Modifier.height(24.dp))
 
             listOf(
-                ApplianceType.ONE_PIECE to Pair(
-                    stringResource(Res.string.onboarding_appliance_one_piece),
-                    stringResource(Res.string.onboarding_appliance_one_piece_desc),
-                ),
-                ApplianceType.TWO_PIECE to Pair(
-                    stringResource(Res.string.onboarding_appliance_two_piece),
-                    stringResource(Res.string.onboarding_appliance_two_piece_desc),
-                ),
+                ApplianceType.ONE_PIECE to
+                    Pair(
+                        stringResource(Res.string.onboarding_appliance_one_piece),
+                        stringResource(Res.string.onboarding_appliance_one_piece_desc),
+                    ),
+                ApplianceType.TWO_PIECE to
+                    Pair(
+                        stringResource(Res.string.onboarding_appliance_two_piece),
+                        stringResource(Res.string.onboarding_appliance_two_piece_desc),
+                    ),
             ).forEach { (type, labels) ->
                 val (title, desc) = labels
                 val isSelected = selected == type
-                val borderColor = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                }
+                val borderColor =
+                    if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                    }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(
-                            width = if (isSelected) 2.dp else 1.dp,
-                            color = borderColor,
-                            shape = RoundedCornerShape(12.dp),
-                        )
-                        .clickable { onSelect(type) }
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .border(
+                                width = if (isSelected) 2.dp else 1.dp,
+                                color = borderColor,
+                                shape = RoundedCornerShape(12.dp),
+                            )
+                            .clickable { onSelect(type) }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -408,7 +412,10 @@ private fun QrExplainerStep(
 }
 
 @Composable
-private fun StepIndicator(step: Int, total: Int) {
+private fun StepIndicator(
+    step: Int,
+    total: Int,
+) {
     val label = stringResource(Res.string.onboarding_step_indicator, step, total)
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),

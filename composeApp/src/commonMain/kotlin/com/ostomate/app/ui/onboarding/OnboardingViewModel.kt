@@ -22,20 +22,23 @@ data class OnboardingUiState(
     val flangeCount: String = "",
 ) {
     val totalSteps: Int get() = if (applianceType == ApplianceType.ONE_PIECE) 3 else 4
-    val displayStep: Int get() = when (applianceType) {
-        ApplianceType.ONE_PIECE -> when (step) {
-            OnboardingStep.APPLIANCE_TYPE -> 1
-            OnboardingStep.SUPPLIES -> 2
-            OnboardingStep.COUNTS -> 2
-            OnboardingStep.QR_EXPLAINER -> 3
+    val displayStep: Int get() =
+        when (applianceType) {
+            ApplianceType.ONE_PIECE ->
+                when (step) {
+                    OnboardingStep.APPLIANCE_TYPE -> 1
+                    OnboardingStep.SUPPLIES -> 2
+                    OnboardingStep.COUNTS -> 2
+                    OnboardingStep.QR_EXPLAINER -> 3
+                }
+            ApplianceType.TWO_PIECE ->
+                when (step) {
+                    OnboardingStep.APPLIANCE_TYPE -> 1
+                    OnboardingStep.SUPPLIES -> 2
+                    OnboardingStep.COUNTS -> 3
+                    OnboardingStep.QR_EXPLAINER -> 4
+                }
         }
-        ApplianceType.TWO_PIECE -> when (step) {
-            OnboardingStep.APPLIANCE_TYPE -> 1
-            OnboardingStep.SUPPLIES -> 2
-            OnboardingStep.COUNTS -> 3
-            OnboardingStep.QR_EXPLAINER -> 4
-        }
-    }
 }
 
 class OnboardingViewModel(
@@ -46,14 +49,16 @@ class OnboardingViewModel(
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
 
     fun setApplianceType(type: ApplianceType) {
-        _uiState.value = _uiState.value.copy(
-            applianceType = type,
-            selectedKinds = if (type == ApplianceType.ONE_PIECE) {
-                setOf(SupplyKind.BAG)
-            } else {
-                setOf(SupplyKind.BAG, SupplyKind.FLANGE)
-            },
-        )
+        _uiState.value =
+            _uiState.value.copy(
+                applianceType = type,
+                selectedKinds =
+                    if (type == ApplianceType.ONE_PIECE) {
+                        setOf(SupplyKind.BAG)
+                    } else {
+                        setOf(SupplyKind.BAG, SupplyKind.FLANGE)
+                    },
+            )
     }
 
     fun toggleKind(kind: SupplyKind) {
@@ -76,27 +81,35 @@ class OnboardingViewModel(
 
     fun nextStep() {
         val state = _uiState.value
-        val next = when (state.step) {
-            OnboardingStep.APPLIANCE_TYPE ->
-                if (state.applianceType == ApplianceType.ONE_PIECE) OnboardingStep.COUNTS
-                else OnboardingStep.SUPPLIES
-            OnboardingStep.SUPPLIES -> OnboardingStep.COUNTS
-            OnboardingStep.COUNTS -> OnboardingStep.QR_EXPLAINER
-            OnboardingStep.QR_EXPLAINER -> return
-        }
+        val next =
+            when (state.step) {
+                OnboardingStep.APPLIANCE_TYPE ->
+                    if (state.applianceType == ApplianceType.ONE_PIECE) {
+                        OnboardingStep.COUNTS
+                    } else {
+                        OnboardingStep.SUPPLIES
+                    }
+                OnboardingStep.SUPPLIES -> OnboardingStep.COUNTS
+                OnboardingStep.COUNTS -> OnboardingStep.QR_EXPLAINER
+                OnboardingStep.QR_EXPLAINER -> return
+            }
         _uiState.value = state.copy(step = next)
     }
 
     fun prevStep() {
         val state = _uiState.value
-        val prev = when (state.step) {
-            OnboardingStep.APPLIANCE_TYPE -> return
-            OnboardingStep.SUPPLIES -> OnboardingStep.APPLIANCE_TYPE
-            OnboardingStep.COUNTS ->
-                if (state.applianceType == ApplianceType.ONE_PIECE) OnboardingStep.APPLIANCE_TYPE
-                else OnboardingStep.SUPPLIES
-            OnboardingStep.QR_EXPLAINER -> OnboardingStep.COUNTS
-        }
+        val prev =
+            when (state.step) {
+                OnboardingStep.APPLIANCE_TYPE -> return
+                OnboardingStep.SUPPLIES -> OnboardingStep.APPLIANCE_TYPE
+                OnboardingStep.COUNTS ->
+                    if (state.applianceType == ApplianceType.ONE_PIECE) {
+                        OnboardingStep.APPLIANCE_TYPE
+                    } else {
+                        OnboardingStep.SUPPLIES
+                    }
+                OnboardingStep.QR_EXPLAINER -> OnboardingStep.COUNTS
+            }
         _uiState.value = state.copy(step = prev)
     }
 

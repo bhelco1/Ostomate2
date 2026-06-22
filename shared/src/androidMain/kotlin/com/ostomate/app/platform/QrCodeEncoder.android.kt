@@ -9,7 +9,10 @@ import java.io.ByteArrayOutputStream
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual object QrCodeEncoder {
-    actual fun encodeToPng(url: String, size: Int): ByteArray {
+    actual fun encodeToPng(
+        url: String,
+        size: Int,
+    ): ByteArray {
         val matrix =
             try {
                 QRCodeWriter().encode(
