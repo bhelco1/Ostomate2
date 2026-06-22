@@ -9,6 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1 in progress) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -121,6 +122,104 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
   - Flow 05: fixed invalid YAML on `pressKey: BACK` (removed misindented `optional: true`)
   - Flow 08: rewrote biometric test — gate is on Settings screen, not Home overflow; now navigates back to Settings and asserts auto-unlock on emulator
 - Push to main to trigger CI `android-e2e` job
+
+---
+
+## Phase 2.5 — Test Hardening & QA Infrastructure
+
+**Goal:** Close the coverage and CI-gating gaps found in the 2026-06-22 QA audit
+before shipping. Full rationale, target-state pyramid, and reporting design live
+in `08-test-strategy.md` §7 (this is its rollout, ordered by
+risk-reduction-per-effort). Every item lands with its own tests; verify
+execution counts in `shared/build/test-results/`, not just BUILD SUCCESSFUL.
+
+### 2.5.1 — Close the PR gate 🚧 (mostly done 2026-06-22)
+*Highest impact, low effort, ~zero cost. Approved split in `08` §4.*
+
+**Done:**
+- [x] DataStore tests (`SettingsRepositoryTest`, 3) moved to `commonTest` — now
+      gate every ubuntu PR via `testAndroidHostTest` (JVM host: 57 → 60 green).
+- [x] Migration tests rewritten to call `Migration.migrate()` directly on an
+      in-memory SQLite connection (no `MigrationTestHelper`/`room.testing`/schema
+      env wiring — all removed). Still run on iOS sim (69 green).
+- [x] Test-platform seam added (`TestSupport.kt` expect + JVM/iOS actuals) so the
+      same data tests run on both targets.
+- [x] CI: `detect-changes` job + `ios` job now gates **PRs** (iOS shared tests +
+      unsigned iOS build) when iOS, DB-layer (`shared/.../data/db/`), schema, or
+      build files change; else `main`-only. Pure domain/UI/Android PRs stay
+      ubuntu-only — no extra macOS minutes.
+
+**Technical finding (changed the plan):** the 7 Room DAO + 2 migration tests use
+real SQLite. The android `sqlite-bundled` artifact ships only Android-ABI native
+libs (`UnsatisfiedLinkError: no sqliteJni`), so they **cannot** run on the ubuntu
+host JVM. They are instead gated pre-merge by the path-filtered macOS `ios` job
+above (cost incurred only on PRs that touch those paths).
+
+**Remaining (needs a decision):**
+- [ ] Run the 9 SQLite tests on the ubuntu JVM too (fully macOS-free PR gating).
+      Requires Robolectric or a desktop SQLite native provider — a new test
+      dependency + integration spike. **Ask before adding** (per CLAUDE.md). Until
+      then, migrations/DAO gate via the macOS path-filter job.
+- [ ] Optional: restore exported-schema-JSON validation (lost when dropping
+      `MigrationTestHelper`) as an iOS-only check, if belt-and-suspenders wanted.
+
+### 2.5.2 — Coverage measurement (JaCoCo) ⬜
+- Wire JaCoCo to `:shared:testAndroidHostTest` (Kover stays blocked; see
+  `shared/build.gradle.kts` TODO). Scope to domain + ViewModel + repository
+  packages; exclude generated Room/DI/Compose code.
+- Publish the % on every PR; set the floor at the measured baseline, ratchet up.
+- **Done when:** coverage prints on each PR and a drop below floor fails the build.
+
+### 2.5.3 — ViewModel tests ⬜
+*Fulfills the existing `04-test-plan.md` policy that today has 0 implementations.*
+- Test every `UiState` transition for all 7 ViewModels (`Home`, `Settings`,
+  `Calendar`, `History`, `Stats`, `Onboarding`, `ManageSupplies`) using fake
+  repositories and StateFlow assertions.
+- Add a regression test for BUG-02 (leading-zero input) at this layer.
+- **Done when:** all 7 ViewModels have UiState coverage; suite green on JVM + iOS.
+
+### 2.5.4 — Repository tests ⬜
+- `BackupRepository` **round-trip first** (export → import → assert event parity —
+  data-loss risk), then `ChangeEventRepository`, `SupplyRepository`,
+  `SupplyTypeDao`, `NotificationScheduler`.
+- **Done when:** all five have direct tests; backup round-trip proven.
+
+### 2.5.5 — Zero-cost reporting + Codecov ⬜
+- GitHub Actions job-summary `## Test Summary` (pass/fail per suite, coverage %,
+  delta vs `main`); upload JUnit XML + HTML report (90-day retention).
+- Static dashboard generated from JUnit XML, published via GitHub Pages
+  (`/docs`); README status + coverage badges.
+- Add **Codecov** (free — repo is public, confirmed 2026-06-22) for diff-coverage
+  PR annotations.
+- **Done when:** a human can read suite health + coverage trend without opening
+  raw CI logs.
+
+### 2.5.6 — iOS E2E ⬜
+*Biggest remaining hole — iOS correctness is 100% manual today.*
+- Maestro on the iOS simulator for onboarding, log, share, and deep-link flows
+  (the clusters where device bugs appeared).
+- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite.
+
+### 2.5.7 — Screenshot tests ⬜
+- Screenshot-diff coverage for Home, Onboarding, Calendar, QrLabels (catches
+  layout regressions like BUG-03 keyboard overlap).
+- Engine (Roborazzi vs Paparazzi vs Compose-native) is the one deferred decision
+  in `08` §8 — pick it when starting this item.
+- **Done when:** baseline images committed; diffs fail CI on layout change.
+
+### 2.5.8 — Wire orphan Maestro flows ⬜
+- Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
+  `android-e2e` job (currently only 5 of 7 run).
+- Strengthen flow `08` so it asserts the biometric **gate logic**, not emulator
+  auto-unlock behavior.
+- **Done when:** all 7 flows run in CI with meaningful assertions.
+
+### 2.5.9 — Comprehensive extras ⬜
+- Mutation testing on the pure domain layer (small + pure → high ROI).
+- Automated accessibility semantics checks (Home + Settings); keep manual
+  VoiceOver/TalkBack for screen-reader feel.
+- Flakiness tracking / E2E quarantine lane.
+- **Done when:** the full target-state pyramid in `08` §3 is in place.
 
 ---
 

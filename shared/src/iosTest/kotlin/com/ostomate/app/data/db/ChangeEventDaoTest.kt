@@ -12,6 +12,10 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+// NOTE: still iOS-only. The Room in-memory builder requires a Context on the
+// android/JVM-host target, so running this on PRs needs Robolectric — tracked as
+// a follow-up in 05-dev-plan.md (Phase 2.5.1). Migrations and DataStore tests
+// already run on the JVM host (commonTest).
 class ChangeEventDaoTest {
     // buildDatabase (not a bare builder) so the seed callback runs, as in production.
     private val db: OstomateDatabase = buildDatabase(Room.inMemoryDatabaseBuilder<OstomateDatabase>())
