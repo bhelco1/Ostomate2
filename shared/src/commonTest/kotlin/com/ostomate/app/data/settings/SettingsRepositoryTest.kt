@@ -1,10 +1,10 @@
 package com.ostomate.app.data.settings
 
+import com.ostomate.app.testTempDir
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import okio.FileSystem
 import okio.Path.Companion.toPath
-import platform.Foundation.NSTemporaryDirectory
 import kotlin.random.Random
 import kotlin.test.AfterTest
 import kotlin.test.Test
@@ -13,7 +13,8 @@ import kotlin.test.assertNull
 
 class SettingsRepositoryTest {
     // Unique file per test: DataStore allows only one active instance per file.
-    private val path = NSTemporaryDirectory() + "settings-test-${Random.nextLong()}.preferences_pb"
+    private val path =
+        (testTempDir().toPath() / "settings-test-${Random.nextLong()}.preferences_pb").toString()
     private val repository = SettingsRepository(createSettingsDataStore { path })
 
     @AfterTest

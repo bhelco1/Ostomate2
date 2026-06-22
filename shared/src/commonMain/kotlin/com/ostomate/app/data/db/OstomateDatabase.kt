@@ -6,6 +6,7 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
 import kotlinx.coroutines.Dispatchers
@@ -105,9 +106,16 @@ val MIGRATION_2_3 =
         }
     }
 
-fun buildDatabase(builder: RoomDatabase.Builder<OstomateDatabase>): OstomateDatabase =
+// driver defaults to the bundled native SQLite (production, iOS tests). The JVM host
+// test passes AndroidSQLiteDriver instead: the bundled driver ships only Android-ABI
+// natives and can't load on a desktop JVM, whereas the framework driver is backed by
+// Robolectric's SQLite.
+fun buildDatabase(
+    builder: RoomDatabase.Builder<OstomateDatabase>,
+    driver: SQLiteDriver = BundledSQLiteDriver(),
+): OstomateDatabase =
     builder
-        .setDriver(BundledSQLiteDriver())
+        .setDriver(driver)
         .setQueryCoroutineContext(Dispatchers.IO)
         .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
         .addCallback(SeedDefaultSuppliesCallback)

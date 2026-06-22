@@ -9,6 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1 ✅, 2.5.2+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -121,6 +122,108 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
   - Flow 05: fixed invalid YAML on `pressKey: BACK` (removed misindented `optional: true`)
   - Flow 08: rewrote biometric test — gate is on Settings screen, not Home overflow; now navigates back to Settings and asserts auto-unlock on emulator
 - Push to main to trigger CI `android-e2e` job
+
+---
+
+## Phase 2.5 — Test Hardening & QA Infrastructure
+
+**Goal:** Close the coverage and CI-gating gaps found in the 2026-06-22 QA audit
+before shipping. Full rationale, target-state pyramid, and reporting design live
+in `08-test-strategy.md` §7 (this is its rollout, ordered by
+risk-reduction-per-effort). Every item lands with its own tests; verify
+execution counts in `shared/build/test-results/`, not just BUILD SUCCESSFUL.
+
+### 2.5.1 — Close the PR gate ✅ (done 2026-06-22)
+*Highest impact. Approved split in `08` §4. Outcome: **all 69 shared tests now
+run on the ubuntu host JVM (`testAndroidHostTest`), so every PR gates them — at
+zero macOS cost.***
+
+**Done:**
+- [x] DataStore tests (`SettingsRepositoryTest`, 3) moved to `commonTest`; run on
+      JVM host + iOS sim (DataStore needs no native SQLite).
+- [x] The 9 SQLite tests (7 Room DAO + 2 migration) now run on **both** targets.
+      The android `sqlite-bundled` artifact ships only Android-ABI natives
+      (`UnsatisfiedLinkError: no sqliteJni`), so the JVM host run uses
+      **Robolectric + `AndroidSQLiteDriver`** (Robolectric supplies a `Context`
+      and a desktop-capable SQLite); iOS keeps the bundled native driver.
+- [x] Shared assertions extracted to `commonTest` (`ChangeEventDaoScenarios`,
+      `MigrationScenarios`); thin per-platform test classes feed them the right
+      driver. Logic written once, exercised on both targets.
+- [x] `buildDatabase(builder, driver = BundledSQLiteDriver())` — added a defaulted
+      driver param so tests can inject the framework driver; production unchanged.
+- [x] Migration tests call `Migration.migrate()` directly on an in-memory
+      connection (dropped `MigrationTestHelper`/`room.testing`/schema env wiring).
+- [x] New test deps (approved): `robolectric`, `androidx.test.core`,
+      `sqlite-framework` on `androidHostTest` only.
+- [x] CI: `detect-changes` + `ios` job still gates the **iOS build** on PRs when
+      iOS/DB/build files change (catches iOS-specific compile breaks); the iOS
+      test run validates the real native driver. Pure domain/UI/Android PRs stay
+      ubuntu-only.
+
+**Verified:** JVM host 69 green, iOS sim 69 green; ktlint clean for all new files.
+
+**Trade-off noted:** dropped `MigrationTestHelper`'s exported-schema-JSON
+validation (instrumentation-only on Android). Migration data-transform is still
+tested; schema drift is caught by Room's build-time `exportSchema`. Re-add as an
+optional check later if belt-and-suspenders wanted.
+
+### 2.5.2 — Coverage measurement (JaCoCo) ⬜
+- Wire JaCoCo to `:shared:testAndroidHostTest` (Kover stays blocked; see
+  `shared/build.gradle.kts` TODO). Scope to domain + ViewModel + repository
+  packages; exclude generated Room/DI/Compose code.
+- Publish the % on every PR; set the floor at the measured baseline, ratchet up.
+- **Done when:** coverage prints on each PR and a drop below floor fails the build.
+
+### 2.5.3 — ViewModel tests ⬜
+*Fulfills the existing `04-test-plan.md` policy that today has 0 implementations.*
+- Test every `UiState` transition for all 7 ViewModels (`Home`, `Settings`,
+  `Calendar`, `History`, `Stats`, `Onboarding`, `ManageSupplies`) using fake
+  repositories and StateFlow assertions.
+- Add a regression test for BUG-02 (leading-zero input) at this layer.
+- **Done when:** all 7 ViewModels have UiState coverage; suite green on JVM + iOS.
+
+### 2.5.4 — Repository tests ⬜
+- `BackupRepository` **round-trip first** (export → import → assert event parity —
+  data-loss risk), then `ChangeEventRepository`, `SupplyRepository`,
+  `SupplyTypeDao`, `NotificationScheduler`.
+- **Done when:** all five have direct tests; backup round-trip proven.
+
+### 2.5.5 — Zero-cost reporting + Codecov ⬜
+- GitHub Actions job-summary `## Test Summary` (pass/fail per suite, coverage %,
+  delta vs `main`); upload JUnit XML + HTML report (90-day retention).
+- Static dashboard generated from JUnit XML, published via GitHub Pages
+  (`/docs`); README status + coverage badges.
+- Add **Codecov** (free — repo is public, confirmed 2026-06-22) for diff-coverage
+  PR annotations.
+- **Done when:** a human can read suite health + coverage trend without opening
+  raw CI logs.
+
+### 2.5.6 — iOS E2E ⬜
+*Biggest remaining hole — iOS correctness is 100% manual today.*
+- Maestro on the iOS simulator for onboarding, log, share, and deep-link flows
+  (the clusters where device bugs appeared).
+- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite.
+
+### 2.5.7 — Screenshot tests ⬜
+- Screenshot-diff coverage for Home, Onboarding, Calendar, QrLabels (catches
+  layout regressions like BUG-03 keyboard overlap).
+- Engine (Roborazzi vs Paparazzi vs Compose-native) is the one deferred decision
+  in `08` §8 — pick it when starting this item.
+- **Done when:** baseline images committed; diffs fail CI on layout change.
+
+### 2.5.8 — Wire orphan Maestro flows ⬜
+- Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
+  `android-e2e` job (currently only 5 of 7 run).
+- Strengthen flow `08` so it asserts the biometric **gate logic**, not emulator
+  auto-unlock behavior.
+- **Done when:** all 7 flows run in CI with meaningful assertions.
+
+### 2.5.9 — Comprehensive extras ⬜
+- Mutation testing on the pure domain layer (small + pure → high ROI).
+- Automated accessibility semantics checks (Home + Settings); keep manual
+  VoiceOver/TalkBack for screen-reader feel.
+- Flakiness tracking / E2E quarantine lane.
+- **Done when:** the full target-state pyramid in `08` §3 is in place.
 
 ---
 

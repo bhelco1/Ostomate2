@@ -33,9 +33,10 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                 lockSettings = prefs[LOCK_SETTINGS] ?: false,
                 localeOverride = prefs[LOCALE_OVERRIDE],
                 crashReportingEnabled = prefs[CRASH_REPORTING] ?: false,
-                applianceType = prefs[APPLIANCE_TYPE]?.let {
-                    runCatching { ApplianceType.valueOf(it) }.getOrNull()
-                } ?: ApplianceType.TWO_PIECE,
+                applianceType =
+                    prefs[APPLIANCE_TYPE]?.let {
+                        runCatching { ApplianceType.valueOf(it) }.getOrNull()
+                    } ?: ApplianceType.TWO_PIECE,
             )
         }
 

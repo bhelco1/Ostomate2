@@ -56,7 +56,16 @@ class SettingsViewModel(
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
             val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            val ts = "${now.year}-${now.monthNumber.toString().padStart(2, '0')}-${now.dayOfMonth.toString().padStart(2, '0')}_${now.hour.toString().padStart(2, '0')}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
+            val ts = "${now.year}-${now.monthNumber.toString().padStart(
+                2,
+                '0',
+            )}-${now.dayOfMonth.toString().padStart(
+                2,
+                '0',
+            )}_${now.hour.toString().padStart(
+                2,
+                '0',
+            )}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
             val csv = backupRepository.exportCsv()
             _backupState.value = _backupState.value.copy(isBusy = false)
             onReady(csv, "ostomate_backup_$ts.csv")

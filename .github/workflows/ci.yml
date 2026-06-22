@@ -1,7 +1,10 @@
-# Ostomate 2.0 CI — Phase 0 skeleton.
-# Cost rule (ostomate-2.0/07-business-plan.md): macOS runners bill at 10×,
-# so the iOS job runs on main merges and manual dispatch only, not on every PR push.
-# E2E (Maestro) runs on main merges and manual dispatch only — emulator start-up is slow.
+# Ostomate 2.0 CI.
+# Cost rule (ostomate-2.0/07-business-plan.md): macOS runners bill at 10×.
+# Phase 2.5.1: all 69 shared tests (incl. Room DAO + migrations, via Robolectric)
+# run in the ubuntu `android` job, so every PR gates them at no macOS cost. The
+# macOS `ios` job additionally validates the unsigned iOS build + the real native
+# SQLite path, but only on PRs that touch iOS/DB/build files (see `detect-changes`).
+# E2E (Maestro) still runs on main merges and manual dispatch only — emulator start-up is slow.
 name: CI
 
 on:
@@ -11,6 +14,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  detect-changes:
+    name: Detect iOS / DB changes
+    runs-on: ubuntu-latest
+    outputs:
+      ios: ${{ steps.filter.outputs.ios }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        # Non-PR events (main push, manual dispatch) always validate iOS. On PRs,
+        # only when files that can break the iOS build or the native SQLite path
+        # (Room DAO + migrations live in shared/.../data/db) change.
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "ios=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD)
+          if echo "$changed" | grep -qE \
+            '^(iosApp/|composeApp/src/iosMain/|shared/src/ios|shared/src/commonMain/kotlin/com/ostomate/app/data/db/|shared/schemas/|.*\.gradle\.kts$|gradle/libs\.versions\.toml$)'; then
+            echo "ios=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ios=false" >> "$GITHUB_OUTPUT"
+          fi
+
   android:
     name: Android build + JVM tests
     runs-on: ubuntu-latest
@@ -90,9 +118,13 @@ jobs:
 
   ios:
     name: iOS shared tests + app build
-    # Apple-Silicon runner: runs the arm64 simulator tests Bobby's Intel Mac cannot.
+    # Apple-Silicon runner: validates the unsigned iOS build and runs the arm64 simulator
+    # tests against the REAL bundled native driver (the ubuntu `android` job already gates
+    # all 69 on the JVM via Robolectric). PRs only when iOS/DB-layer files changed
+    # (see detect-changes), else main only.
     runs-on: macos-latest
-    if: github.event_name != 'pull_request'
+    needs: detect-changes
+    if: needs.detect-changes.outputs.ios == 'true'
     steps:
       - uses: actions/checkout@v4
       - name: Select newest Xcode

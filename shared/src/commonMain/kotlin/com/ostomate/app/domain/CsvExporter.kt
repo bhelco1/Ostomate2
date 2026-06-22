@@ -84,10 +84,14 @@ object CsvV2Importer {
             val c = line[i]
             when {
                 c == '"' && inQuotes && i + 1 < line.length && line[i + 1] == '"' -> {
-                    current.append('"'); i++
+                    current.append('"')
+                    i++
                 }
                 c == '"' -> inQuotes = !inQuotes
-                c == ',' && !inQuotes -> { result.add(current.toString()); current.clear() }
+                c == ',' && !inQuotes -> {
+                    result.add(current.toString())
+                    current.clear()
+                }
                 else -> current.append(c)
             }
             i++

@@ -44,12 +44,19 @@ class BackupRepository(
 
         return if (CsvV2Importer.isV2(csv)) {
             val result = CsvV2Importer.parse(csv)
-            var inserted = 0; var skipped = 0
+            var inserted = 0
+            var skipped = 0
             for (row in result.rows) {
-                val supply = when (row.supplyKind) {
-                    "BAG" -> bagSupply; "FLANGE" -> flangeSupply; else -> null
-                } ?: continue
-                if (eventDao.countByTimestamp(row.timestampMillis) > 0) { skipped++; continue }
+                val supply =
+                    when (row.supplyKind) {
+                        "BAG" -> bagSupply
+                        "FLANGE" -> flangeSupply
+                        else -> null
+                    } ?: continue
+                if (eventDao.countByTimestamp(row.timestampMillis) > 0) {
+                    skipped++
+                    continue
+                }
                 eventDao.insert(
                     ChangeEventEntity(
                         supplyTypeId = supply.id,
@@ -64,12 +71,19 @@ class BackupRepository(
             ImportSummary(inserted = inserted, skipped = skipped, parseErrors = result.parseErrors)
         } else {
             val result = CsvV1Importer.parse(csv)
-            var inserted = 0; var skipped = 0
+            var inserted = 0
+            var skipped = 0
             for (row in result.rows) {
-                val supply = when (row.kind) {
-                    "BAG" -> bagSupply; "FLANGE" -> flangeSupply; else -> null
-                } ?: continue
-                if (eventDao.countByTimestamp(row.timestampMillis) > 0) { skipped++; continue }
+                val supply =
+                    when (row.kind) {
+                        "BAG" -> bagSupply
+                        "FLANGE" -> flangeSupply
+                        else -> null
+                    } ?: continue
+                if (eventDao.countByTimestamp(row.timestampMillis) > 0) {
+                    skipped++
+                    continue
+                }
                 eventDao.insert(
                     ChangeEventEntity(
                         supplyTypeId = supply.id,

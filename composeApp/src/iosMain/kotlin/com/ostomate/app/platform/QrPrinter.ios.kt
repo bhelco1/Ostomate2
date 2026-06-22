@@ -25,12 +25,13 @@ actual class QrPrinter {
         info.jobName = "Ostomate QR Labels"
         controller.printInfo = info
 
-        val images: List<UIImage> = supplies.mapNotNull { supply ->
-            val png = QrCodeEncoder.encodeToPng(supplyDeepLinkUrl(supply), 512)
-            if (png.isEmpty()) return@mapNotNull null
-            val nsData = png.usePinned { NSData.dataWithBytes(it.addressOf(0), png.size.toULong()) }
-            UIImage(data = nsData)
-        }
+        val images: List<UIImage> =
+            supplies.mapNotNull { supply ->
+                val png = QrCodeEncoder.encodeToPng(supplyDeepLinkUrl(supply), 512)
+                if (png.isEmpty()) return@mapNotNull null
+                val nsData = png.usePinned { NSData.dataWithBytes(it.addressOf(0), png.size.toULong()) }
+                UIImage(data = nsData)
+            }
         if (images.isEmpty()) return
 
         controller.printingItems = images
@@ -38,11 +39,12 @@ actual class QrPrinter {
     }
 
     private fun supplyDeepLinkUrl(supply: SupplyTypeEntity): String {
-        val item = when (supply.kind) {
-            SupplyKind.BAG -> "bag"
-            SupplyKind.FLANGE -> "flange"
-            SupplyKind.CUSTOM -> "id:${supply.id}"
-        }
+        val item =
+            when (supply.kind) {
+                SupplyKind.BAG -> "bag"
+                SupplyKind.FLANGE -> "flange"
+                SupplyKind.CUSTOM -> "id:${supply.id}"
+            }
         return "ostomate://log?item=$item"
     }
 }

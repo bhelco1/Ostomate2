@@ -38,16 +38,15 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             implementation(libs.kotest.property)
         }
-        iosTest.dependencies {
-            implementation(libs.room.testing)
+        // DataStore tests live in commonTest (run on JVM host + iOS sim). The SQLite-backed
+        // Room tests run per-platform: iOS uses the bundled native driver; the JVM host uses
+        // Robolectric + AndroidSQLiteDriver (the bundled driver ships only Android-ABI natives).
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.androidx.test.core)
+            implementation(libs.sqlite.framework)
         }
     }
-}
-
-// The migration test reads exported schema JSONs from the source tree. SIMCTL_CHILD_
-// makes simctl forward the variable into the spawned simulator test process.
-tasks.withType<org.jetbrains.kotlin.gradle.targets.native.tasks.KotlinNativeSimulatorTest>().configureEach {
-    environment("SIMCTL_CHILD_OSTOMATE_SCHEMAS_PATH", layout.projectDirectory.dir("schemas").asFile.absolutePath)
 }
 
 room {
