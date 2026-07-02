@@ -215,9 +215,15 @@ it supports `com.android.kotlin.multiplatform.library`.
   **job summary** (rendered markdown): pass/fail per suite, coverage %, delta vs
   `main`. Readable without opening logs.
 - **Artifacts:** upload JUnit XML + an HTML report each run, 90-day retention.
-- **Trend:** a static dashboard page generated from JUnit XML, published via
-  **GitHub Pages** (already used for `docs/`): green/red grid by suite, last-run
-  timestamp, coverage sparkline. No hosting cost.
+- **Trend:** a static dashboard generated from JUnit XML + JaCoCo XML, with
+  results grouped into **Unit / Integration / UI / CI-CD** categories
+  (unit = domain tests; integration = Room/DataStore/repository; UI =
+  ViewModel + screenshot + Maestro E2E; CI-CD = pipeline job health).
+  *(Decision 2026-07-02: Bobby self-hosts the dashboard on his Raspberry Pi.
+  CI publishes the static JSON + HTML to the repo (Pages branch or artifact);
+  a small script on the Pi periodically pulls and serves it — no secrets in
+  CI, the Pi stays private. GitHub Pages can serve the same files as a
+  secondary view at no extra cost.)*
 - **Badge:** README status + coverage badges updated by CI.
 
 ### Optional third-party (requires a cost case in `07-business-plan.md`)
