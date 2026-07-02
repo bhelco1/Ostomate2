@@ -19,9 +19,9 @@ Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
 ## Current status (2026-07-02)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.3 done.**
-Shared: 69 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
-JaCoCo coverage floors gate every PR (shared domain+data 52%, composeApp
+**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.4 done.**
+Shared: 86 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
+JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
 ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
 
 ## Stack

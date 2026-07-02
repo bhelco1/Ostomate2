@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.3 ✅, 2.5.4+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.4 ✅, 2.5.5+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -197,11 +197,22 @@ optional check later if belt-and-suspenders wanted.
       **93.3% line**, floor 0.93. CI gates both modules' floors on every PR and
       runs the composeApp suite on JVM (PR) + iOS sim (post-merge/dispatch).
 
-### 2.5.4 — Repository tests ⬜
-- `BackupRepository` **round-trip first** (export → import → assert event parity —
-  data-loss risk), then `ChangeEventRepository`, `SupplyRepository`,
-  `SupplyTypeDao`, `NotificationScheduler`.
-- **Done when:** all five have direct tests; backup round-trip proven.
+### 2.5.4 — Repository tests ✅ (done 2026-07-02)
+- [x] All five targets have direct tests, run against a **real in-memory Room DB**
+      on both platforms (`RepositoryScenarios` in `commonTest` + thin per-platform
+      classes, same pattern as `ChangeEventDaoScenarios`): 12 scenarios × 2 targets.
+- [x] **Backup round-trip proven**: export → import into a fresh DB → event parity
+      (timestamps + kinds); re-import of own export is idempotent (all skipped);
+      v1 import maps kinds to seeded supplies; parse errors counted without losing
+      good rows; >10 MB import rejected untouched.
+- [x] `ChangeEventRepository`: delete restocks / reinsert consumes inventory,
+      update stamps `editedAtMillis`, deep-link debounce, custom-supply `id:` links.
+- [x] `SupplyRepository`/`SupplyTypeDao`: custom supply sort-order append, archived
+      supplies skipped by kind lookup, on-hand/threshold adjustments persist.
+- [x] `NotificationScheduler`: 5 pure tests via a recording `ReminderNotifier`
+      (no history / out-of-stock / below threshold / healthy delay / per-supply tags).
+- [x] Shared suite now **86 tests per target** (was 69). Coverage rose 52.6% → 92.0%
+      line; floor ratcheted 0.52 → 0.91.
 
 ### 2.5.5 — Zero-cost reporting + Codecov ⬜
 - GitHub Actions job-summary `## Test Summary` (pass/fail per suite, coverage %,

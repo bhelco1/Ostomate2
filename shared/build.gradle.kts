@@ -118,9 +118,9 @@ val jacocoCoverageVerification by tasks.registering(JacocoCoverageVerification::
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
-                // Floor = measured baseline, 52.6% on 2026-07-02 (08-test-strategy §5).
-                // Ratchet upward as 2.5.3/2.5.4 land. Never lower it.
-                minimum = "0.52".toBigDecimal()
+                // Floor ratcheted after 2.5.4 repository tests: 92.0% measured 2026-07-02
+                // (was 52.6% at the 2.5.2 baseline). Never lower it.
+                minimum = "0.91".toBigDecimal()
             }
         }
     }
