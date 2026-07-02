@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""Generate the static QA dashboard (2.5.5, 08-test-strategy §6).
+
+Reads JUnit XML + JaCoCo XML from the build tree plus an optional GitHub
+Actions jobs JSON, and writes a self-contained static site (index.html,
+data.json, history.json) that groups results into the four categories
+Bobby's Raspberry Pi dashboard shows: Unit, Integration, UI, CI/CD.
+
+Classification:
+  Unit         shared JVM tests outside com.ostomate.app.data (pure domain logic)
+  Integration  shared JVM tests in com.ostomate.app.data (Room, DataStore, repos, migrations)
+  UI           composeApp ViewModel tests (+ E2E job results when present)
+  CI/CD        workflow job conclusions (lint/build/e2e pipeline health)
+
+No third-party dependencies — runs on any CI image and on the Pi.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
+from pathlib import Path
+
+HISTORY_LIMIT = 200
+
+
+def parse_junit_dir(directory: Path) -> list[dict]:
+    suites = []
+    if not directory.is_dir():
+        return suites
+    for xml_file in sorted(directory.glob("TEST-*.xml")):
+        try:
+            root = ET.parse(xml_file).getroot()
+        except ET.ParseError:
+            continue
+        for suite in [root] if root.tag == "testsuite" else root.findall("testsuite"):
+            suites.append(
+                {
+                    "name": suite.get("name", xml_file.stem),
+                    "tests": int(suite.get("tests", 0)),
+                    "failures": int(suite.get("failures", 0)),
+                    "errors": int(suite.get("errors", 0)),
+                    "skipped": int(suite.get("skipped", 0)),
+                    "time": float(suite.get("time", 0.0)),
+                }
+            )
+    return suites
+
+
+def parse_jacoco(xml_path: Path) -> dict | None:
+    if not xml_path.is_file():
+        return None
+    root = ET.parse(xml_path).getroot()
+    for counter in root.findall("counter"):
+        if counter.get("type") == "LINE":
+            missed = int(counter.get("missed", 0))
+            covered = int(counter.get("covered", 0))
+            total = missed + covered
+            return {
+                "covered": covered,
+                "total": total,
+                "percent": round(100.0 * covered / total, 1) if total else 0.0,
+            }
+    return None
+
+
+def summarize(suites: list[dict]) -> dict:
+    return {
+        "tests": sum(s["tests"] for s in suites),
+        "failed": sum(s["failures"] + s["errors"] for s in suites),
+        "skipped": sum(s["skipped"] for s in suites),
+        "suites": suites,
+    }
+
+
+def category_status(summary: dict) -> str:
+    if summary["tests"] == 0:
+        return "empty"
+    return "fail" if summary["failed"] > 0 else "pass"
+
+
+def build_data(repo: Path, jobs_json: Path | None, run_meta: dict) -> dict:
+    shared = parse_junit_dir(repo / "shared/build/test-results/testAndroidHostTest")
+    compose = parse_junit_dir(repo / "composeApp/build/test-results/testAndroidHostTest")
+
+    unit = summarize([s for s in shared if ".data." not in s["name"]])
+    integration = summarize([s for s in shared if ".data." in s["name"]])
+    ui = summarize(compose)
+
+    coverage = {
+        "shared": parse_jacoco(
+            repo / "shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml"
+        ),
+        "composeApp": parse_jacoco(
+            repo / "composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml"
+        ),
+    }
+
+    cicd_jobs = []
+    if jobs_json and jobs_json.is_file():
+        payload = json.loads(jobs_json.read_text())
+        for job in payload.get("jobs", payload if isinstance(payload, list) else []):
+            cicd_jobs.append(
+                {
+                    "name": job.get("name", "?"),
+                    # in-progress jobs (e.g. the dashboard job itself) report null
+                    "conclusion": job.get("conclusion") or "in_progress",
+                }
+            )
+    e2e = next((j for j in cicd_jobs if "E2E" in j["name"]), None)
+    if e2e and e2e["conclusion"] in ("success", "failure"):
+        ui["e2e"] = e2e["conclusion"]
+
+    relevant = [j for j in cicd_jobs if j["conclusion"] not in ("in_progress",)]
+    cicd_status = "empty"
+    if relevant:
+        cicd_status = "fail" if any(j["conclusion"] == "failure" for j in relevant) else "pass"
+
+    return {
+        "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "run": run_meta,
+        "categories": {
+            "unit": {**unit, "status": category_status(unit)},
+            "integration": {**integration, "status": category_status(integration)},
+            "ui": {**ui, "status": category_status(ui)},
+            "cicd": {"jobs": cicd_jobs, "status": cicd_status},
+        },
+        "coverage": coverage,
+    }
+
+
+def append_history(output_dir: Path, data: dict) -> list[dict]:
+    history_file = output_dir / "history.json"
+    history = []
+    if history_file.is_file():
+        try:
+            history = json.loads(history_file.read_text())
+        except json.JSONDecodeError:
+            history = []
+    entry = {
+        "generatedAt": data["generatedAt"],
+        "run": data["run"],
+        "unit": {k: data["categories"]["unit"][k] for k in ("tests", "failed", "status")},
+        "integration": {k: data["categories"]["integration"][k] for k in ("tests", "failed", "status")},
+        "ui": {k: data["categories"]["ui"][k] for k in ("tests", "failed", "status")},
+        "cicd": data["categories"]["cicd"]["status"],
+        "coverage": {
+            module: (cov or {}).get("percent")
+            for module, cov in data["coverage"].items()
+        },
+    }
+    history.append(entry)
+    return history[-HISTORY_LIMIT:]
+
+
+DASHBOARD_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ostomate 2.0 — QA Dashboard</title>
+<style>
+  :root { color-scheme: light dark;
+    --pass:#2e9e5b; --fail:#d64545; --empty:#8a8a8a; --card:#00000010; }
+  @media (prefers-color-scheme: dark) { :root { --card:#ffffff14; } }
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 2rem auto; max-width: 960px; padding: 0 1rem; }
+  h1 { font-size: 1.4rem; } h2 { font-size: 1.05rem; margin: 0 0 .5rem; }
+  .meta { opacity:.7; font-size:.85rem; margin-bottom:1.5rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; }
+  .card { background:var(--card); border-radius:12px; padding:1rem; }
+  .badge { display:inline-block; padding:.1rem .6rem; border-radius:999px; color:#fff; font-size:.8rem; }
+  .pass { background:var(--pass); } .fail { background:var(--fail); } .empty,.in_progress { background:var(--empty); }
+  .big { font-size:1.8rem; font-weight:700; margin:.3rem 0; }
+  table { border-collapse:collapse; width:100%; margin-top:1.5rem; font-size:.85rem; }
+  th,td { text-align:left; padding:.35rem .5rem; border-bottom:1px solid #88888840; }
+  .trend { margin-top:2rem; }
+  .trend .cells { display:flex; gap:3px; flex-wrap:wrap; }
+  .cell { width:14px; height:14px; border-radius:3px; }
+  ul { margin:.3rem 0; padding-left:1.2rem; }
+</style>
+</head>
+<body>
+<h1>Ostomate 2.0 — QA Dashboard</h1>
+<div class="meta" id="meta">Loading…</div>
+<div class="grid" id="cards"></div>
+<div id="coverage"></div>
+<div class="trend"><h2>Last runs (newest right)</h2><div class="cells" id="trend"></div></div>
+<table id="suites" hidden>
+  <thead><tr><th>Suite</th><th>Category</th><th>Tests</th><th>Failed</th><th>Skipped</th></tr></thead>
+  <tbody></tbody>
+</table>
+<script>
+const CAT_LABELS = { unit:"Unit", integration:"Integration", ui:"UI", cicd:"CI/CD" };
+async function load() {
+  const data = await (await fetch("data.json?" + Date.now())).json();
+  const history = await (await fetch("history.json?" + Date.now())).json().catch(() => []);
+  const run = data.run || {};
+  document.getElementById("meta").textContent =
+    `Generated ${data.generatedAt}` + (run.sha ? ` · ${run.branch || ""} @ ${run.sha.slice(0,7)}` : "") +
+    (run.url ? "" : "");
+  const cards = document.getElementById("cards");
+  for (const [key, label] of Object.entries(CAT_LABELS)) {
+    const c = data.categories[key];
+    const div = document.createElement("div");
+    div.className = "card";
+    if (key === "cicd") {
+      div.innerHTML = `<h2>${label} <span class="badge ${c.status}">${c.status}</span></h2>` +
+        "<ul>" + c.jobs.map(j => `<li>${j.name}: <b>${j.conclusion}</b></li>`).join("") + "</ul>";
+    } else {
+      const extra = c.e2e ? `<div>E2E: <span class="badge ${c.e2e === "success" ? "pass" : "fail"}">${c.e2e}</span></div>` : "";
+      div.innerHTML = `<h2>${label} <span class="badge ${c.status}">${c.status}</span></h2>` +
+        `<div class="big">${c.tests}</div><div>${c.failed} failed · ${c.skipped} skipped</div>` + extra;
+    }
+    cards.appendChild(div);
+  }
+  const cov = data.coverage || {};
+  const covBits = Object.entries(cov).filter(([,v]) => v)
+    .map(([m,v]) => `${m}: <b>${v.percent}%</b> (${v.covered}/${v.total} lines)`);
+  if (covBits.length) {
+    document.getElementById("coverage").innerHTML =
+      `<div class="card" style="margin-top:1rem"><h2>Line coverage</h2>${covBits.join(" · ")}</div>`;
+  }
+  const trend = document.getElementById("trend");
+  for (const h of history) {
+    const bad = h.unit.status === "fail" || h.integration.status === "fail" ||
+                h.ui.status === "fail" || h.cicd === "fail";
+    const cell = document.createElement("div");
+    cell.className = "cell " + (bad ? "fail" : "pass");
+    cell.title = `${h.generatedAt} — unit ${h.unit.tests}, integration ${h.integration.tests}, ui ${h.ui.tests}`;
+    cell.style.background = bad ? "var(--fail)" : "var(--pass)";
+    trend.appendChild(cell);
+  }
+  const tbody = document.querySelector("#suites tbody");
+  for (const [key, label] of Object.entries(CAT_LABELS)) {
+    for (const s of (data.categories[key].suites || [])) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${s.name}</td><td>${label}</td><td>${s.tests}</td>` +
+        `<td>${s.failures + s.errors}</td><td>${s.skipped}</td>`;
+      tbody.appendChild(tr);
+    }
+  }
+  document.getElementById("suites").hidden = tbody.children.length === 0;
+}
+load();
+</script>
+</body>
+</html>
+"""
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo", type=Path, default=Path("."), help="repo root with build outputs")
+    parser.add_argument("--jobs-json", type=Path, help="GitHub Actions jobs JSON (gh api …/jobs)")
+    parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--sha", default="")
+    parser.add_argument("--branch", default="")
+    parser.add_argument("--run-url", default="")
+    args = parser.parse_args()
+
+    run_meta = {"sha": args.sha, "branch": args.branch, "url": args.run_url}
+    data = build_data(args.repo, args.jobs_json, run_meta)
+
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    history = append_history(args.output_dir, data)
+    (args.output_dir / "data.json").write_text(json.dumps(data, indent=2))
+    (args.output_dir / "history.json").write_text(json.dumps(history, indent=2))
+    (args.output_dir / "index.html").write_text(DASHBOARD_HTML)
+
+    cats = data["categories"]
+    print(
+        f"dashboard: unit={cats['unit']['tests']} integration={cats['integration']['tests']} "
+        f"ui={cats['ui']['tests']} cicd={cats['cicd']['status']} → {args.output_dir}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

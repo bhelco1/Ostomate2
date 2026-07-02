@@ -1,11 +1,17 @@
 # Ostomate 2.0
 
+[![CI](https://github.com/bhelco1/Ostomate2/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bhelco1/Ostomate2/actions/workflows/ci.yml)
+[![QA dashboard](https://img.shields.io/badge/QA-dashboard-blue)](https://github.com/bhelco1/Ostomate2/tree/test-dashboard)
+
 Cross-platform (Android + iOS) ostomy supply tracker. Ground-up rewrite of
 [Ostomate v1](../Ostomate) in Kotlin Multiplatform with Compose Multiplatform UI.
 
-**Status: Phase 0 spike** — see `../Ostomate/ostimate-2.0/05-dev-plan.md` for the full
-plan and `ostimate-2.0/` in the v1 repo for all design docs (product spec, architecture,
-UI/UX with HTML mockups, test plan, security, business).
+**Status:** Phase 2.5 (test hardening) — see `planning/05-dev-plan.md` for the current
+checklist and the rest of `planning/` for all design docs (product spec, architecture,
+test strategy, security, business). Test results are published per merge to the
+[`test-dashboard`](https://github.com/bhelco1/Ostomate2/tree/test-dashboard) branch,
+grouped Unit / Integration / UI / CI-CD (`scripts/pi/update-dashboard.sh` serves it
+on the Raspberry Pi).
 
 ## Modules
 

@@ -105,6 +105,17 @@ jobs:
             shared/build/reports/jacoco/jacocoHostTestReport/
             composeApp/build/reports/jacoco/jacocoHostTestReport/
           if-no-files-found: ignore
+      - name: Upload coverage to Codecov
+        # Approved in 08-test-strategy §6 (free — public repo). Inert until the
+        # CODECOV_TOKEN secret is added under Settings → Secrets → Actions.
+        if: ${{ secrets.CODECOV_TOKEN != '' }}
+        uses: codecov/codecov-action@v5
+        continue-on-error: true
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: >-
+            shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml,
+            composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
       - name: Upload JUnit results
         if: always()
         uses: actions/upload-artifact@v4
@@ -220,3 +231,55 @@ jobs:
           xcodebuild -project iosApp.xcodeproj -target iosApp -configuration Debug \
             -sdk iphonesimulator ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO build
+
+  dashboard:
+    name: Publish QA dashboard
+    # Post-merge/dispatch only: regenerates the static dashboard (Unit / Integration /
+    # UI / CI-CD) and force-pushes it to the `test-dashboard` branch. Bobby's Raspberry
+    # Pi pulls that branch and serves it (scripts/pi/update-dashboard.sh); trend history
+    # lives in history.json, so the branch keeps a single commit.
+    runs-on: ubuntu-latest
+    needs: [android, ios, android-e2e]
+    if: always() && github.event_name != 'pull_request'
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        # Restores shared/… and composeApp/… JUnit XML + JaCoCo reports in place.
+        continue-on-error: true
+        with:
+          name: junit-results-jvm
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: coverage-report
+      - name: Fetch job conclusions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" > jobs.json
+      - name: Carry over trend history
+        run: |
+          mkdir -p site
+          if git ls-remote --exit-code origin test-dashboard >/dev/null 2>&1; then
+            git fetch origin test-dashboard --depth 1
+            git show origin/test-dashboard:history.json > site/history.json || true
+          fi
+      - name: Generate dashboard
+        run: |
+          python3 scripts/generate_test_dashboard.py \
+            --repo . --jobs-json jobs.json --output-dir site \
+            --sha "$GITHUB_SHA" --branch "$GITHUB_REF_NAME" \
+            --run-url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+      - name: Push to test-dashboard branch
+        run: |
+          cd site
+          git init -b test-dashboard
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "dashboard: run $GITHUB_RUN_ID"
+          git push --force \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            test-dashboard

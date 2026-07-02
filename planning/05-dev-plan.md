@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.4 ✅, 2.5.5+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.5 ✅, 2.5.6+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -214,15 +214,23 @@ optional check later if belt-and-suspenders wanted.
 - [x] Shared suite now **86 tests per target** (was 69). Coverage rose 52.6% → 92.0%
       line; floor ratcheted 0.52 → 0.91.
 
-### 2.5.5 — Zero-cost reporting + Codecov ⬜
-- GitHub Actions job-summary `## Test Summary` (pass/fail per suite, coverage %,
-  delta vs `main`); upload JUnit XML + HTML report (90-day retention).
-- Static dashboard generated from JUnit XML, published via GitHub Pages
-  (`/docs`); README status + coverage badges.
-- Add **Codecov** (free — repo is public, confirmed 2026-06-22) for diff-coverage
-  PR annotations.
-- **Done when:** a human can read suite health + coverage trend without opening
-  raw CI logs.
+### 2.5.5 — Zero-cost reporting + dashboard ✅ (done 2026-07-02; design updated for the Pi)
+- [x] Actions job summary shows coverage tables for both modules on every PR;
+      JUnit XML + JaCoCo HTML/XML uploaded as artifacts (90-day retention). *(2.5.2/2.5.3)*
+- [x] **Static dashboard** (`scripts/generate_test_dashboard.py`, no deps): groups
+      results into **Unit / Integration / UI / CI-CD**, with per-suite table,
+      coverage %, and a run-trend strip (`history.json`, last 200 runs). The CI
+      `dashboard` job regenerates it on every main merge/dispatch and force-pushes
+      to the **`test-dashboard` branch** (single commit; trend lives in the JSON).
+- [x] **Raspberry Pi**: `scripts/pi/update-dashboard.sh` pulls the branch and
+      serves it (cron example + `--serve` mode in the script header). Decision
+      2026-07-02: Pi-pull replaces the GitHub Pages design — no secrets in CI,
+      the Pi stays private.
+- [x] README: CI status badge + dashboard link; stale Phase-0 status corrected.
+- [x] **Codecov** step added (approved in `08` §6) — inert until Bobby adds the
+      `CODECOV_TOKEN` repo secret (Settings → Secrets → Actions; token from
+      codecov.io after signing in with GitHub).
+- **Done when** ✅: suite health + coverage trend readable without opening CI logs.
 
 ### 2.5.6 — iOS E2E ⬜
 *Biggest remaining hole — iOS correctness is 100% manual today.*
