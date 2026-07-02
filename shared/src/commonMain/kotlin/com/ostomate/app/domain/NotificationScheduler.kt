@@ -2,14 +2,14 @@ package com.ostomate.app.domain
 
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeEntity
-import com.ostomate.app.platform.Notifier
+import com.ostomate.app.platform.ReminderNotifier
 
 /**
  * Schedules (or replaces) one reorder reminder per supply based on current predictions.
  * Called each time the home screen state recomputes — WorkManager/UNUserNotificationCenter
  * replace the pending work when the tag matches, so this is safe to call repeatedly.
  */
-class NotificationScheduler(private val notifier: Notifier) {
+class NotificationScheduler(private val notifier: ReminderNotifier) {
     fun reschedule(
         supplies: List<SupplyTypeEntity>,
         eventsBySupply: Map<Long, List<ChangeEventWithSupply>>,

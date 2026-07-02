@@ -9,8 +9,8 @@ import platform.UserNotifications.UNNotificationSound
 import platform.UserNotifications.UNTimeIntervalNotificationTrigger
 import platform.UserNotifications.UNUserNotificationCenter
 
-actual class Notifier {
-    actual fun schedule(
+actual class Notifier : ReminderNotifier {
+    override fun schedule(
         tag: String,
         delaySeconds: Int,
         title: String,

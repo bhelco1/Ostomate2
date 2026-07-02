@@ -12,8 +12,8 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 
-actual class Notifier(private val context: Context) {
-    actual fun schedule(
+actual class Notifier(private val context: Context) : ReminderNotifier {
+    override fun schedule(
         tag: String,
         delaySeconds: Int,
         title: String,

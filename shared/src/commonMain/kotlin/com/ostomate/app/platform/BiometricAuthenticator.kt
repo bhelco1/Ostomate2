@@ -12,10 +12,12 @@ sealed interface BiometricResult {
     data object NotEnrolled : BiometricResult
 }
 
-expect class BiometricAuthenticator {
+interface BiometricAuth {
     /** Shows the platform auth prompt. [onResult] is invoked on the main thread. */
     fun authenticate(
         reason: String,
         onResult: (BiometricResult) -> Unit,
     )
 }
+
+expect class BiometricAuthenticator : BiometricAuth

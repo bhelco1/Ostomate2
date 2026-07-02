@@ -21,10 +21,10 @@ object CurrentActivityHolder {
         }
 }
 
-actual class BiometricAuthenticator {
+actual class BiometricAuthenticator : BiometricAuth {
     private val authenticators = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
 
-    actual fun authenticate(
+    override fun authenticate(
         reason: String,
         onResult: (BiometricResult) -> Unit,
     ) {
