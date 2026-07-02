@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1 ✅, 2.5.2+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.2 ✅, 2.5.3+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -167,12 +167,19 @@ validation (instrumentation-only on Android). Migration data-transform is still
 tested; schema drift is caught by Room's build-time `exportSchema`. Re-add as an
 optional check later if belt-and-suspenders wanted.
 
-### 2.5.2 — Coverage measurement (JaCoCo) ⬜
-- Wire JaCoCo to `:shared:testAndroidHostTest` (Kover stays blocked; see
-  `shared/build.gradle.kts` TODO). Scope to domain + ViewModel + repository
-  packages; exclude generated Room/DI/Compose code.
-- Publish the % on every PR; set the floor at the measured baseline, ratchet up.
-- **Done when:** coverage prints on each PR and a drop below floor fails the build.
+### 2.5.2 — Coverage measurement (JaCoCo) ✅ (done 2026-07-02)
+- [x] JaCoCo wired to `:shared:testAndroidHostTest` (`jacocoHostTestReport`,
+      `jacocoCoverageVerification`). Robolectric needs
+      `isIncludeNoLocationClasses = true` or sandbox-loaded classes report 0%.
+- [x] Scope: hand-written `domain` + `data` classes; excluded: Room-generated
+      `*_Impl*`, generated `OstomateDatabaseConstructor`, platform
+      `DatabaseBuilder_*` glue. (ViewModels live in `composeApp` — extend
+      coverage there when 2.5.3 lands.)
+- [x] **Baseline measured 2026-07-02: 52.6% line** (db 94.7%, settings 76.7%,
+      domain 53.5%, repositories 22.0% — the 2.5.4 target). Floor set at 0.52;
+      ratchet up as 2.5.3/2.5.4 land, never lower.
+- [x] CI: PR gate runs report + verification; coverage table in the Actions job
+      summary; HTML/XML report + JUnit XML uploaded as artifacts (feeds 2.5.5).
 
 ### 2.5.3 — ViewModel tests ⬜
 *Fulfills the existing `04-test-plan.md` policy that today has 0 implementations.*

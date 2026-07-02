@@ -2,6 +2,7 @@ plugins {
     id("ostomate.kmp-library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    jacoco
 }
 
 kotlin {
@@ -60,6 +61,67 @@ dependencies {
     add("kspIosX64", libs.room.compiler)
 }
 
-// TODO(coverage): Kover 0.8.x does not support com.android.kotlin.multiplatform.library
-// (it expects the old `android` extension which this plugin does not expose). Coverage
-// gate will be added once Kover releases a fix, or we switch to JaCoCo. Tracked in 05-dev-plan.
+// Coverage (2.5.2, 08-test-strategy §5): JaCoCo on the JVM host run. Kover stays out —
+// 0.8.x does not support com.android.kotlin.multiplatform.library; revisit if that lands.
+// Scope: hand-written domain + data code. Excluded: Room-generated impls, the generated
+// database constructor, and platform driver glue (per-platform wiring, not logic).
+
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+// The AGP KMP plugin registers the host-test task after this script evaluates, so
+// configure it lazily by type + name rather than tasks.named().
+tasks.withType<Test>().matching { it.name == "testAndroidHostTest" }.configureEach {
+    configure<JacocoTaskExtension> {
+        // Robolectric loads classes through its instrumenting classloader, which strips
+        // source-location info; without this flag those classes report 0 coverage.
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+val coverageClasses =
+    layout.buildDirectory.dir("classes/kotlin/android/main").map { dir ->
+        fileTree(dir) {
+            include("com/ostomate/app/domain/**", "com/ostomate/app/data/**")
+            exclude(
+                "**/*_Impl*",
+                "**/OstomateDatabaseConstructor*",
+                "**/DatabaseBuilder_*",
+            )
+        }
+    }
+
+val jacocoHostTestReport by tasks.registering(JacocoReport::class) {
+    group = "verification"
+    description = "Coverage report for the JVM host test run (domain + data scope)."
+    dependsOn("testAndroidHostTest")
+    executionData(layout.buildDirectory.file("jacoco/testAndroidHostTest.exec"))
+    classDirectories.setFrom(coverageClasses)
+    sourceDirectories.setFrom(files("src/commonMain/kotlin", "src/androidMain/kotlin"))
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoCoverageVerification by tasks.registering(JacocoCoverageVerification::class) {
+    group = "verification"
+    description = "Fails if line coverage of the domain + data scope drops below the floor."
+    dependsOn("testAndroidHostTest")
+    executionData(layout.buildDirectory.file("jacoco/testAndroidHostTest.exec"))
+    classDirectories.setFrom(coverageClasses)
+    sourceDirectories.setFrom(files("src/commonMain/kotlin", "src/androidMain/kotlin"))
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                // Floor = measured baseline, 52.6% on 2026-07-02 (08-test-strategy §5).
+                // Ratchet upward as 2.5.3/2.5.4 land. Never lower it.
+                minimum = "0.52".toBigDecimal()
+            }
+        }
+    }
+}
