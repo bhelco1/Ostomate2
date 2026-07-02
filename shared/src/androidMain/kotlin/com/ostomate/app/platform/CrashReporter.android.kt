@@ -6,10 +6,10 @@ import io.sentry.SentryEvent
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 
-actual class CrashReporter(private val context: Context) {
+actual class CrashReporter(private val context: Context) : CrashReporting {
     private var currentDsn: String = ""
 
-    actual fun init(
+    override fun init(
         dsn: String,
         enabled: Boolean,
     ) {
@@ -17,7 +17,7 @@ actual class CrashReporter(private val context: Context) {
         if (enabled && dsn.isNotBlank()) start()
     }
 
-    actual fun setEnabled(enabled: Boolean) {
+    override fun setEnabled(enabled: Boolean) {
         if (enabled) {
             if (currentDsn.isNotBlank() && !Sentry.isEnabled()) start()
         } else {

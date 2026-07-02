@@ -17,11 +17,12 @@ Planning docs live in `planning/` within this repo:
 
 Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
-## Current status (2026-06-17)
+## Current status (2026-07-02)
 
-**Phase 1 complete.** 57 JVM / 69 iOS simulator shared tests passing. ktlint + detekt green.
-Android APK and iOS simulator build succeed. Next: Phase 2 (physical device validation).
-See `planning/05-dev-plan.md`.
+**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.3 done.**
+Shared: 69 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
+JaCoCo coverage floors gate every PR (shared domain+data 52%, composeApp
+ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
 
 ## Stack
 

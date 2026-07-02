@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.2 ✅, 2.5.3+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.3 ✅, 2.5.4+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -181,13 +181,21 @@ optional check later if belt-and-suspenders wanted.
 - [x] CI: PR gate runs report + verification; coverage table in the Actions job
       summary; HTML/XML report + JUnit XML uploaded as artifacts (feeds 2.5.5).
 
-### 2.5.3 — ViewModel tests ⬜
-*Fulfills the existing `04-test-plan.md` policy that today has 0 implementations.*
-- Test every `UiState` transition for all 7 ViewModels (`Home`, `Settings`,
-  `Calendar`, `History`, `Stats`, `Onboarding`, `ManageSupplies`) using fake
-  repositories and StateFlow assertions.
-- Add a regression test for BUG-02 (leading-zero input) at this layer.
-- **Done when:** all 7 ViewModels have UiState coverage; suite green on JVM + iOS.
+### 2.5.3 — ViewModel tests ✅ (done 2026-07-02)
+*Fulfills the existing `04-test-plan.md` policy that previously had 0 implementations.*
+- [x] 42 tests covering the `UiState` transitions of all 7 ViewModels, green on
+      JVM host + iOS sim (`composeApp/src/commonTest/.../ui/`).
+- [x] Fakes sit at the **DAO / platform-interface boundary** (`FakeSupplyTypeDao`,
+      `FakeChangeEventDao`, `InMemoryDataStore`), so the real repositories are
+      exercised, not mocked away. Testability seams added in `shared`:
+      `ReminderNotifier`, `BiometricAuth`, `CrashReporting` interfaces that the
+      `expect class` platform types implement (Koin `bind`s them; production
+      behavior unchanged).
+- [x] BUG-02 regression (leading-zero input) at the ViewModel layer:
+      `OnboardingViewModelTest.countInputStripsLeadingZerosAndNonDigits`.
+- [x] JaCoCo extended to `:composeApp` (ViewModel + UiState scope): baseline
+      **93.3% line**, floor 0.93. CI gates both modules' floors on every PR and
+      runs the composeApp suite on JVM (PR) + iOS sim (post-merge/dispatch).
 
 ### 2.5.4 — Repository tests ⬜
 - `BackupRepository` **round-trip first** (export → import → assert event parity —

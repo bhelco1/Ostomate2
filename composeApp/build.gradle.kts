@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    jacoco
 }
 
 compose.resources {
@@ -27,6 +28,8 @@ kotlin {
         namespace = "com.ostomate.app.compose"
         androidResources {
             enable = true
+        }
+        withHostTestBuilder {
         }
     }
 
@@ -57,9 +60,60 @@ kotlin {
 
             implementation(libs.qrose)
         }
+        // ViewModel tests (2.5.3): UiState transitions on JVM host + iOS sim, with fakes
+        // at the DAO/platform-interface boundary so the real repositories are exercised.
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+        }
     }
 }
 
 dependencies {
     androidRuntimeClasspath(libs.compose.uiTooling)
+}
+
+// Coverage (2.5.3, 08-test-strategy §5): ViewModel + UiState classes only — composables
+// and generated Compose code would distort the signal and are exercised by E2E instead.
+jacoco {
+    toolVersion = libs.versions.jacoco.get()
+}
+
+val coverageClasses =
+    layout.buildDirectory.dir("classes/kotlin/android/main").map { dir ->
+        fileTree(dir) {
+            include("com/ostomate/app/ui/**/*ViewModel*", "com/ostomate/app/ui/**/*UiState*")
+        }
+    }
+
+val jacocoHostTestReport by tasks.registering(JacocoReport::class) {
+    group = "verification"
+    description = "Coverage report for the JVM host test run (ViewModel + UiState scope)."
+    dependsOn("testAndroidHostTest")
+    executionData(layout.buildDirectory.file("jacoco/testAndroidHostTest.exec"))
+    classDirectories.setFrom(coverageClasses)
+    sourceDirectories.setFrom(files("src/commonMain/kotlin"))
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+val jacocoCoverageVerification by tasks.registering(JacocoCoverageVerification::class) {
+    group = "verification"
+    description = "Fails if line coverage of the ViewModel + UiState scope drops below the floor."
+    dependsOn("testAndroidHostTest")
+    executionData(layout.buildDirectory.file("jacoco/testAndroidHostTest.exec"))
+    classDirectories.setFrom(coverageClasses)
+    sourceDirectories.setFrom(files("src/commonMain/kotlin"))
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                // Floor = measured baseline, 93.3% on 2026-07-02 (2.5.3). Never lower.
+                minimum = "0.93".toBigDecimal()
+            }
+        }
+    }
 }

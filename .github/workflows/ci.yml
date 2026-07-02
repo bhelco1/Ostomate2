@@ -56,47 +56,63 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --stacktrace
       - name: Run JVM host tests with coverage
-        # jacocoCoverageVerification fails the build if line coverage of the
-        # domain + data scope drops below the floor in shared/build.gradle.kts.
-        run: ./gradlew :shared:testAndroidHostTest :shared:jacocoHostTestReport :shared:jacocoCoverageVerification --stacktrace
+        # jacocoCoverageVerification fails the build if line coverage drops below the
+        # floors in shared/build.gradle.kts (domain + data) and composeApp/build.gradle.kts
+        # (ViewModel + UiState).
+        run: >
+          ./gradlew
+          :shared:testAndroidHostTest :shared:jacocoHostTestReport :shared:jacocoCoverageVerification
+          :composeApp:testAndroidHostTest :composeApp:jacocoHostTestReport :composeApp:jacocoCoverageVerification
+          --stacktrace
       - name: Publish coverage summary
         if: always()
         run: |
           python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
           import xml.etree.ElementTree as ET
-          try:
-              root = ET.parse("shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml").getroot()
-          except FileNotFoundError:
-              print("## Coverage\n\n_No coverage report produced (tests failed before JaCoCo ran)._")
-              raise SystemExit
-          print("## Coverage — shared module (domain + data scope)\n")
-          print("| Counter | Covered | % |")
-          print("|---|---|---|")
-          for c in root.findall("counter"):
-              missed, covered = int(c.get("missed")), int(c.get("covered"))
-              total = missed + covered
-              print(f"| {c.get('type').title()} | {covered}/{total} | {100 * covered / total:.1f}% |")
-          print("\n| Package | Line % |")
-          print("|---|---|")
-          for p in root.findall("package"):
-              for c in p.findall("counter"):
-                  if c.get("type") == "LINE":
-                      missed, covered = int(c.get("missed")), int(c.get("covered"))
-                      print(f"| {p.get('name').replace('com/ostomate/app/', '')} | {100 * covered / (missed + covered):.1f}% |")
+          reports = [
+              ("shared (domain + data)", "shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml"),
+              ("composeApp (ViewModel + UiState)", "composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml"),
+          ]
+          print("## Coverage\n")
+          for title, path in reports:
+              try:
+                  root = ET.parse(path).getroot()
+              except FileNotFoundError:
+                  print(f"**{title}** — _no report produced (tests failed before JaCoCo ran)._\n")
+                  continue
+              print(f"### {title}\n")
+              print("| Counter | Covered | % |")
+              print("|---|---|---|")
+              for c in root.findall("counter"):
+                  missed, covered = int(c.get("missed")), int(c.get("covered"))
+                  total = missed + covered
+                  print(f"| {c.get('type').title()} | {covered}/{total} | {100 * covered / total:.1f}% |")
+              print("\n| Package | Line % |")
+              print("|---|---|")
+              for p in root.findall("package"):
+                  for c in p.findall("counter"):
+                      if c.get("type") == "LINE":
+                          missed, covered = int(c.get("missed")), int(c.get("covered"))
+                          print(f"| {p.get('name').replace('com/ostomate/app/', '')} | {100 * covered / (missed + covered):.1f}% |")
+              print()
           EOF
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: shared/build/reports/jacoco/jacocoHostTestReport/
+          path: |
+            shared/build/reports/jacoco/jacocoHostTestReport/
+            composeApp/build/reports/jacoco/jacocoHostTestReport/
           if-no-files-found: ignore
       - name: Upload JUnit results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: junit-results-jvm
-          path: shared/build/test-results/testAndroidHostTest/TEST-*.xml
+          path: |
+            shared/build/test-results/testAndroidHostTest/TEST-*.xml
+            composeApp/build/test-results/testAndroidHostTest/TEST-*.xml
           if-no-files-found: ignore
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -183,8 +199,8 @@ jobs:
         run: brew install swiftlint
       - name: SwiftLint
         run: swiftlint lint --config iosApp/.swiftlint.yml --strict iosApp/
-      - name: Shared tests on iOS simulator (arm64)
-        run: ./gradlew :shared:iosSimulatorArm64Test --stacktrace
+      - name: Shared + ViewModel tests on iOS simulator (arm64)
+        run: ./gradlew :shared:iosSimulatorArm64Test :composeApp:iosSimulatorArm64Test --stacktrace
       - name: Generate Secrets.swift stub
         # Secrets.swift is gitignored (holds the Sentry DSN) so it is absent in CI, but
         # the Xcode target compiles it. Write an empty-DSN stub: iOSApp.swift guards on

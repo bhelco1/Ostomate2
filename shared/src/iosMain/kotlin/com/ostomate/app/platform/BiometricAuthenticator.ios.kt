@@ -6,9 +6,9 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthentication
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
-actual class BiometricAuthenticator {
+actual class BiometricAuthenticator : BiometricAuth {
     @OptIn(ExperimentalForeignApi::class)
-    actual fun authenticate(
+    override fun authenticate(
         reason: String,
         onResult: (BiometricResult) -> Unit,
     ) {

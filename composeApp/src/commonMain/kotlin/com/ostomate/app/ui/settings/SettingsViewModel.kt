@@ -6,7 +6,7 @@ import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.ImportSummary
 import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
-import com.ostomate.app.platform.CrashReporter
+import com.ostomate.app.platform.CrashReporting
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +25,7 @@ data class BackupUiState(
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val backupRepository: BackupRepository,
-    private val crashReporter: CrashReporter,
+    private val crashReporter: CrashReporting,
 ) : ViewModel() {
     val settings: StateFlow<AppSettings> =
         settingsRepository.settings.stateIn(

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.SupplyRepository
 import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.data.settings.SettingsRepository
-import com.ostomate.app.platform.BiometricAuthenticator
+import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,7 +27,7 @@ data class ManageSuppliesUiState(
 class ManageSuppliesViewModel(
     private val supplyRepository: SupplyRepository,
     private val settingsRepository: SettingsRepository,
-    private val biometricAuth: BiometricAuthenticator,
+    private val biometricAuth: BiometricAuth,
 ) : ViewModel() {
     private val _editCountTarget = MutableStateFlow<SupplyTypeEntity?>(null)
     private val _editSupplyTarget = MutableStateFlow<SupplyTypeEntity?>(null)
