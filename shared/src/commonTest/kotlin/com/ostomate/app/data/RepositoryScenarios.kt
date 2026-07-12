@@ -213,9 +213,9 @@ object RepositoryScenarios {
     suspend fun deepLinkScansAreDebounced(db: OstomateDatabase) {
         val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
 
-        assertEquals("Bag", events.handleDeepLink("ostomate://log?item=bag"))
+        assertEquals(DeepLinkOutcome.Logged("Bag"), events.handleDeepLink("ostomate://log?item=bag"))
         // Same sticker scanned again within the 3 s window: ignored.
-        assertNull(events.handleDeepLink("ostomate://log?item=bag"))
+        assertEquals(DeepLinkOutcome.Suppressed, events.handleDeepLink("ostomate://log?item=bag"))
         assertEquals(1, db.changeEventDao().count().toInt())
     }
 
@@ -225,7 +225,10 @@ object RepositoryScenarios {
         supplies.addCustomSupply(name = "Barrier rings", boxSize = 20, warnThresholdDays = 10, colorIndex = 1)
         val custom = assertNotNull(db.supplyTypeDao().getAll().find { it.kind == SupplyKind.CUSTOM })
 
-        assertEquals("Barrier rings", events.handleDeepLink("ostomate://log?item=id:${custom.id}"))
+        assertEquals(
+            DeepLinkOutcome.Logged("Barrier rings"),
+            events.handleDeepLink("ostomate://log?item=id:${custom.id}"),
+        )
         assertEquals(1, db.changeEventDao().getBySupplyType(custom.id).size)
     }
 

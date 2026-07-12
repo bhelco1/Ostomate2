@@ -10,6 +10,12 @@
     <string name="deeplink_logged">Logged: %1$s</string>
     <string name="deeplink_unrecognized">Unrecognized QR code</string>
 
+    <!-- Rapid-repeat confirmation -->
+    <string name="confirm_repeat_title">Add another?</string>
+    <string name="confirm_repeat_message">You logged %1$s %2$d min ago. Add another?</string>
+    <string name="confirm_repeat_confirm">Add another</string>
+    <string name="confirm_repeat_dismiss">Cancel</string>
+
     <!-- Home screen -->
     <string name="home_no_supplies">No supplies yet.</string>
     <string name="home_snackbar_logged">%1$s logged</string>

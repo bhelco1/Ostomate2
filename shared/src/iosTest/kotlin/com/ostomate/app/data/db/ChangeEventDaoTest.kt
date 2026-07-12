@@ -48,4 +48,12 @@ class ChangeEventDaoTest {
     @Test
     fun repositoryDeepLinkAllowsSecondScanAfterWindow() =
         runTest { ChangeEventDaoScenarios.repositoryDeepLinkAllowsSecondScanAfterWindow(db) }
+
+    @Test
+    fun repositoryDeepLinkNeedsConfirmationWithinWindow() =
+        runTest { ChangeEventDaoScenarios.repositoryDeepLinkNeedsConfirmationWithinWindow(db) }
+
+    @Test
+    fun repositoryWasLoggedWithinWindowBoundary() =
+        runTest { ChangeEventDaoScenarios.repositoryWasLoggedWithinWindowBoundary(db) }
 }

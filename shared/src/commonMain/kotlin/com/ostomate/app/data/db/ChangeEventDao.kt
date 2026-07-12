@@ -53,6 +53,9 @@ interface ChangeEventDao {
     )
     fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>>
 
+    @Query("SELECT MAX(timestampMillis) FROM change_events WHERE supplyTypeId = :supplyTypeId")
+    suspend fun latestTimestampForSupply(supplyTypeId: Long): Long?
+
     @Query("SELECT COUNT(*) FROM change_events")
     suspend fun count(): Long
 

@@ -21,11 +21,14 @@ data class SupplyRow(
     val sampleCount: Int,
 )
 
+data class LogConfirmation(val supplyId: Long, val supplyName: String, val minutesAgo: Int)
+
 data class HomeUiState(
     val supplies: List<SupplyRow> = emptyList(),
     val pendingUndo: ChangeEventEntity? = null,
     val undoSupplyName: String = "",
     val undoOnHand: Int? = null,
+    val pendingConfirmation: LogConfirmation? = null,
 )
 
 class HomeViewModel(
@@ -35,14 +38,18 @@ class HomeViewModel(
 ) : ViewModel() {
     private data class PendingUndo(val event: ChangeEventEntity, val supplyName: String, val onHandAfter: Int)
 
+    private data class PendingConfirm(val supply: SupplyTypeEntity, val minutesAgo: Int)
+
     private val _pendingUndo = MutableStateFlow<PendingUndo?>(null)
+    private val _pendingConfirmation = MutableStateFlow<PendingConfirm?>(null)
 
     val uiState: StateFlow<HomeUiState> =
         combine(
             supplyRepository.observeSupplies(),
             eventRepository.observeEvents(),
             _pendingUndo,
-        ) { supplies, events, pendingUndo ->
+            _pendingConfirmation,
+        ) { supplies, events, pendingUndo, pendingConfirmation ->
             val eventsBySupply = events.groupBy { it.event.supplyTypeId }
             val rows =
                 supplies.map { supply ->
@@ -59,6 +66,10 @@ class HomeViewModel(
                 pendingUndo = pendingUndo?.event,
                 undoSupplyName = pendingUndo?.supplyName ?: "",
                 undoOnHand = pendingUndo?.onHandAfter,
+                pendingConfirmation =
+                    pendingConfirmation?.let {
+                        LogConfirmation(it.supply.id, it.supply.name, it.minutesAgo)
+                    },
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
@@ -76,9 +87,28 @@ class HomeViewModel(
 
     fun logChange(supply: SupplyTypeEntity) {
         viewModelScope.launch {
-            val event = eventRepository.logChange(supply.id)
-            _pendingUndo.value = PendingUndo(event, supply.name, maxOf(0, supply.onHand - 1))
+            val minutesAgo = eventRepository.wasLoggedWithinWindow(supply.id)
+            if (minutesAgo != null) {
+                _pendingConfirmation.value = PendingConfirm(supply, minutesAgo)
+                return@launch
+            }
+            recordLog(supply)
         }
+    }
+
+    private suspend fun recordLog(supply: SupplyTypeEntity) {
+        val event = eventRepository.logChange(supply.id)
+        _pendingUndo.value = PendingUndo(event, supply.name, maxOf(0, supply.onHand - 1))
+    }
+
+    fun confirmPendingLog() {
+        val pending = _pendingConfirmation.value ?: return
+        _pendingConfirmation.value = null
+        viewModelScope.launch { recordLog(pending.supply) }
+    }
+
+    fun dismissPendingConfirmation() {
+        _pendingConfirmation.value = null
     }
 
     fun undoLog() {

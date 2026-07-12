@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -17,6 +18,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_undo
+import com.ostomate.app.resources.confirm_repeat_confirm
+import com.ostomate.app.resources.confirm_repeat_dismiss
+import com.ostomate.app.resources.confirm_repeat_message
+import com.ostomate.app.resources.confirm_repeat_title
 import com.ostomate.app.resources.home_no_supplies
 import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
@@ -132,6 +138,28 @@ fun HomeScreen(
                 }
             }
         }
+    }
+
+    uiState.pendingConfirmation?.let { confirmation ->
+        val message =
+            stringResource(Res.string.confirm_repeat_message)
+                .replace("%1\$s", confirmation.supplyName)
+                .replace("%2\$d", confirmation.minutesAgo.toString())
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissPendingConfirmation() },
+            title = { Text(stringResource(Res.string.confirm_repeat_title)) },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(onClick = { viewModel.confirmPendingLog() }) {
+                    Text(stringResource(Res.string.confirm_repeat_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissPendingConfirmation() }) {
+                    Text(stringResource(Res.string.confirm_repeat_dismiss))
+                }
+            },
+        )
     }
 }
 

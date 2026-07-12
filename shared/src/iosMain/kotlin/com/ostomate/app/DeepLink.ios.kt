@@ -13,7 +13,7 @@ import org.koin.mp.KoinPlatform
 fun handleDeepLink(uri: String) {
     val repository = KoinPlatform.getKoin().get<ChangeEventRepository>()
     MainScope().launch {
-        val supply = repository.handleDeepLink(uri)
-        DeepLinkBus.post(supply)
+        val outcome = repository.handleDeepLink(uri)
+        DeepLinkBus.post(outcome)
     }
 }

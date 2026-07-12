@@ -12,6 +12,18 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 private const val DEEP_LINK_DEBOUNCE_MS = 3_000L
+private const val CONFIRM_REPEAT_WINDOW_MS = 10 * 60 * 1000L
+
+/** The result of resolving a deep link, so the UI can log, confirm, or ignore accordingly. */
+sealed interface DeepLinkOutcome {
+    data class Logged(val supplyName: String) : DeepLinkOutcome
+
+    data class NeedsConfirmation(val supplyId: Long, val supplyName: String, val minutesAgo: Int) : DeepLinkOutcome
+
+    data object Suppressed : DeepLinkOutcome // phantom / within 3s debounce
+
+    data object Invalid : DeepLinkOutcome // unrecognized link
+}
 
 class ChangeEventRepository(
     private val eventDao: ChangeEventDao,
@@ -25,7 +37,7 @@ class ChangeEventRepository(
 
     fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> = eventDao.observeBySupply(supplyTypeId)
 
-    suspend fun logChange(supplyTypeId: Long): ChangeEventEntity = logChangeAt(supplyTypeId, currentTimeMillis())
+    suspend fun logChange(supplyTypeId: Long): ChangeEventEntity = logChangeAt(supplyTypeId, clock())
 
     suspend fun logChangeAt(
         supplyTypeId: Long,
@@ -61,11 +73,33 @@ class ChangeEventRepository(
     }
 
     /**
-     * Returns the name of the supply that was logged, or null if the URI was not a valid
-     * log link or a duplicate scan within the debounce window.
+     * Whole minutes since the most recent change for [supplyId] if it falls within
+     * [CONFIRM_REPEAT_WINDOW_MS], else null. Used to confirm a genuine rapid-repeat log
+     * instead of silently recording a second change.
      */
-    suspend fun handleDeepLink(uri: String): String? {
-        val item = DeepLinkParser.parse(uri) ?: return null
+    suspend fun wasLoggedWithinWindow(
+        supplyId: Long,
+        now: Long = clock(),
+    ): Int? {
+        val last = eventDao.latestTimestampForSupply(supplyId) ?: return null
+        val delta = now - last
+        if (delta < 0 || delta >= CONFIRM_REPEAT_WINDOW_MS) return null
+        return (delta / 60_000L).toInt()
+    }
+
+    /** Logs a change unconditionally (used to confirm a rapid repeat) and returns the supply name. */
+    suspend fun forceLogChange(supplyTypeId: Long): String {
+        logChange(supplyTypeId)
+        return supplyTypeDao.getById(supplyTypeId)?.name.orEmpty()
+    }
+
+    /**
+     * Resolves a scanned/opened log link into an outcome the UI acts on: log immediately,
+     * ask to confirm a rapid repeat, silently suppress a phantom re-fire, or reject an
+     * unrecognized link. The 3s atomic debounce is applied before the repeat-window check.
+     */
+    suspend fun handleDeepLink(uri: String): DeepLinkOutcome {
+        val item = DeepLinkParser.parse(uri) ?: return DeepLinkOutcome.Invalid
         val allowed =
             scanMutex.withLock {
                 val now = clock()
@@ -77,17 +111,21 @@ class ChangeEventRepository(
                     true
                 }
             }
-        if (!allowed) return null
+        if (!allowed) return DeepLinkOutcome.Suppressed
         val supply =
             when {
                 item == "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)
                 item == "flange" -> supplyTypeDao.getByKind(SupplyKind.FLANGE)
                 else -> {
-                    val id = DeepLinkParser.parseCustomId(item) ?: return null
+                    val id = DeepLinkParser.parseCustomId(item) ?: return DeepLinkOutcome.Invalid
                     supplyTypeDao.getById(id)
                 }
-            } ?: return null
+            } ?: return DeepLinkOutcome.Invalid
+        val minutesAgo = wasLoggedWithinWindow(supply.id)
+        if (minutesAgo != null) {
+            return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo)
+        }
         logChange(supply.id)
-        return supply.name
+        return DeepLinkOutcome.Logged(supply.name)
     }
 }

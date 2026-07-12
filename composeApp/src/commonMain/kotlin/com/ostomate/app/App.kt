@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -15,11 +16,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -28,9 +32,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.DeepLinkOutcome
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.DeepLinkBus
 import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
+import com.ostomate.app.resources.confirm_repeat_confirm
+import com.ostomate.app.resources.confirm_repeat_message
+import com.ostomate.app.resources.confirm_repeat_title
 import com.ostomate.app.resources.deeplink_logged
 import com.ostomate.app.resources.deeplink_unrecognized
 import com.ostomate.app.resources.nav_calendar
@@ -48,6 +58,7 @@ import com.ostomate.app.ui.settings.ReorderWarningsScreen
 import com.ostomate.app.ui.settings.SettingsScreen
 import com.ostomate.app.ui.stats.StatsScreen
 import com.ostomate.app.ui.theme.OstomateTheme
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -97,17 +108,50 @@ private fun MainApp() {
     val snackbarHostState = remember { SnackbarHostState() }
     val loggedMsg = stringResource(Res.string.deeplink_logged)
     val unrecognizedMsg = stringResource(Res.string.deeplink_unrecognized)
+    val eventRepository = koinInject<ChangeEventRepository>()
+    val scope = rememberCoroutineScope()
+    var pendingDeepLinkConfirm by remember {
+        mutableStateOf<DeepLinkOutcome.NeedsConfirmation?>(null)
+    }
 
     LaunchedEffect(Unit) {
-        DeepLinkBus.events.collect { supplyName ->
-            val message =
-                if (supplyName != null) {
-                    loggedMsg.replace("%1\$s", supplyName)
-                } else {
-                    unrecognizedMsg
-                }
-            snackbarHostState.showSnackbar(message)
+        DeepLinkBus.events.collect { outcome ->
+            when (outcome) {
+                is DeepLinkOutcome.Logged ->
+                    snackbarHostState.showSnackbar(loggedMsg.replace("%1\$s", outcome.supplyName))
+                DeepLinkOutcome.Invalid -> snackbarHostState.showSnackbar(unrecognizedMsg)
+                DeepLinkOutcome.Suppressed -> Unit
+                is DeepLinkOutcome.NeedsConfirmation -> pendingDeepLinkConfirm = outcome
+            }
         }
+    }
+
+    pendingDeepLinkConfirm?.let { confirm ->
+        val message =
+            stringResource(Res.string.confirm_repeat_message)
+                .replace("%1\$s", confirm.supplyName)
+                .replace("%2\$d", confirm.minutesAgo.toString())
+        AlertDialog(
+            onDismissRequest = { pendingDeepLinkConfirm = null },
+            title = { Text(stringResource(Res.string.confirm_repeat_title)) },
+            text = { Text(message) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pendingDeepLinkConfirm = null
+                        scope.launch {
+                            eventRepository.logChange(confirm.supplyId)
+                            snackbarHostState.showSnackbar(loggedMsg.replace("%1\$s", confirm.supplyName))
+                        }
+                    },
+                ) { Text(stringResource(Res.string.confirm_repeat_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDeepLinkConfirm = null }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
+            },
+        )
     }
 
     Scaffold(

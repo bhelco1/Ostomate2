@@ -10,6 +10,12 @@
     <string name="deeplink_logged">Registrado: %1$s</string>
     <string name="deeplink_unrecognized">Código QR no reconocido</string>
 
+    <!-- Rapid-repeat confirmation -->
+    <string name="confirm_repeat_title">¿Añadir otro?</string>
+    <string name="confirm_repeat_message">Registraste %1$s hace %2$d min. ¿Añadir otro?</string>
+    <string name="confirm_repeat_confirm">Añadir otro</string>
+    <string name="confirm_repeat_dismiss">Cancelar</string>
+
     <!-- Home screen -->
     <string name="home_no_supplies">Sin suministros todavía.</string>
     <string name="home_snackbar_logged">%1$s registrado</string>

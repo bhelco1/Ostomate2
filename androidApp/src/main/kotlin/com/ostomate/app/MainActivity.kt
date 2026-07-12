@@ -60,8 +60,8 @@ class MainActivity : FragmentActivity() {
         // Consume the link so a later Activity recreation cannot replay the same scan.
         intent.data = null
         lifecycleScope.launch {
-            val supply = repository.handleDeepLink(uri)
-            DeepLinkBus.post(supply)
+            val outcome = repository.handleDeepLink(uri)
+            DeepLinkBus.post(outcome)
         }
     }
 }
