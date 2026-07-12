@@ -11,12 +11,12 @@ Bugs and UX issues found during physical device testing. Work through these befo
 **Problem:** No question for appliance type. Users with a 1-piece system hit a 2-piece workflow (separate bag + flange entries) and cannot get through setup.  
 **Fix:** Add a "1-piece or 2-piece appliance?" question early in setup. Store the preference. 1-piece users should only log one item per change with no separate flange entry. Preference must flow through throughout the app.
 
-### [ ] BUG-02: "How many on hand?" field shows leading zero (e.g. "0200")
+### [x] BUG-02: "How many on hand?" field shows leading zero (e.g. "0200") — fixed (OnboardingViewModel: empty init + "0" placeholder + Number keyboard); verified 2026-07-12
 **Screen:** Setup — supply quantity entry  
 **Problem:** The field initializes to `0`. When the user taps and types a number, the `0` stays, producing values like `0200`.  
 **Fix:** Clear the field on focus (select-all on tap), or use `KeyboardType.Number` with an empty initial value and a `0` placeholder.
 
-### [ ] BUG-03: "Next" button not reachable on iPhone
+### [x] BUG-03: "Next" button not reachable on iPhone — fixed (OnboardingScreen: imePadding + verticalScroll); verified 2026-07-12
 **Screen:** Setup flow  
 **Problem:** On a physical iPhone, the keyboard covers the bottom of the screen and the Next button is hidden behind it. Users have no way to proceed.  
 **Fix:** Wrap the setup screen content in a `ScrollView` (or `imePadding` + `verticalScroll`) so the Next button scrolls into view above the keyboard.
@@ -25,7 +25,7 @@ Bugs and UX issues found during physical device testing. Work through these befo
 
 ## Navigation
 
-### [ ] BUG-04: Settings sub-menu stays open when tapping Settings tab again or switching tabs
+### [x] BUG-04: Settings sub-menu stays open when tapping Settings tab again or switching tabs — fixed (App.kt: Settings tab restoreState=false + popUpTo start); verified 2026-07-12
 **Screen:** Settings → Manage Supplies (and other sub-menus)  
 **Problem 1:** While inside a sub-menu (e.g. Manage Supplies), tapping the Settings bottom-nav button again does nothing — it should return to the Settings root.  
 **Problem 2:** Navigating away (e.g. tap Home) then tapping Settings returns to the sub-menu instead of the Settings root.  
@@ -35,12 +35,12 @@ Bugs and UX issues found during physical device testing. Work through these befo
 
 ## QR Labels / Printing
 
-### [ ] BUG-05: Print button visible and tappable when no printer is configured
+### [x] BUG-05: Print button visible and tappable when no printer is configured — fixed (QrLabelsScreen: gated by qrPrinter.isPrintingAvailable()); verified 2026-07-12
 **Screen:** QR Labels  
 **Problem:** If the device has no printer set up, the Print button still appears active. Tapping it either fails silently or shows a confusing error. Poor UX.  
 **Fix:** Check printer availability before showing the button (e.g. `UIPrintInteractionController.isPrintingAvailable` on iOS). If no printer is available, hide or disable the button, or show a tooltip explaining that no printer is set up.
 
-### [ ] BUG-06: QR code Share button sends text instead of a QR code image
+### [x] BUG-06: QR code Share button sends text instead of a QR code image — fixed (QrLabelsScreen: encodeToPng + shareBytes image/png); verified 2026-07-12
 **Screen:** QR Labels — Share  
 **Problem:** The share sheet sends raw text data rather than an image of the QR code. The recipient gets a string that does not function as a QR code.  
 **Fix:** Render the QR code composable to a bitmap/image first, then share the image (PNG or PDF). Do not share the raw string.
