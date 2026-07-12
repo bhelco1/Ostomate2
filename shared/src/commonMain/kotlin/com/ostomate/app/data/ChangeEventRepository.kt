@@ -4,6 +4,10 @@ import com.ostomate.app.data.db.ChangeEventDao
 import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
+import com.ostomate.app.data.diagnostics.DiagnosticLog
+import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
+import com.ostomate.app.data.diagnostics.ScanDecision
 import com.ostomate.app.domain.DeepLinkParser
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.currentTimeMillis
@@ -28,6 +32,7 @@ sealed interface DeepLinkOutcome {
 class ChangeEventRepository(
     private val eventDao: ChangeEventDao,
     private val supplyTypeDao: SupplyTypeDao,
+    private val diagnosticLog: DiagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
     private val clock: () -> Long = { currentTimeMillis() },
 ) {
     private val lastScanMillis = mutableMapOf<String, Long>()
@@ -97,8 +102,40 @@ class ChangeEventRepository(
      * Resolves a scanned/opened log link into an outcome the UI acts on: log immediately,
      * ask to confirm a rapid repeat, silently suppress a phantom re-fire, or reject an
      * unrecognized link. The 3s atomic debounce is applied before the repeat-window check.
+     *
+     * [entryPoint] and [savedInstanceStateWasNull] come from the platform entry point
+     * (Android MainActivity onCreate/onNewIntent, iOS onOpenURL) and are recorded — with the
+     * resolved outcome — in the diagnostic log, so a BUG-09 duplicate can be traced after the
+     * fact (FEAT-02). savedInstanceStateWasNull is only meaningful for Android onCreate.
      */
-    suspend fun handleDeepLink(uri: String): DeepLinkOutcome {
+    suspend fun handleDeepLink(
+        uri: String,
+        entryPoint: DeepLinkEntryPoint = DeepLinkEntryPoint.ANDROID_ON_CREATE,
+        savedInstanceStateWasNull: Boolean? = null,
+    ): DeepLinkOutcome {
+        var loggedEventId: Long? = null
+        val outcome = resolveDeepLink(uri) { loggedEventId = it }
+        val decision =
+            when (outcome) {
+                is DeepLinkOutcome.Logged -> ScanDecision.LOGGED
+                is DeepLinkOutcome.NeedsConfirmation -> ScanDecision.NEEDS_CONFIRMATION
+                DeepLinkOutcome.Suppressed -> ScanDecision.SUPPRESSED
+                DeepLinkOutcome.Invalid -> ScanDecision.INVALID
+            }
+        diagnosticLog.recordScanAudit(
+            uri = uri,
+            entryPoint = entryPoint,
+            savedInstanceStateWasNull = savedInstanceStateWasNull,
+            decision = decision,
+            eventId = loggedEventId,
+        )
+        return outcome
+    }
+
+    private suspend fun resolveDeepLink(
+        uri: String,
+        onLogged: (Long) -> Unit,
+    ): DeepLinkOutcome {
         val item = DeepLinkParser.parse(uri) ?: return DeepLinkOutcome.Invalid
         val allowed =
             scanMutex.withLock {
@@ -125,7 +162,8 @@ class ChangeEventRepository(
         if (minutesAgo != null) {
             return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo)
         }
-        logChange(supply.id)
+        val event = logChange(supply.id)
+        onLogged(event.id)
         return DeepLinkOutcome.Logged(supply.name)
     }
 }

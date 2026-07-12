@@ -4,6 +4,10 @@ import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.data.RestoreError
 import com.ostomate.app.data.RestoreResult
+import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
+import com.ostomate.app.data.diagnostics.DiagnosticLog
+import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
+import com.ostomate.app.data.diagnostics.ScanDecision
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeChangeEventDao
@@ -30,12 +34,14 @@ class SettingsViewModelTest : MainDispatcherTest() {
     private val crashReporter = RecordingCrashReporter()
 
     private val backupDao = FakeBackupDao(supplyDao, eventDao)
+    private val diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore())
 
     private fun viewModel() =
         SettingsViewModel(
             settingsRepository,
             BackupRepository(backupDao, eventDao, supplyDao, settingsRepository),
             crashReporter,
+            diagnosticLog,
         )
 
     @Test
@@ -112,6 +118,29 @@ class SettingsViewModelTest : MainDispatcherTest() {
 
             vm.clearRestoreResult()
             assertNull(vm.backupState.value.lastRestore)
+        }
+
+    @Test
+    fun exportDiagnosticLogProducesTimestampedLogFile() =
+        runTest {
+            diagnosticLog.recordScanAudit(
+                uri = "ostomate://log?item=bag",
+                entryPoint = DeepLinkEntryPoint.ANDROID_ON_CREATE,
+                savedInstanceStateWasNull = true,
+                decision = ScanDecision.LOGGED,
+                eventId = 1L,
+            )
+            val vm = viewModel()
+
+            var exported: Pair<String, String>? = null
+            vm.exportDiagnosticLog { content, fileName -> exported = content to fileName }
+            advanceUntilIdle()
+
+            val (content, fileName) = assertNotNull(exported)
+            assertTrue(content.contains("ostomate://log?item=bag"))
+            assertTrue(content.contains("LOGGED"))
+            assertTrue(fileName.startsWith("ostomate_diagnostics_"))
+            assertTrue(fileName.endsWith(".log"))
         }
 
     @Test

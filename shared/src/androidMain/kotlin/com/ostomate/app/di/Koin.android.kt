@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.room.RoomDatabase
 import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.databaseBuilder
+import com.ostomate.app.data.diagnostics.DiagnosticLog
+import com.ostomate.app.data.diagnostics.diagnosticLogStore
 import com.ostomate.app.data.settings.settingsDataStore
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricAuthenticator
@@ -23,6 +25,7 @@ actual val platformModule: Module =
     module {
         single<RoomDatabase.Builder<OstomateDatabase>> { databaseBuilder(androidContext()) }
         single<DataStore<Preferences>> { settingsDataStore(androidContext()) }
+        single { DiagnosticLog(diagnosticLogStore(androidContext())) }
         single { Notifier(androidContext()) } bind ReminderNotifier::class
         single { BiometricAuthenticator() } bind BiometricAuth::class
         single { FileSharer() }

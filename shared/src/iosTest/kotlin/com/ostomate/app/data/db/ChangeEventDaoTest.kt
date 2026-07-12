@@ -56,4 +56,8 @@ class ChangeEventDaoTest {
     @Test
     fun repositoryWasLoggedWithinWindowBoundary() =
         runTest { ChangeEventDaoScenarios.repositoryWasLoggedWithinWindowBoundary(db) }
+
+    @Test
+    fun repositoryWritesScanAuditForEveryOutcome() =
+        runTest { ChangeEventDaoScenarios.repositoryWritesScanAuditForEveryOutcome(db) }
 }

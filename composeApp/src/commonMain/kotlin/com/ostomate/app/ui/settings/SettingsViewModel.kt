@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.RestoreResult
+import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.CrashReporting
@@ -25,6 +26,7 @@ class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val backupRepository: BackupRepository,
     private val crashReporter: CrashReporting,
+    private val diagnosticLog: DiagnosticLog,
 ) : ViewModel() {
     val settings: StateFlow<AppSettings> =
         settingsRepository.settings.stateIn(
@@ -54,21 +56,30 @@ class SettingsViewModel(
     fun exportBackup(onReady: (content: String, fileName: String) -> Unit) {
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
-            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            val ts = "${now.year}-${now.monthNumber.toString().padStart(
-                2,
-                '0',
-            )}-${now.dayOfMonth.toString().padStart(
-                2,
-                '0',
-            )}_${now.hour.toString().padStart(
-                2,
-                '0',
-            )}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
             val json = backupRepository.exportBackup()
             _backupState.value = _backupState.value.copy(isBusy = false)
-            onReady(json, "ostomate_backup_$ts.json")
+            onReady(json, "ostomate_backup_${fileTimestamp()}.json")
         }
+    }
+
+    /** Exports the rolling on-device diagnostic log (local-first; user-initiated share only). */
+    fun exportDiagnosticLog(onReady: (content: String, fileName: String) -> Unit) {
+        val content = diagnosticLog.export()
+        onReady(content, "ostomate_diagnostics_${fileTimestamp()}.log")
+    }
+
+    private fun fileTimestamp(): String {
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        return "${now.year}-${now.monthNumber.toString().padStart(
+            2,
+            '0',
+        )}-${now.dayOfMonth.toString().padStart(
+            2,
+            '0',
+        )}_${now.hour.toString().padStart(
+            2,
+            '0',
+        )}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
     }
 
     fun restoreBackup(json: String) {

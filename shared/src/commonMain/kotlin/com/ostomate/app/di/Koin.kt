@@ -23,7 +23,7 @@ val dataModule =
         single<ChangeEventDao> { get<OstomateDatabase>().changeEventDao() }
         single<SupplyTypeDao> { get<OstomateDatabase>().supplyTypeDao() }
         single<BackupDao> { get<OstomateDatabase>().backupDao() }
-        single { ChangeEventRepository(get(), get()) }
+        single { ChangeEventRepository(get(), get(), diagnosticLog = get()) }
         singleOf(::SupplyRepository)
         singleOf(::SettingsRepository)
         singleOf(::NotificationScheduler)

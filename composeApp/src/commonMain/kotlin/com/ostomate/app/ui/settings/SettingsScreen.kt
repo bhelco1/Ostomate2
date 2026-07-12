@@ -50,6 +50,9 @@ import com.ostomate.app.resources.settings_dev_off_body
 import com.ostomate.app.resources.settings_dev_off_title
 import com.ostomate.app.resources.settings_dev_on_body
 import com.ostomate.app.resources.settings_dev_on_title
+import com.ostomate.app.resources.settings_diagnostics
+import com.ostomate.app.resources.settings_diagnostics_export
+import com.ostomate.app.resources.settings_diagnostics_sub
 import com.ostomate.app.resources.settings_export_backup
 import com.ostomate.app.resources.settings_feedback
 import com.ostomate.app.resources.settings_feedback_sub
@@ -311,6 +314,26 @@ fun SettingsScreen(
                         enabled = !backupState.isBusy,
                     ) {
                         Text(stringResource(Res.string.settings_restore_button))
+                    }
+                },
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.settings_diagnostics)) },
+                supportingContent = { Text(stringResource(Res.string.settings_diagnostics_sub)) },
+                trailingContent = {
+                    TextButton(
+                        onClick = {
+                            viewModel.exportDiagnosticLog { content, fileName ->
+                                fileSharer.shareText(
+                                    content = content,
+                                    fileName = fileName,
+                                    mimeType = "text/plain",
+                                )
+                            }
+                        },
+                    ) {
+                        Text(stringResource(Res.string.settings_diagnostics_export))
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),

@@ -2,12 +2,18 @@ package com.ostomate.app.data.db
 
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.data.DeepLinkOutcome
+import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
+import com.ostomate.app.data.diagnostics.DiagnosticLog
+import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
+import com.ostomate.app.data.diagnostics.ScanAuditEntry
+import com.ostomate.app.data.diagnostics.ScanDecision
 import com.ostomate.app.domain.SupplyKind
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
@@ -176,6 +182,85 @@ object ChangeEventDaoScenarios {
         repository.logChange(confirmation.supplyId)
         assertEquals(2, db.changeEventDao().count())
         assertEquals(3, assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG)).onHand)
+    }
+
+    /**
+     * FEAT-02 scan audit: every handleDeepLink call, across every debounce outcome, appends a
+     * well-formed entry to the diagnostic log carrying the uri, entry point, savedInstanceState
+     * flag, decision, and (only when logged) the resulting event id — the data needed to trace a
+     * BUG-09 duplicate after the fact.
+     */
+    suspend fun repositoryWritesScanAuditForEveryOutcome(db: OstomateDatabase) {
+        val store = InMemoryDiagnosticLogStore()
+        var now = 1_000_000L
+        val log = DiagnosticLog(store, clock = { now })
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao(), log, { now })
+        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+        db.supplyTypeDao().update(bag.copy(onHand = 5))
+
+        assertEquals(
+            DeepLinkOutcome.Logged("Bag"),
+            repository.handleDeepLink(
+                "ostomate://log?item=bag",
+                DeepLinkEntryPoint.ANDROID_ON_CREATE,
+                savedInstanceStateWasNull = true,
+            ),
+        )
+        // Within the 3 s debounce: suppressed.
+        now += 1_000L
+        assertEquals(
+            DeepLinkOutcome.Suppressed,
+            repository.handleDeepLink(
+                "ostomate://log?item=bag",
+                DeepLinkEntryPoint.ANDROID_ON_NEW_INTENT,
+                savedInstanceStateWasNull = null,
+            ),
+        )
+        // Past the debounce, inside the 10-min window: needs confirmation, no insert.
+        now += 5_000L
+        assertIs<DeepLinkOutcome.NeedsConfirmation>(
+            repository.handleDeepLink(
+                "ostomate://log?item=bag",
+                DeepLinkEntryPoint.IOS_ON_OPEN_URL,
+                savedInstanceStateWasNull = null,
+            ),
+        )
+        // Unrecognized link: invalid.
+        assertEquals(
+            DeepLinkOutcome.Invalid,
+            repository.handleDeepLink(
+                "ostomate://log?item=evil",
+                DeepLinkEntryPoint.ANDROID_ON_CREATE,
+                savedInstanceStateWasNull = true,
+            ),
+        )
+
+        val entries =
+            store.read()
+                .split('\n')
+                .filter { it.isNotBlank() }
+                .map { Json.decodeFromString<ScanAuditEntry>(it) }
+        assertEquals(4, entries.size)
+
+        assertEquals(ScanDecision.LOGGED, entries[0].decision)
+        assertEquals(DeepLinkEntryPoint.ANDROID_ON_CREATE, entries[0].entryPoint)
+        assertEquals(true, entries[0].savedInstanceStateWasNull)
+        assertEquals("ostomate://log?item=bag", entries[0].uri)
+        assertNotNull(entries[0].eventId)
+
+        assertEquals(ScanDecision.SUPPRESSED, entries[1].decision)
+        assertEquals(DeepLinkEntryPoint.ANDROID_ON_NEW_INTENT, entries[1].entryPoint)
+        assertNull(entries[1].savedInstanceStateWasNull)
+        assertNull(entries[1].eventId)
+
+        assertEquals(ScanDecision.NEEDS_CONFIRMATION, entries[2].decision)
+        assertEquals(DeepLinkEntryPoint.IOS_ON_OPEN_URL, entries[2].entryPoint)
+        assertNull(entries[2].eventId)
+
+        assertEquals(ScanDecision.INVALID, entries[3].decision)
+        assertNull(entries[3].eventId)
+
+        assertEquals(1, db.changeEventDao().count())
     }
 
     /** wasLoggedWithinWindow flips exactly at the 10-min boundary. */

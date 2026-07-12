@@ -93,6 +93,9 @@
     <string name="settings_restore">Restaurar copia</string>
     <string name="settings_restore_sub">Reemplazar todos los datos de este dispositivo desde un archivo de copia</string>
     <string name="settings_restore_button">Restaurar</string>
+    <string name="settings_diagnostics">Registro de diagnóstico</string>
+    <string name="settings_diagnostics_sub">Exporta un registro de actividad local para ayudar a diagnosticar un problema. Permanece en tu dispositivo hasta que lo compartas.</string>
+    <string name="settings_diagnostics_export">Exportar registro</string>
     <string name="settings_section_support">Soporte</string>
     <string name="settings_feedback">Enviar comentarios</string>
     <string name="settings_feedback_sub">Reportar un error o sugerir una función</string>
