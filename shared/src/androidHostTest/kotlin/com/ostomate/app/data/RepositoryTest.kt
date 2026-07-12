@@ -34,24 +34,23 @@ class RepositoryTest {
     }
 
     @Test
-    fun backupRoundTripPreservesEvents() =
+    fun fullBackupRoundTripClonesEverything() =
         runTest {
             val target = newDatabase().also { extraDbs += it }
-            RepositoryScenarios.backupRoundTripPreservesEvents(db, target)
+            RepositoryScenarios.fullBackupRoundTripClonesEverything(db, target)
         }
 
     @Test
-    fun reimportingOwnExportIsIdempotent() = runTest { RepositoryScenarios.reimportingOwnExportIsIdempotent(db) }
+    fun malformedBackupIsRejectedLeavingDataUntouched() =
+        runTest { RepositoryScenarios.malformedBackupIsRejectedLeavingDataUntouched(db) }
 
     @Test
-    fun importV1MapsKindsToSeededSupplies() = runTest { RepositoryScenarios.importV1MapsKindsToSeededSupplies(db) }
+    fun wrongSchemaVersionIsRejectedLeavingDataUntouched() =
+        runTest { RepositoryScenarios.wrongSchemaVersionIsRejectedLeavingDataUntouched(db) }
 
     @Test
-    fun importCountsParseErrorsWithoutLosingGoodRows() =
-        runTest { RepositoryScenarios.importCountsParseErrorsWithoutLosingGoodRows(db) }
-
-    @Test
-    fun oversizedImportIsRejectedUntouched() = runTest { RepositoryScenarios.oversizedImportIsRejectedUntouched(db) }
+    fun oversizedBackupIsRejectedLeavingDataUntouched() =
+        runTest { RepositoryScenarios.oversizedBackupIsRejectedLeavingDataUntouched(db) }
 
     @Test
     fun deleteRestocksAndReinsertConsumesInventory() =

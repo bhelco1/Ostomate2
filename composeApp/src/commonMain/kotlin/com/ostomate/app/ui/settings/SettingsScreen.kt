@@ -32,9 +32,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.ostomate.app.data.RestoreError
+import com.ostomate.app.data.RestoreResult
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.resources.Res
+import com.ostomate.app.resources.action_cancel
 import com.ostomate.app.resources.action_ok
 import com.ostomate.app.resources.settings_app_version
 import com.ostomate.app.resources.settings_backup
@@ -47,15 +50,9 @@ import com.ostomate.app.resources.settings_dev_off_body
 import com.ostomate.app.resources.settings_dev_off_title
 import com.ostomate.app.resources.settings_dev_on_body
 import com.ostomate.app.resources.settings_dev_on_title
-import com.ostomate.app.resources.settings_export
+import com.ostomate.app.resources.settings_export_backup
 import com.ostomate.app.resources.settings_feedback
 import com.ostomate.app.resources.settings_feedback_sub
-import com.ostomate.app.resources.settings_import
-import com.ostomate.app.resources.settings_import_complete_title
-import com.ostomate.app.resources.settings_import_result
-import com.ostomate.app.resources.settings_import_too_large
-import com.ostomate.app.resources.settings_import_v1
-import com.ostomate.app.resources.settings_import_v1_sub
 import com.ostomate.app.resources.settings_manage_supplies
 import com.ostomate.app.resources.settings_manage_supplies_sub
 import com.ostomate.app.resources.settings_print_qr
@@ -63,6 +60,18 @@ import com.ostomate.app.resources.settings_print_qr_sub
 import com.ostomate.app.resources.settings_privacy_policy
 import com.ostomate.app.resources.settings_reorder_warnings
 import com.ostomate.app.resources.settings_reorder_warnings_sub
+import com.ostomate.app.resources.settings_restore
+import com.ostomate.app.resources.settings_restore_button
+import com.ostomate.app.resources.settings_restore_complete_title
+import com.ostomate.app.resources.settings_restore_confirm_body
+import com.ostomate.app.resources.settings_restore_confirm_title
+import com.ostomate.app.resources.settings_restore_error_format
+import com.ostomate.app.resources.settings_restore_error_malformed
+import com.ostomate.app.resources.settings_restore_error_oversized
+import com.ostomate.app.resources.settings_restore_error_schema
+import com.ostomate.app.resources.settings_restore_failed_title
+import com.ostomate.app.resources.settings_restore_sub
+import com.ostomate.app.resources.settings_restore_success
 import com.ostomate.app.resources.settings_section_about
 import com.ostomate.app.resources.settings_section_about_dev
 import com.ostomate.app.resources.settings_section_data
@@ -91,7 +100,8 @@ fun SettingsScreen(
     val feedbackHelper = koinInject<FeedbackHelper>()
 
     var importTrigger by remember { mutableIntStateOf(0) }
-    var showImportResult by remember { mutableStateOf(false) }
+    var showRestoreResult by remember { mutableStateOf(false) }
+    var showRestoreConfirm by remember { mutableStateOf(false) }
 
     // Dev-mode easter egg: 5 taps on the About section header within 2 seconds.
     var devTapCount by remember { mutableIntStateOf(0) }
@@ -100,37 +110,72 @@ fun SettingsScreen(
 
     FileImportLauncher(
         trigger = importTrigger,
-        mimeType = "text/csv",
+        mimeType = "application/json",
         onContent = { content ->
             if (content != null) {
-                viewModel.importCsv(content)
-                showImportResult = true
+                viewModel.restoreBackup(content)
+                showRestoreResult = true
             }
         },
     )
 
-    val importSummary = backupState.lastImportSummary
-    if (showImportResult && importSummary != null) {
+    if (showRestoreConfirm) {
+        AlertDialog(
+            onDismissRequest = { showRestoreConfirm = false },
+            title = { Text(stringResource(Res.string.settings_restore_confirm_title)) },
+            text = { Text(stringResource(Res.string.settings_restore_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showRestoreConfirm = false
+                        importTrigger++
+                    },
+                ) { Text(stringResource(Res.string.settings_restore_button)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestoreConfirm = false }) {
+                    Text(stringResource(Res.string.action_cancel))
+                }
+            },
+        )
+    }
+
+    val restoreResult = backupState.lastRestore
+    if (showRestoreResult && restoreResult != null) {
         val dismiss = {
-            showImportResult = false
-            viewModel.clearImportSummary()
+            showRestoreResult = false
+            viewModel.clearRestoreResult()
         }
         AlertDialog(
             onDismissRequest = dismiss,
-            title = { Text(stringResource(Res.string.settings_import_complete_title)) },
+            title = {
+                Text(
+                    when (restoreResult) {
+                        is RestoreResult.Success -> stringResource(Res.string.settings_restore_complete_title)
+                        is RestoreResult.Failure -> stringResource(Res.string.settings_restore_failed_title)
+                    },
+                )
+            },
             text = {
-                if (importSummary.oversized) {
-                    Text(stringResource(Res.string.settings_import_too_large))
-                } else {
-                    Text(
-                        stringResource(
-                            Res.string.settings_import_result,
-                            importSummary.inserted,
-                            importSummary.skipped,
-                            importSummary.parseErrors,
-                        ),
-                    )
-                }
+                Text(
+                    when (restoreResult) {
+                        is RestoreResult.Success ->
+                            stringResource(
+                                Res.string.settings_restore_success,
+                                restoreResult.supplyTypes,
+                                restoreResult.events,
+                            )
+                        is RestoreResult.Failure ->
+                            stringResource(
+                                when (restoreResult.error) {
+                                    RestoreError.OVERSIZED -> Res.string.settings_restore_error_oversized
+                                    RestoreError.MALFORMED -> Res.string.settings_restore_error_malformed
+                                    RestoreError.UNSUPPORTED_FORMAT_VERSION -> Res.string.settings_restore_error_format
+                                    RestoreError.UNSUPPORTED_SCHEMA_VERSION -> Res.string.settings_restore_error_schema
+                                },
+                            )
+                    },
+                )
             },
             confirmButton = {
                 TextButton(onClick = dismiss) { Text(stringResource(Res.string.action_ok)) }
@@ -242,30 +287,30 @@ fun SettingsScreen(
                 trailingContent = {
                     TextButton(
                         onClick = {
-                            viewModel.exportCsv { csv, fileName ->
+                            viewModel.exportBackup { json, fileName ->
                                 fileSharer.shareText(
-                                    content = csv,
+                                    content = json,
                                     fileName = fileName,
-                                    mimeType = "text/csv",
+                                    mimeType = "application/json",
                                 )
                             }
                         },
                         enabled = !backupState.isBusy,
                     ) {
-                        Text(stringResource(Res.string.settings_export))
+                        Text(stringResource(Res.string.settings_export_backup))
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_import_v1)) },
-                supportingContent = { Text(stringResource(Res.string.settings_import_v1_sub)) },
+                headlineContent = { Text(stringResource(Res.string.settings_restore)) },
+                supportingContent = { Text(stringResource(Res.string.settings_restore_sub)) },
                 trailingContent = {
                     TextButton(
-                        onClick = { importTrigger++ },
+                        onClick = { showRestoreConfirm = true },
                         enabled = !backupState.isBusy,
                     ) {
-                        Text(stringResource(Res.string.settings_import))
+                        Text(stringResource(Res.string.settings_restore_button))
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),

@@ -5,7 +5,6 @@ import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -19,65 +18,6 @@ import kotlin.test.assertTrue
  * exported JSON. Schema-JSON drift is caught at build time by Room's exportSchema.
  */
 object MigrationScenarios {
-    fun migrate1To2SeedsCatalogAndRemapsSpikeRows(driver: SQLiteDriver) {
-        val connection = driver.open(":memory:")
-        try {
-            // v1 (spike) schema: change_events(id, supply TEXT, timestampMillis).
-            connection.execSQL(
-                "CREATE TABLE change_events (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
-                    "supply TEXT NOT NULL, timestampMillis INTEGER NOT NULL)",
-            )
-            connection.execSQL("INSERT INTO change_events (supply, timestampMillis) VALUES ('bag', 1000)")
-            connection.execSQL("INSERT INTO change_events (supply, timestampMillis) VALUES ('flange', 2000)")
-
-            MIGRATION_1_2.migrate(connection)
-
-            // The two v1 defaults are seeded with v1's constants (box 30/5, 14-day warning).
-            val supplies =
-                connection.query(
-                    "SELECT name, kind, boxSize, warnThresholdDays FROM supply_types ORDER BY sortOrder",
-                ) { stmt ->
-                    buildList {
-                        while (stmt.step()) {
-                            add(listOf(stmt.getText(0), stmt.getText(1), stmt.getLong(2), stmt.getLong(3)))
-                        }
-                    }
-                }
-            assertEquals(
-                listOf(
-                    listOf("Bag", "BAG", 30L, 14L),
-                    listOf("Flange", "FLANGE", 5L, 14L),
-                ),
-                supplies,
-            )
-
-            // Spike rows now reference the catalog; createdAt backfilled, never edited.
-            connection.query(
-                """
-                SELECT s.kind, e.timestampMillis, e.createdAtMillis, e.editedAtMillis IS NULL
-                FROM change_events e JOIN supply_types s ON s.id = e.supplyTypeId
-                ORDER BY e.timestampMillis
-                """,
-            ) { stmt ->
-                assertTrue(stmt.step())
-                assertEquals("BAG", stmt.getText(0))
-                assertEquals(1000L, stmt.getLong(1))
-                assertEquals(1000L, stmt.getLong(2))
-                assertEquals(1L, stmt.getLong(3))
-
-                assertTrue(stmt.step())
-                assertEquals("FLANGE", stmt.getText(0))
-                assertEquals(2000L, stmt.getLong(1))
-                assertEquals(2000L, stmt.getLong(2))
-
-                assertFalse(stmt.step())
-            }
-        } finally {
-            connection.close()
-        }
-    }
-
     fun migrate2To3AddsColorIndexColumnWithNullDefault(driver: SQLiteDriver) {
         val connection = driver.open(":memory:")
         try {

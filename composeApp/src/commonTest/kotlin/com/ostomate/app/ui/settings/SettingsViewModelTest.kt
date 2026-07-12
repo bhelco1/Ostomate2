@@ -2,7 +2,10 @@ package com.ostomate.app.ui.settings
 
 import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.RestoreError
+import com.ostomate.app.data.RestoreResult
 import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeChangeEventDao
 import com.ostomate.app.ui.FakeSupplyTypeDao
 import com.ostomate.app.ui.InMemoryDataStore
@@ -15,6 +18,8 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -24,8 +29,14 @@ class SettingsViewModelTest : MainDispatcherTest() {
     private val settingsRepository = SettingsRepository(InMemoryDataStore())
     private val crashReporter = RecordingCrashReporter()
 
+    private val backupDao = FakeBackupDao(supplyDao, eventDao)
+
     private fun viewModel() =
-        SettingsViewModel(settingsRepository, BackupRepository(eventDao, supplyDao), crashReporter)
+        SettingsViewModel(
+            settingsRepository,
+            BackupRepository(backupDao, eventDao, supplyDao, settingsRepository),
+            crashReporter,
+        )
 
     @Test
     fun togglesFlowThroughToTheSettingsState() =
@@ -62,47 +73,56 @@ class SettingsViewModelTest : MainDispatcherTest() {
         }
 
     @Test
-    fun exportProducesTimestampedCsvOfTheHistory() =
+    fun exportProducesTimestampedJsonBackup() =
         runTest {
             val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
             ChangeEventRepository(eventDao, supplyDao).logChangeAt(bagId, 1_700_000_000_000L)
 
             val vm = viewModel()
             var exported: Pair<String, String>? = null
-            vm.exportCsv { content, fileName -> exported = content to fileName }
+            vm.exportBackup { content, fileName -> exported = content to fileName }
             advanceUntilIdle()
 
-            val (content, fileName) = exported!!
-            assertTrue(content.lineSequence().first().startsWith("supply_id,supply_name,supply_kind"))
+            val (content, fileName) = assertNotNull(exported)
+            assertTrue(content.contains("\"formatVersion\""))
             assertTrue(content.contains("1700000000000"))
             assertTrue(fileName.startsWith("ostomate_backup_"))
-            assertTrue(fileName.endsWith(".csv"))
+            assertTrue(fileName.endsWith(".json"))
             assertFalse(vm.backupState.value.isBusy)
         }
 
     @Test
-    fun importRoundTripSkipsDuplicatesAndReportsSummary() =
+    fun restoreRoundTripReportsSuccess() =
         runTest {
             val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
-            val repository = ChangeEventRepository(eventDao, supplyDao)
-            repository.logChangeAt(bagId, 1_700_000_000_000L)
-            repository.logChangeAt(bagId, 1_700_086_400_000L)
+            ChangeEventRepository(eventDao, supplyDao).logChangeAt(bagId, 1_700_000_000_000L)
 
             val vm = viewModel()
-            var csv = ""
-            vm.exportCsv { content, _ -> csv = content }
+            var json = ""
+            vm.exportBackup { content, _ -> json = content }
             advanceUntilIdle()
 
-            // Re-importing the export must be idempotent: everything is a duplicate.
-            vm.importCsv(csv)
+            vm.restoreBackup(json)
             advanceUntilIdle()
 
-            val summary = vm.backupState.value.lastImportSummary!!
-            assertEquals(0, summary.inserted)
-            assertEquals(2, summary.skipped)
-            assertEquals(2, eventDao.count().toInt())
+            val result = assertIs<RestoreResult.Success>(vm.backupState.value.lastRestore)
+            assertEquals(1, result.supplyTypes)
+            assertEquals(1, result.events)
+            assertEquals(1, eventDao.count().toInt())
 
-            vm.clearImportSummary()
-            assertNull(vm.backupState.value.lastImportSummary)
+            vm.clearRestoreResult()
+            assertNull(vm.backupState.value.lastRestore)
+        }
+
+    @Test
+    fun malformedRestoreReportsFailure() =
+        runTest {
+            val vm = viewModel()
+
+            vm.restoreBackup("{ not valid json ")
+            advanceUntilIdle()
+
+            val result = assertIs<RestoreResult.Failure>(vm.backupState.value.lastRestore)
+            assertEquals(RestoreError.MALFORMED, result.error)
         }
 }

@@ -2,6 +2,7 @@ plugins {
     id("ostomate.kmp-library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
+    alias(libs.plugins.kotlinxSerialization)
     jacoco
 }
 
@@ -33,6 +34,7 @@ kotlin {
             api(libs.androidx.datastore.preferences.core)
             implementation(libs.okio)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

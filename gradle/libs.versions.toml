@@ -8,6 +8,7 @@ kover = "0.8.3"
 jacoco = "0.8.13"
 ktlint-gradle = "12.1.2"
 kotlinx-datetime = "0.7.1"
+kotlinx-serialization = "1.8.1"
 android-compileSdk = "36"
 android-minSdk = "26"
 android-targetSdk = "36"
@@ -60,6 +61,7 @@ kotest-property = { module = "io.kotest:kotest-property", version.ref = "kotest"
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }

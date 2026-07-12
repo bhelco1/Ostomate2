@@ -3,6 +3,7 @@ package com.ostomate.app.ui
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
+import com.ostomate.app.data.db.BackupDao
 import com.ostomate.app.data.db.ChangeEventDao
 import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
@@ -22,7 +23,7 @@ import kotlinx.coroutines.flow.map
 /**
  * In-memory stand-ins at the DAO / platform-interface boundary. ViewModel tests
  * construct the real repositories on top of these, so repository logic (undo
- * increments, CSV round-trips) is exercised, not mocked away.
+ * increments, backup round-trips) is exercised, not mocked away.
  */
 class FakeSupplyTypeDao : SupplyTypeDao {
     private val state = MutableStateFlow<List<SupplyTypeEntity>>(emptyList())
@@ -70,6 +71,10 @@ class FakeSupplyTypeDao : SupplyTypeDao {
 
     override suspend fun maxSortOrder(): Int = state.value.maxOfOrNull { it.sortOrder } ?: -1
 
+    fun clear() {
+        state.value = emptyList()
+    }
+
     private fun mutate(
         id: Long,
         transform: (SupplyTypeEntity) -> SupplyTypeEntity,
@@ -109,9 +114,15 @@ class FakeChangeEventDao(private val supplyDao: FakeSupplyTypeDao) : ChangeEvent
             join(events.filter { it.supplyTypeId == supplyTypeId }, supplies)
         }
 
+    override suspend fun getAllRaw(): List<ChangeEventEntity> = state.value
+
     override suspend fun count(): Long = state.value.size.toLong()
 
     override suspend fun countByTimestamp(millis: Long): Int = state.value.count { it.timestampMillis == millis }
+
+    fun clear() {
+        state.value = emptyList()
+    }
 
     private fun join(
         events: List<ChangeEventEntity>,
@@ -124,6 +135,24 @@ class FakeChangeEventDao(private val supplyDao: FakeSupplyTypeDao) : ChangeEvent
                 val supply = byId[event.supplyTypeId] ?: return@mapNotNull null
                 ChangeEventWithSupply(event = event, supplyName = supply.name, supplyKind = supply.kind)
             }
+    }
+}
+
+/** Applies restore's wipe-and-replace against the in-memory fake DAOs. */
+class FakeBackupDao(
+    private val supplyDao: FakeSupplyTypeDao,
+    private val eventDao: FakeChangeEventDao,
+) : BackupDao {
+    override suspend fun deleteAllEvents() = eventDao.clear()
+
+    override suspend fun deleteAllSupplies() = supplyDao.clear()
+
+    override suspend fun insertSupplies(supplies: List<SupplyTypeEntity>) {
+        supplies.forEach { supplyDao.insert(it) }
+    }
+
+    override suspend fun insertEvents(events: List<ChangeEventEntity>) {
+        events.forEach { eventDao.insert(it) }
     }
 }
 

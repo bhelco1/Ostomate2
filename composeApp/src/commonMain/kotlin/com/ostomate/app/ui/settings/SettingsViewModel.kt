@@ -3,7 +3,7 @@ package com.ostomate.app.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.BackupRepository
-import com.ostomate.app.data.ImportSummary
+import com.ostomate.app.data.RestoreResult
 import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.CrashReporting
@@ -17,8 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
 data class BackupUiState(
-    val exportedCsv: String? = null,
-    val lastImportSummary: ImportSummary? = null,
+    val lastRestore: RestoreResult? = null,
     val isBusy: Boolean = false,
 )
 
@@ -52,7 +51,7 @@ class SettingsViewModel(
         }
     }
 
-    fun exportCsv(onReady: (content: String, fileName: String) -> Unit) {
+    fun exportBackup(onReady: (content: String, fileName: String) -> Unit) {
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
             val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -66,25 +65,25 @@ class SettingsViewModel(
                 2,
                 '0',
             )}-${now.minute.toString().padStart(2, '0')}-${now.second.toString().padStart(2, '0')}"
-            val csv = backupRepository.exportCsv()
+            val json = backupRepository.exportBackup()
             _backupState.value = _backupState.value.copy(isBusy = false)
-            onReady(csv, "ostomate_backup_$ts.csv")
+            onReady(json, "ostomate_backup_$ts.json")
         }
     }
 
-    fun importCsv(csvContent: String) {
+    fun restoreBackup(json: String) {
         viewModelScope.launch {
             _backupState.value = _backupState.value.copy(isBusy = true)
-            val summary = backupRepository.importCsv(csvContent)
+            val result = backupRepository.restoreBackup(json)
             _backupState.value =
                 _backupState.value.copy(
                     isBusy = false,
-                    lastImportSummary = summary,
+                    lastRestore = result,
                 )
         }
     }
 
-    fun clearImportSummary() {
-        _backupState.value = _backupState.value.copy(lastImportSummary = null)
+    fun clearRestoreResult() {
+        _backupState.value = _backupState.value.copy(lastRestore = null)
     }
 }

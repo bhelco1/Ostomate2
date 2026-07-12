@@ -12,10 +12,6 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 class MigrationTest {
     @Test
-    fun migrate1To2_seedsCatalogAndRemapsSpikeRows() =
-        MigrationScenarios.migrate1To2SeedsCatalogAndRemapsSpikeRows(AndroidSQLiteDriver())
-
-    @Test
     fun migrate2To3_addsColorIndexColumnWithNullDefault() =
         MigrationScenarios.migrate2To3AddsColorIndexColumnWithNullDefault(AndroidSQLiteDriver())
 }

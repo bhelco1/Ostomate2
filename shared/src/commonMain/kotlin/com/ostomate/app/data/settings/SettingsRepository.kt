@@ -66,6 +66,19 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[APPLIANCE_TYPE] = type.name }
     }
 
+    /** Overwrites every setting in one edit, for a full-state backup restore. */
+    suspend fun restore(settings: AppSettings) {
+        dataStore.edit { prefs ->
+            prefs[DEV_MODE] = settings.devMode
+            prefs[ONBOARDING_DONE] = settings.onboardingDone
+            prefs[LOCK_SETTINGS] = settings.lockSettings
+            prefs[CRASH_REPORTING] = settings.crashReportingEnabled
+            prefs[APPLIANCE_TYPE] = settings.applianceType.name
+            val locale = settings.localeOverride
+            if (locale == null) prefs.remove(LOCALE_OVERRIDE) else prefs[LOCALE_OVERRIDE] = locale
+        }
+    }
+
     private companion object {
         val DEV_MODE = booleanPreferencesKey("devMode")
         val ONBOARDING_DONE = booleanPreferencesKey("onboardingDone")

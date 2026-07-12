@@ -1,9 +1,19 @@
 package com.ostomate.app.data
 
+import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.OstomateDatabase
+import com.ostomate.app.data.settings.AppSettings
+import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.data.settings.createSettingsDataStore
+import com.ostomate.app.domain.ApplianceType
 import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.testTempDir
 import kotlinx.coroutines.flow.first
+import okio.FileSystem
+import okio.Path.Companion.toPath
+import kotlin.random.Random
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -14,92 +24,157 @@ import kotlin.test.assertTrue
  * comes first: it is the data-loss-risk path.
  */
 object RepositoryScenarios {
-    // --- BackupRepository ---
+    // --- BackupRepository (full-state clone, FEAT-00) ---
 
-    suspend fun backupRoundTripPreservesEvents(
+    private fun newSettingsRepository(): Pair<SettingsRepository, String> {
+        val path = (testTempDir().toPath() / "backup-settings-${Random.nextLong()}.preferences_pb").toString()
+        return SettingsRepository(createSettingsDataStore { path }) to path
+    }
+
+    private fun backupRepository(
+        db: OstomateDatabase,
+        settings: SettingsRepository,
+    ) = BackupRepository(db.backupDao(), db.changeEventDao(), db.supplyTypeDao(), settings)
+
+    /**
+     * Exports a source DB with an archived supply, a CUSTOM supply, notes/tags, two events at
+     * the SAME millisecond, and non-default settings, then restores into a fresh seeded-default
+     * DB and asserts every table and every setting is an exact clone (ids and FKs intact).
+     */
+    suspend fun fullBackupRoundTripClonesEverything(
         source: OstomateDatabase,
         target: OstomateDatabase,
     ) {
-        val sourceEvents = ChangeEventRepository(source.changeEventDao(), source.supplyTypeDao())
-        val bag = assertNotNull(source.supplyTypeDao().getByKind(SupplyKind.BAG))
-        val flange = assertNotNull(source.supplyTypeDao().getByKind(SupplyKind.FLANGE))
-        sourceEvents.logChangeAt(bag.id, 1_000)
-        sourceEvents.logChangeAt(bag.id, 2_000)
-        sourceEvents.logChangeAt(flange.id, 3_000)
+        val (sourceSettings, sourcePath) = newSettingsRepository()
+        val (targetSettings, targetPath) = newSettingsRepository()
+        try {
+            val supplyDao = source.supplyTypeDao()
+            val eventDao = source.changeEventDao()
 
-        val csv = BackupRepository(source.changeEventDao(), source.supplyTypeDao()).exportCsv()
-        val summary = BackupRepository(target.changeEventDao(), target.supplyTypeDao()).importCsv(csv)
+            SupplyRepository(supplyDao).addCustomSupply(
+                name = "Barrier rings",
+                boxSize = 20,
+                warnThresholdDays = 10,
+                colorIndex = 5,
+            )
+            val custom = assertNotNull(supplyDao.getAll().find { it.kind == SupplyKind.CUSTOM })
+            val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
+            val flange = assertNotNull(supplyDao.getByKind(SupplyKind.FLANGE))
+            supplyDao.archive(flange.id)
 
-        assertEquals(3, summary.inserted)
-        assertEquals(0, summary.skipped)
-        assertEquals(0, summary.parseErrors)
+            // Two events at the same millisecond, one edited and tagged.
+            eventDao.insert(
+                ChangeEventEntity(
+                    supplyTypeId = bag.id,
+                    timestampMillis = 5_000,
+                    note = "leak overnight",
+                    tags = "leak,night",
+                    createdAtMillis = 5_000,
+                    editedAtMillis = 6_000,
+                ),
+            )
+            eventDao.insert(
+                ChangeEventEntity(
+                    supplyTypeId = custom.id,
+                    timestampMillis = 5_000,
+                    createdAtMillis = 5_001,
+                ),
+            )
+            eventDao.insert(
+                ChangeEventEntity(
+                    supplyTypeId = bag.id,
+                    timestampMillis = 9_000,
+                    createdAtMillis = 9_000,
+                ),
+            )
 
-        val restored = target.changeEventDao().observeAllWithSupply().first()
-        assertEquals(
-            listOf(3_000L to SupplyKind.FLANGE, 2_000L to SupplyKind.BAG, 1_000L to SupplyKind.BAG),
-            restored.map { it.event.timestampMillis to it.supplyKind },
-        )
+            val sourceStateSettings =
+                AppSettings(
+                    devMode = true,
+                    onboardingDone = true,
+                    lockSettings = true,
+                    localeOverride = "es",
+                    crashReportingEnabled = true,
+                    applianceType = ApplianceType.ONE_PIECE,
+                )
+            sourceSettings.restore(sourceStateSettings)
+
+            val json = backupRepository(source, sourceSettings).exportBackup()
+            val result = backupRepository(target, targetSettings).restoreBackup(json)
+
+            val success = assertIs<RestoreResult.Success>(result)
+            assertEquals(3, success.supplyTypes)
+            assertEquals(3, success.events)
+
+            // Every supply row (incl. the archived + CUSTOM one) is an exact clone.
+            assertEquals(source.supplyTypeDao().getAll(), target.supplyTypeDao().getAll())
+            // Every event row — all columns, ids, and both same-ms rows — is an exact clone.
+            assertEquals(
+                source.changeEventDao().getAllRaw().sortedBy { it.id },
+                target.changeEventDao().getAllRaw().sortedBy { it.id },
+            )
+            assertEquals(2, target.changeEventDao().getAllRaw().count { it.timestampMillis == 5_000L })
+            // Settings match the source exactly.
+            assertEquals(sourceStateSettings, targetSettings.settings.first())
+        } finally {
+            FileSystem.SYSTEM.delete(sourcePath.toPath(), mustExist = false)
+            FileSystem.SYSTEM.delete(targetPath.toPath(), mustExist = false)
+        }
     }
 
-    suspend fun reimportingOwnExportIsIdempotent(db: OstomateDatabase) {
-        val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
-        val backup = BackupRepository(db.changeEventDao(), db.supplyTypeDao())
-        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
-        events.logChangeAt(bag.id, 1_000)
-        events.logChangeAt(bag.id, 2_000)
+    suspend fun malformedBackupIsRejectedLeavingDataUntouched(db: OstomateDatabase) {
+        val (settings, path) = newSettingsRepository()
+        try {
+            val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+            val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+            events.logChangeAt(bag.id, 1_000)
+            val suppliesBefore = db.supplyTypeDao().getAll()
 
-        val summary = backup.importCsv(backup.exportCsv())
+            val result = backupRepository(db, settings).restoreBackup("{ not valid json ")
 
-        assertEquals(0, summary.inserted)
-        assertEquals(2, summary.skipped)
-        assertEquals(2, db.changeEventDao().count().toInt())
+            val failure = assertIs<RestoreResult.Failure>(result)
+            assertEquals(RestoreError.MALFORMED, failure.error)
+            assertEquals(suppliesBefore, db.supplyTypeDao().getAll())
+            assertEquals(1, db.changeEventDao().count().toInt())
+        } finally {
+            FileSystem.SYSTEM.delete(path.toPath(), mustExist = false)
+        }
     }
 
-    suspend fun importV1MapsKindsToSeededSupplies(db: OstomateDatabase) {
-        val backup = BackupRepository(db.changeEventDao(), db.supplyTypeDao())
-        val v1 =
-            """
-            id,type,timestamp_iso8601
-            1,BAG,2023-11-01T00:00:00Z
-            2,BAG,2023-11-02T00:00:00Z
-            3,FLANGE,2023-11-03T00:00:00Z
-            """.trimIndent()
+    suspend fun wrongSchemaVersionIsRejectedLeavingDataUntouched(db: OstomateDatabase) {
+        val (settings, path) = newSettingsRepository()
+        try {
+            val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+            val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+            events.logChangeAt(bag.id, 1_000)
+            val backup = backupRepository(db, settings)
 
-        val summary = backup.importCsv(v1)
+            // A structurally valid document whose schemaVersion the app cannot accept.
+            val bumped = backup.exportBackup().replace("\"schemaVersion\": 3", "\"schemaVersion\": 999")
 
-        assertEquals(3, summary.inserted)
-        assertEquals(0, summary.parseErrors)
-        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
-        assertEquals(2, db.changeEventDao().getBySupplyType(bag.id).size)
+            val result = backup.restoreBackup(bumped)
+
+            val failure = assertIs<RestoreResult.Failure>(result)
+            assertEquals(RestoreError.UNSUPPORTED_SCHEMA_VERSION, failure.error)
+            assertEquals(1, db.changeEventDao().count().toInt())
+            assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+        } finally {
+            FileSystem.SYSTEM.delete(path.toPath(), mustExist = false)
+        }
     }
 
-    suspend fun importCountsParseErrorsWithoutLosingGoodRows(db: OstomateDatabase) {
-        val backup = BackupRepository(db.changeEventDao(), db.supplyTypeDao())
-        val v2 =
-            """
-            supply_id,supply_name,supply_kind,timestamp_millis,edited_at_millis,note
-            1,Bag,BAG,1000,,
-            garbage line without enough columns
-            1,Bag,BAG,not-a-number,,
-            2,Flange,FLANGE,2000,,
-            """.trimIndent()
+    suspend fun oversizedBackupIsRejectedLeavingDataUntouched(db: OstomateDatabase) {
+        val (settings, path) = newSettingsRepository()
+        try {
+            val result = backupRepository(db, settings).restoreBackup("x".repeat(10_000_001))
 
-        val summary = backup.importCsv(v2)
-
-        assertEquals(2, summary.inserted)
-        assertEquals(2, summary.parseErrors)
-        assertEquals(2, db.changeEventDao().count().toInt())
-    }
-
-    suspend fun oversizedImportIsRejectedUntouched(db: OstomateDatabase) {
-        val backup = BackupRepository(db.changeEventDao(), db.supplyTypeDao())
-        val oversized = "x".repeat(10_000_001)
-
-        val summary = backup.importCsv(oversized)
-
-        assertTrue(summary.oversized)
-        assertEquals(0, summary.inserted)
-        assertEquals(0, db.changeEventDao().count().toInt())
+            val failure = assertIs<RestoreResult.Failure>(result)
+            assertEquals(RestoreError.OVERSIZED, failure.error)
+            assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+            assertEquals(0, db.changeEventDao().count().toInt())
+        } finally {
+            FileSystem.SYSTEM.delete(path.toPath(), mustExist = false)
+        }
     }
 
     // --- ChangeEventRepository inventory bookkeeping ---

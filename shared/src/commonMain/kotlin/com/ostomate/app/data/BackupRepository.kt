@@ -1,100 +1,103 @@
 package com.ostomate.app.data
 
+import com.ostomate.app.data.db.BackupDao
 import com.ostomate.app.data.db.ChangeEventDao
-import com.ostomate.app.data.db.ChangeEventEntity
+import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.SupplyTypeDao
-import com.ostomate.app.domain.CsvExporter
-import com.ostomate.app.domain.CsvV1Importer
-import com.ostomate.app.domain.CsvV2Importer
-import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
 
-data class ImportSummary(
-    val inserted: Int,
-    val skipped: Int,
-    val parseErrors: Int,
-    val oversized: Boolean = false,
-)
+/** Why a restore was refused; the UI maps each to an externalized, user-facing message. */
+enum class RestoreError {
+    OVERSIZED,
+    MALFORMED,
+    UNSUPPORTED_FORMAT_VERSION,
+    UNSUPPORTED_SCHEMA_VERSION,
+}
 
-private const val MAX_IMPORT_CHARS = 10_000_000 // ~10 MB; guards against oversized inputs
+sealed interface RestoreResult {
+    /** Data was replaced; counts are what was written. */
+    data class Success(val supplyTypes: Int, val events: Int) : RestoreResult
 
+    /** Nothing was touched; existing data is intact. */
+    data class Failure(val error: RestoreError) : RestoreResult
+}
+
+/** Current backup document version; bump when the JSON envelope shape changes. */
+const val BACKUP_FORMAT_VERSION = 1
+
+// ~10 MB char guard against pathological inputs, matching the previous CSV import guard.
+private const val MAX_BACKUP_CHARS = 10_000_000
+
+private val backupJson =
+    Json {
+        prettyPrint = true
+        encodeDefaults = true
+    }
+
+/**
+ * Full-state backup: exports every persisted row (ids and FKs intact) plus AppSettings as a
+ * single versioned JSON document, and restores it destructively so a new phone is an exact
+ * clone of the old one. Reads through the DAOs (never a raw .db copy) so uncheckpointed WAL
+ * data is included. See FEAT-00.
+ */
 class BackupRepository(
+    private val backupDao: BackupDao,
     private val eventDao: ChangeEventDao,
     private val supplyTypeDao: SupplyTypeDao,
+    private val settingsRepository: SettingsRepository,
 ) {
-    /** Returns the full event history as a v2 CSV string. */
-    suspend fun exportCsv(): String {
-        val events = eventDao.observeAllWithSupply().first()
-        return CsvExporter.buildCsv(events)
+    /** Serializes all supply types, all raw events, and the current settings to pretty JSON. */
+    suspend fun exportBackup(): String {
+        val envelope =
+            BackupEnvelope(
+                formatVersion = BACKUP_FORMAT_VERSION,
+                schemaVersion = OstomateDatabase.SCHEMA_VERSION,
+                exportedAt = currentTimeMillis(),
+                settings = settingsRepository.settings.first().toDto(),
+                supplyTypes = supplyTypeDao.getAll().map { it.toDto() },
+                events = eventDao.getAllRaw().map { it.toDto() },
+            )
+        return backupJson.encodeToString(envelope)
     }
 
     /**
-     * Imports a CSV backup (v1 or v2 format auto-detected).
-     * Maps BAG→first BAG supply, FLANGE→first FLANGE supply.
-     * Events whose timestamp already exists in the DB are skipped (idempotent).
+     * REPLACE restore. Validates the entire document in memory first; only if it is valid does
+     * it wipe and re-insert in a single DB transaction. On any failure the existing data is
+     * left untouched — never wipe first and fail second.
      */
-    suspend fun importCsv(csv: String): ImportSummary {
-        if (csv.length > MAX_IMPORT_CHARS) {
-            return ImportSummary(inserted = 0, skipped = 0, parseErrors = 0, oversized = true)
-        }
-        val bagSupply = supplyTypeDao.getByKind(SupplyKind.BAG)
-        val flangeSupply = supplyTypeDao.getByKind(SupplyKind.FLANGE)
-        val now = currentTimeMillis()
+    suspend fun restoreBackup(json: String): RestoreResult {
+        if (json.length > MAX_BACKUP_CHARS) return RestoreResult.Failure(RestoreError.OVERSIZED)
 
-        return if (CsvV2Importer.isV2(csv)) {
-            val result = CsvV2Importer.parse(csv)
-            var inserted = 0
-            var skipped = 0
-            for (row in result.rows) {
-                val supply =
-                    when (row.supplyKind) {
-                        "BAG" -> bagSupply
-                        "FLANGE" -> flangeSupply
-                        else -> null
-                    } ?: continue
-                if (eventDao.countByTimestamp(row.timestampMillis) > 0) {
-                    skipped++
-                    continue
-                }
-                eventDao.insert(
-                    ChangeEventEntity(
-                        supplyTypeId = supply.id,
-                        timestampMillis = row.timestampMillis,
-                        createdAtMillis = now,
-                        note = row.note,
-                    ),
-                )
-                supplyTypeDao.decrementOnHand(supply.id)
-                inserted++
-            }
-            ImportSummary(inserted = inserted, skipped = skipped, parseErrors = result.parseErrors)
-        } else {
-            val result = CsvV1Importer.parse(csv)
-            var inserted = 0
-            var skipped = 0
-            for (row in result.rows) {
-                val supply =
-                    when (row.kind) {
-                        "BAG" -> bagSupply
-                        "FLANGE" -> flangeSupply
-                        else -> null
-                    } ?: continue
-                if (eventDao.countByTimestamp(row.timestampMillis) > 0) {
-                    skipped++
-                    continue
-                }
-                eventDao.insert(
-                    ChangeEventEntity(
-                        supplyTypeId = supply.id,
-                        timestampMillis = row.timestampMillis,
-                        createdAtMillis = now,
-                    ),
-                )
-                supplyTypeDao.decrementOnHand(supply.id)
-                inserted++
-            }
-            ImportSummary(inserted = inserted, skipped = skipped, parseErrors = result.parseErrors)
+        val envelope =
+            runCatching { backupJson.decodeFromString<BackupEnvelope>(json) }
+                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+
+        if (envelope.formatVersion != BACKUP_FORMAT_VERSION) {
+            return RestoreResult.Failure(RestoreError.UNSUPPORTED_FORMAT_VERSION)
         }
+        if (envelope.schemaVersion != OstomateDatabase.SCHEMA_VERSION) {
+            return RestoreResult.Failure(RestoreError.UNSUPPORTED_SCHEMA_VERSION)
+        }
+
+        // Map (and thereby validate enums) fully before touching the DB.
+        val supplies =
+            runCatching { envelope.supplyTypes.map { it.toEntity() } }
+                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+        val events =
+            runCatching { envelope.events.map { it.toEntity() } }
+                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+        val settings =
+            runCatching { envelope.settings.toAppSettings() }
+                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+
+        backupDao.replaceAll(supplies, events)
+        // Settings live in DataStore, a separate store from the SQLite DB, so they are written
+        // after the DB transaction commits rather than inside it.
+        settingsRepository.restore(settings)
+
+        return RestoreResult.Success(supplyTypes = supplies.size, events = events.size)
     }
 }

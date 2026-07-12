@@ -39,6 +39,10 @@ interface ChangeEventDao {
     @Query("SELECT * FROM change_events WHERE supplyTypeId = :supplyTypeId ORDER BY timestampMillis DESC")
     suspend fun getBySupplyType(supplyTypeId: Long): List<ChangeEventEntity>
 
+    /** Raw event rows, ids and FKs intact, for a full-state backup export. */
+    @Query("SELECT * FROM change_events")
+    suspend fun getAllRaw(): List<ChangeEventEntity>
+
     @Query(
         """
         SELECT e.*, s.name AS supplyName, s.kind AS supplyKind
