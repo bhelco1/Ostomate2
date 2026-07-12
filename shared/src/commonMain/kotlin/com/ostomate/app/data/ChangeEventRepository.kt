@@ -8,14 +8,18 @@ import com.ostomate.app.domain.DeepLinkParser
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 private const val DEEP_LINK_DEBOUNCE_MS = 3_000L
 
 class ChangeEventRepository(
     private val eventDao: ChangeEventDao,
     private val supplyTypeDao: SupplyTypeDao,
+    private val clock: () -> Long = { currentTimeMillis() },
 ) {
     private val lastScanMillis = mutableMapOf<String, Long>()
+    private val scanMutex = Mutex()
 
     fun observeEvents(): Flow<List<ChangeEventWithSupply>> = eventDao.observeAllWithSupply()
 
@@ -62,10 +66,18 @@ class ChangeEventRepository(
      */
     suspend fun handleDeepLink(uri: String): String? {
         val item = DeepLinkParser.parse(uri) ?: return null
-        val now = currentTimeMillis()
-        val last = lastScanMillis[item] ?: 0L
-        if (now - last < DEEP_LINK_DEBOUNCE_MS) return null
-        lastScanMillis[item] = now
+        val allowed =
+            scanMutex.withLock {
+                val now = clock()
+                val last = lastScanMillis[item] ?: 0L
+                if (now - last < DEEP_LINK_DEBOUNCE_MS) {
+                    false
+                } else {
+                    lastScanMillis[item] = now
+                    true
+                }
+            }
+        if (!allowed) return null
         val supply =
             when {
                 item == "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)

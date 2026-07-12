@@ -21,7 +21,7 @@ val dataModule =
         single<OstomateDatabase> { buildDatabase(get()) }
         single<ChangeEventDao> { get<OstomateDatabase>().changeEventDao() }
         single<SupplyTypeDao> { get<OstomateDatabase>().supplyTypeDao() }
-        singleOf(::ChangeEventRepository)
+        single { ChangeEventRepository(get(), get()) }
         singleOf(::SupplyRepository)
         singleOf(::SettingsRepository)
         singleOf(::NotificationScheduler)

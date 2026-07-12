@@ -2,6 +2,10 @@ package com.ostomate.app.data.db
 
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.domain.SupplyKind
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -88,5 +92,54 @@ object ChangeEventDaoScenarios {
         val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
         assertNull(repository.handleDeepLink("ostomate://log?item=evil"))
         assertEquals(0, db.changeEventDao().count())
+    }
+
+    /**
+     * Two deep links for the same item, delivered concurrently within the debounce window
+     * (the Android intent-replay race in BUG-09), must collapse to a single change event.
+     * The atomic [ChangeEventRepository] mutex guarantees the check-and-set is not
+     * interleaved even under real parallelism on [Dispatchers.Default].
+     */
+    suspend fun repositoryDeepLinkIsAtomicUnderConcurrency(db: OstomateDatabase) {
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+        assertEquals(0, bag.onHand)
+        db.supplyTypeDao().update(bag.copy(onHand = 5))
+
+        val results =
+            coroutineScope {
+                awaitAll(
+                    async(Dispatchers.Default) { repository.handleDeepLink("ostomate://log?item=bag") },
+                    async(Dispatchers.Default) { repository.handleDeepLink("ostomate://log?item=bag") },
+                )
+            }
+
+        // Exactly one call is allowed through; the other is debounced to null.
+        assertEquals(1, results.count { it == "Bag" })
+        assertEquals(1, results.count { it == null })
+        assertEquals(1, db.changeEventDao().count())
+        assertEquals(4, assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG)).onHand)
+    }
+
+    /**
+     * Two scans of the same item more than the 3 s debounce window apart are both real
+     * changes and must each insert. A test clock advances past the window without waiting.
+     */
+    suspend fun repositoryDeepLinkAllowsSecondScanAfterWindow(db: OstomateDatabase) {
+        var nowMillis = 100_000L
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao()) { nowMillis }
+        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+        db.supplyTypeDao().update(bag.copy(onHand = 5))
+
+        assertEquals("Bag", repository.handleDeepLink("ostomate://log?item=bag"))
+        // Still inside the 3 s window: debounced.
+        nowMillis += 2_000L
+        assertNull(repository.handleDeepLink("ostomate://log?item=bag"))
+        // Past the window: allowed.
+        nowMillis += 1_500L
+        assertEquals("Bag", repository.handleDeepLink("ostomate://log?item=bag"))
+
+        assertEquals(2, db.changeEventDao().count())
+        assertEquals(3, assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG)).onHand)
     }
 }

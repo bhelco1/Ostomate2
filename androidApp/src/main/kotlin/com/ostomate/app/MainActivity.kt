@@ -35,7 +35,11 @@ class MainActivity : FragmentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-        handleDeepLink(intent)
+        // Only handle on a fresh start. On recreation (rotation, permission dialog,
+        // process-death restore) the same launch intent is re-delivered and must not re-log.
+        if (savedInstanceState == null) {
+            handleDeepLink(intent)
+        }
     }
 
     override fun onDestroy() {
@@ -47,11 +51,14 @@ class MainActivity : FragmentActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         handleDeepLink(intent)
     }
 
     private fun handleDeepLink(intent: Intent?) {
         val uri = intent?.data?.toString() ?: return
+        // Consume the link so a later Activity recreation cannot replay the same scan.
+        intent.data = null
         lifecycleScope.launch {
             val supply = repository.handleDeepLink(uri)
             DeepLinkBus.post(supply)

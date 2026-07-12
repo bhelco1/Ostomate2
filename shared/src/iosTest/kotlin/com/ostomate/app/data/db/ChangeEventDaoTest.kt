@@ -40,4 +40,12 @@ class ChangeEventDaoTest {
     @Test
     fun repositoryIgnoresInvalidDeepLink() =
         runTest { ChangeEventDaoScenarios.repositoryIgnoresInvalidDeepLink(db) }
+
+    @Test
+    fun repositoryDeepLinkIsAtomicUnderConcurrency() =
+        runTest { ChangeEventDaoScenarios.repositoryDeepLinkIsAtomicUnderConcurrency(db) }
+
+    @Test
+    fun repositoryDeepLinkAllowsSecondScanAfterWindow() =
+        runTest { ChangeEventDaoScenarios.repositoryDeepLinkAllowsSecondScanAfterWindow(db) }
 }
