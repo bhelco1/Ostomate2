@@ -9,6 +9,7 @@ import com.ostomate.app.ui.MainDispatcherTest
 import com.ostomate.app.ui.RecordingNotifier
 import com.ostomate.app.ui.keepSubscribed
 import com.ostomate.app.ui.testSupply
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -132,5 +133,69 @@ class HomeViewModelTest : MainDispatcherTest() {
 
             assertTrue(notifier.scheduled.isNotEmpty())
             assertEquals("reorder-$bagId", notifier.scheduled.last().tag)
+        }
+
+    /**
+     * Logs a supply, advances a fake clock 5 minutes (inside the 10-minute confirm
+     * window), then logs it again so the second call raises a pending confirmation
+     * instead of writing a second event.
+     */
+    private suspend fun TestScope.confirmationFixture(): Pair<HomeViewModel, Long> {
+        var now = 1_700_000_000_000L
+        val repo = ChangeEventRepository(eventDao, supplyDao, clock = { now })
+        val (bagId) = supplyDao.seed(testSupply(name = "Bag", onHand = 10))
+        repo.logChangeAt(bagId, now)
+        now += 5 * 60_000L
+
+        val vm =
+            HomeViewModel(
+                eventRepository = repo,
+                supplyRepository = SupplyRepository(supplyDao),
+                notificationScheduler = NotificationScheduler(notifier),
+            )
+        keepSubscribed(vm.uiState)
+        advanceUntilIdle()
+
+        vm.logChange(vm.uiState.value.supplies.single().supply)
+        advanceUntilIdle()
+        return vm to bagId
+    }
+
+    @Test
+    fun rapidRepeatLogWithinWindowRaisesConfirmationWithoutWriting() =
+        runTest {
+            val (vm, bagId) = confirmationFixture()
+
+            val confirmation = vm.uiState.value.pendingConfirmation
+            assertNotNull(confirmation)
+            assertEquals(bagId, confirmation.supplyId)
+            assertEquals("Bag", confirmation.supplyName)
+            assertEquals(5, confirmation.minutesAgo)
+            assertEquals(1, eventDao.count().toInt())
+        }
+
+    @Test
+    fun confirmPendingLogCommitsTheHeldChangeAndClearsConfirmation() =
+        runTest {
+            val (vm, _) = confirmationFixture()
+
+            vm.confirmPendingLog()
+            advanceUntilIdle()
+
+            assertNull(vm.uiState.value.pendingConfirmation)
+            assertEquals(2, eventDao.count().toInt())
+            assertNotNull(vm.uiState.value.pendingUndo)
+        }
+
+    @Test
+    fun dismissPendingConfirmationClearsWithoutWriting() =
+        runTest {
+            val (vm, _) = confirmationFixture()
+
+            vm.dismissPendingConfirmation()
+            advanceUntilIdle()
+
+            assertNull(vm.uiState.value.pendingConfirmation)
+            assertEquals(1, eventDao.count().toInt())
         }
 }

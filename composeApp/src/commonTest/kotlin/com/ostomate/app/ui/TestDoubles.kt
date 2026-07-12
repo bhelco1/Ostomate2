@@ -116,6 +116,9 @@ class FakeChangeEventDao(private val supplyDao: FakeSupplyTypeDao) : ChangeEvent
 
     override suspend fun getAllRaw(): List<ChangeEventEntity> = state.value
 
+    override suspend fun latestTimestampForSupply(supplyTypeId: Long): Long? =
+        state.value.filter { it.supplyTypeId == supplyTypeId }.maxOfOrNull { it.timestampMillis }
+
     override suspend fun count(): Long = state.value.size.toLong()
 
     override suspend fun countByTimestamp(millis: Long): Int = state.value.count { it.timestampMillis == millis }
