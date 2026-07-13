@@ -17,12 +17,17 @@ Planning docs live in `planning/` within this repo:
 
 Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
-## Current status (2026-07-02)
+## Current status (2026-07-13)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.4 done.**
-Shared: 86 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
-JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
+**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.5 + 2.5.7 done.**
+JVM host gate: 79 shared tests + 57 composeApp tests (47 ViewModel/UiState + 10 Roborazzi
+screenshot tests). JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
 ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
+
+Screenshot baselines live in `composeApp/screenshots/` and are verified by
+`:composeApp:testAndroidHostTest`. After an intended UI change, re-record with
+`./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record` and commit the PNGs —
+anything captured must stay deterministic (no wall-clock reads; see `ScreenshotTest.kt`).
 
 ## Stack
 

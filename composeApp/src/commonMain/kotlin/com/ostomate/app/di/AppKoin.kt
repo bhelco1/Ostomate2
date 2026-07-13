@@ -11,9 +11,13 @@ import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 val uiModule =
     module {
+        // Injected rather than read statically so screenshot tests can pin "today": a
+        // wall-clock read inside a ViewModel changes its rendered output every day.
+        single<Clock> { Clock.System }
         viewModelOf(::HomeViewModel)
         viewModelOf(::HistoryViewModel)
         viewModelOf(::CalendarViewModel)

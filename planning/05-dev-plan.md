@@ -238,12 +238,27 @@ optional check later if belt-and-suspenders wanted.
   (the clusters where device bugs appeared).
 - **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite.
 
-### 2.5.7 — Screenshot tests ⬜
-- Screenshot-diff coverage for Home, Onboarding, Calendar, QrLabels (catches
-  layout regressions like BUG-03 keyboard overlap).
-- Engine (Roborazzi vs Paparazzi vs Compose-native) is the one deferred decision
-  in `08` §8 — pick it when starting this item.
-- **Done when:** baseline images committed; diffs fail CI on layout change.
+### 2.5.7 — Screenshot tests ✅ (2026-07-13)
+- **Engine: Roborazzi** (`08` §8 decision closed). Runs under the Robolectric setup
+  the repo already had, inside `:composeApp:testAndroidHostTest` — no new CI job,
+  no emulator, no new recurring cost.
+- [x] 10 baselines committed in `composeApp/screenshots/`: Home (3: stocked, low
+      stock, empty), Onboarding (3: appliance type, **counts — the BUG-03 screen**,
+      QR explainer), Calendar (2: month with events, empty month), QrLabels (2: grid,
+      empty).
+- [x] Screens render from the real ViewModels over the existing DAO/platform fakes
+      (`FakeSupplyTypeDao`, `FakeChangeEventDao`, `InMemoryDataStore`), so a baseline
+      is state the app can actually produce, not a hand-built preview.
+- [x] Determinism: `CalendarViewModel` takes an injected `Clock` (Koin `single<Clock>`)
+      and `HomeScreen` an injectable `today`; screenshot runs pin both to 2026-03-15
+      and the JVM zone to UTC. Device size/density pinned by Robolectric qualifiers.
+      No tolerance — `changeThreshold = 0`, any changed pixel fails.
+- [x] CI: verification is on by default in the existing gate; a mismatch fails the
+      build and uploads the `screenshot-diffs` artifact (reference | diff | new).
+      Adds ~11 s to the ubuntu `android` job.
+- Re-record after an intended UI change:
+  `./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record`, then commit the PNGs.
+- **Done when** ✅: baseline images committed; diffs fail CI on layout change.
 
 ### 2.5.8 — Wire orphan Maestro flows ⬜
 - Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI

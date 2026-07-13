@@ -37,6 +37,7 @@ import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
 import com.ostomate.app.resources.home_snackbar_logged_count
 import com.ostomate.app.ui.components.SupplyCard
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +54,8 @@ private val MONTH_NAMES =
 fun HomeScreen(
     onNavigateToHistory: (supplyId: Long) -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
+    // Injectable so screenshot tests pin the header date; production reads the wall clock.
+    today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -101,7 +104,7 @@ fun HomeScreen(
                 Column {
                     Text("Ostomate", style = MaterialTheme.typography.headlineMedium)
                     Text(
-                        todayDateLabel(),
+                        todayDateLabel(today),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -163,13 +166,11 @@ fun HomeScreen(
     }
 }
 
-private fun todayDateLabel(): String {
-    val tz = TimeZone.currentSystemDefault()
-    val now = Clock.System.now().toLocalDateTime(tz)
+private fun todayDateLabel(date: LocalDate): String {
     val dow =
-        now.dayOfWeek.name
+        date.dayOfWeek.name
             .lowercase()
             .replaceFirstChar { it.uppercase() }
-    val month = MONTH_NAMES[now.monthNumber - 1]
-    return "$dow, $month ${now.dayOfMonth}"
+    val month = MONTH_NAMES[date.monthNumber - 1]
+    return "$dow, $month ${date.dayOfMonth}"
 }
