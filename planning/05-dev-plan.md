@@ -252,7 +252,13 @@ optional check later if belt-and-suspenders wanted.
 - [x] Determinism: `CalendarViewModel` takes an injected `Clock` (Koin `single<Clock>`)
       and `HomeScreen` an injectable `today`; screenshot runs pin both to 2026-03-15
       and the JVM zone to UTC. Device size/density pinned by Robolectric qualifiers.
-      No tolerance — `changeThreshold = 0`, any changed pixel fails.
+- [x] `changeThreshold = 0.2%` of pixels — **measured, not guessed.** Baselines are
+      recorded on macOS/arm64 but verified on ubuntu CI, and the two platforms' native
+      Skia builds antialias curves/text differently: up to **0.08%** of pixels across the
+      10 baselines. A *one-dp* padding change moves **1.3–1.8%**. 0.2% sits ~2.5x above the
+      noise and ~6.5x below the smallest regression, so the suite is portable between the
+      M1 and CI without going blind. Verified in both directions: a 1dp change still fails.
+      Raising this to silence a failure defeats the item — re-record instead.
 - [x] CI: verification is on by default in the existing gate; a mismatch fails the
       build and uploads the `screenshot-diffs` artifact (reference | diff | new).
       Adds ~11 s to the ubuntu `android` job.

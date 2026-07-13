@@ -280,3 +280,6 @@ of this is implemented yet — this document is the plan, not the change.
       Baselines: `composeApp/screenshots/` (committed). Re-record with
       `./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record`; a mismatch fails
       the build and uploads a reference|diff|new triptych as the `screenshot-diffs` artifact.
+      Pixel tolerance is 0.2%, the measured midpoint between macOS-vs-ubuntu antialiasing
+      noise (≤0.08%) and the smallest regression worth catching (a 1dp padding change moves
+      1.3–1.8%). See `ScreenshotTest.kt` — treat that number as a measurement, not a dial.

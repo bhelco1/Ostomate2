@@ -116,12 +116,24 @@ abstract class ScreenshotTest {
          * failure artifacts — actual + side-by-side diff — go to `roborazzi.compare.output.dir`
          * under `build/`, so a failing run never dirties the committed baselines.
          *
-         * changeThreshold = 0: any changed pixel fails. A tolerance here is what turns a
-         * screenshot suite into decoration.
+         * changeThreshold: fraction of pixels allowed to differ. It is NOT a free-form fudge
+         * factor — it is the measured gap between noise and signal:
+         *
+         *  - noise: the same screen rendered on macOS/arm64 (where baselines are recorded) and
+         *    on the ubuntu CI runner differs by up to 0.08% of pixels — antialiasing on curved
+         *    and text edges, from the two platforms' native Skia builds. Measured 2026-07-13
+         *    across all 10 baselines; worst case onboarding_appliance_type at 0.0786%.
+         *  - signal: a *one-dp* padding change moves 1.3–1.8% of pixels.
+         *
+         * 0.2% sits ~2.5x above the noise and ~6.5x below the smallest regression measured, so
+         * the suite is portable between Bobby's M1 and CI without going blind. Raising this to
+         * paper over a failure is how a screenshot suite becomes decoration — re-record instead.
          */
+        const val CHANGE_THRESHOLD = 0.002f
+
         val ROBORAZZI_OPTIONS =
             RoborazziOptions(
-                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = 0f),
+                compareOptions = RoborazziOptions.CompareOptions(changeThreshold = CHANGE_THRESHOLD),
             )
     }
 }
