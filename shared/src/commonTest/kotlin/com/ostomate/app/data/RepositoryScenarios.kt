@@ -197,6 +197,60 @@ object RepositoryScenarios {
         assertEquals(1, db.changeEventDao().count().toInt())
     }
 
+    /**
+     * Regression: logging a change with 0 on hand wrote -1 to the database. Found on 2026-07-13
+     * by the cold-start deep-link E2E flow, which showed "-1 on hand" on the Home card (and the
+     * value persisted into backups, and drove "0 days remaining" + a reorder warning).
+     */
+    suspend fun loggingAtZeroOnHandNeverGoesNegative(db: OstomateDatabase) {
+        val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        val supplyDao = db.supplyTypeDao()
+        val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
+        supplyDao.setOnHand(bag.id, 0)
+
+        events.logChangeAt(bag.id, 1_000)
+
+        assertEquals(0, supplyDao.getById(bag.id)?.onHand)
+        // The change itself is still recorded — only the count is clamped.
+        assertEquals(1, db.changeEventDao().count().toInt())
+    }
+
+    /**
+     * The trap that a naive clamp falls into: with the decrement clamped at zero, undoing a log
+     * made at 0 on hand must NOT hand back a unit that was never taken. undoLog() restores the
+     * captured prior count rather than blindly incrementing.
+     */
+    suspend fun undoingALogAtZeroDoesNotInventInventory(db: OstomateDatabase) {
+        val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        val supplyDao = db.supplyTypeDao()
+        val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
+        supplyDao.setOnHand(bag.id, 0)
+
+        val logged = events.logChangeAt(bag.id, 1_000)
+        assertEquals(0, supplyDao.getById(bag.id)?.onHand)
+
+        events.undoLog(logged, restoreOnHand = 0)
+
+        assertEquals(0, supplyDao.getById(bag.id)?.onHand)
+        assertEquals(0, db.changeEventDao().count().toInt())
+    }
+
+    /** undoLog on a normal (unclamped) log still restores the exact prior count. */
+    suspend fun undoLogRestoresThePriorCount(db: OstomateDatabase) {
+        val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        val supplyDao = db.supplyTypeDao()
+        val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
+        supplyDao.setOnHand(bag.id, 7)
+
+        val logged = events.logChangeAt(bag.id, 1_000)
+        assertEquals(6, supplyDao.getById(bag.id)?.onHand)
+
+        events.undoLog(logged, restoreOnHand = 7)
+
+        assertEquals(7, supplyDao.getById(bag.id)?.onHand)
+        assertEquals(0, db.changeEventDao().count().toInt())
+    }
+
     suspend fun updateStampsEditedAt(db: OstomateDatabase) {
         val events = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
         val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))

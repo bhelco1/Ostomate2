@@ -1,0 +1,62 @@
+appId: com.ostomate.app
+name: "iOS Journey 5: Backup export → share sheet"
+# iOS variant of 05_backup_round_trip.yaml. The Android flow ends with `pressKey: BACK`
+# to dismiss the Android share sheet, which is a no-op on iOS and asserts nothing.
+#
+# Here the UIActivityViewController is inspectable, so this flow asserts what the
+# Android one cannot: that the share sheet actually offers the JSON backup file
+# (FEAT-00 — the custom-supply data-loss bug this feature exists to prevent).
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# Log events so the backup has content.
+- tapOn:
+    id: "logButton"
+    index: 0
+- waitForAnimationToEnd
+- tapOn:
+    id: "logButton"
+    index: 1
+    optional: true
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Settings"
+- extendedWaitUntil:
+    visible:
+      text: "Backup"
+    timeout: 10000
+
+# Export the JSON backup. Targeted by testTag: Settings has both "Export backup"
+# and "Export log", so text-matching on "Export" is ambiguous (and FEAT-00 deleted
+# the old CSV export entirely).
+- tapOn:
+    id: "exportBackupButton"
+- waitForAnimationToEnd
+
+# The iOS share sheet names the attachment — assert the backup file is really there.
+- extendedWaitUntil:
+    visible:
+      text: "ostomate_backup_.*"
+    timeout: 15000
+- assertVisible:
+    text: "JSON.*"
+
+# Dismiss the share sheet and confirm we are back in Settings.
+- tapOn:
+    text: "dismiss popup"
+- extendedWaitUntil:
+    visible:
+      text: "Manage Supplies"
+    timeout: 10000

@@ -2,10 +2,17 @@
 
 ## Privacy Posture: Local-First
 
-- **No network calls.** The app makes zero outbound requests. No analytics, no telemetry, no usage tracking.
+- **No analytics, no telemetry, no usage tracking.** Nothing reports how you use the app.
+- **One outbound path, opt-in and off by default: crash reporting.** Everything else stays
+  on-device. This document previously said "zero outbound requests", which was false — the
+  app ships a crash reporter (see below). Store forms must be answered against reality.
 - **No account system.** There is no login, no server, no cloud sync.
 - **All data on-device.** Room database lives in the app's private storage. Never exported without explicit user action.
-- **Crash reporting only.** Release builds include Firebase Crashlytics — stack traces only, no health data, no supply counts, no PII.
+- **Crash reporting: Sentry, opt-in, OFF by default.** `sentry-android` on Android and
+  sentry-cocoa on iOS (started from `iOSApp.swift`, gated on `SentryBridgeKt.sentryEnabled()`),
+  both behind the `crashReportingEnabled` setting. Stack traces only — no health data, no
+  supply counts, no PII. (Earlier drafts said *Firebase Crashlytics*; that is not what ships
+  and never was — corrected 2026-07-13.)
 
 ## Biometric Authentication
 
@@ -40,8 +47,8 @@ CSV export via `CsvExporter` + `FileSharer`:
 | Threat | Mitigation |
 |---|---|
 | Unauthorized settings access | Biometric lock on every Settings visit |
-| Data exfiltration | No network; share sheet is user-initiated |
-| Supply data in crash reports | Crashlytics captures stack traces only; no custom logging of health data |
+| Data exfiltration | No network except opt-in crash reporting (off by default); share sheet is user-initiated |
+| Supply data in crash reports | Sentry captures stack traces only; no custom logging of health data |
 | Screenshot of sensitive screen | FLAG_SECURE on Android Settings window |
 | Lost/replaced device | Android Auto Backup (encrypted); iOS: no iCloud backup (future work) |
 

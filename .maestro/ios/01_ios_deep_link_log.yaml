@@ -1,0 +1,71 @@
+appId: com.ostomate.app
+name: "iOS Journey 1: Cold-start QR deep link"
+# iOS variant of 01_cold_start_qr_log.yaml.
+#
+# The Android flow passes the deep link as `launchApp.arguments.url`. On iOS that is
+# only a launch argument — it never reaches `onOpenURL`, so nothing gets logged.
+# `openLink` is what actually drives the ostomate:// scheme, and it reproduces a real
+# QR scan: the first time a custom scheme is opened, iOS asks "Open in Ostomate?".
+#
+# That one-time dialog is the whole reason this flow has two halves. The snackbar it
+# asserts lives ~4s; an `optional: true` tap on an absent "Open" button blocks for
+# ~7s first, so the snackbar expires before the assertion runs and the flow fails
+# intermittently. So: grant the scheme trust in a throwaway pass, then run the real
+# cold-start deep link with nothing that can race the snackbar.
+---
+# ---- Pass 1: grant the one-time URL-scheme trust (and notification permission). ----
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
+- stopApp
+- openLink: "ostomate://log?item=bag"
+- tapOn:
+    text: "Open"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 25000
+
+# ---- Pass 2: the real cold-start deep link. ----
+# clearState wipes the event logged above; the scheme trust granted above persists.
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- stopApp
+
+# Cold start straight from the deep link, exactly as the camera/QR scanner does.
+- openLink: "ostomate://log?item=bag"
+
+# The buffered DeepLinkBus event fires the snackbar once MainApp composes. No dialog
+# can appear here, so nothing eats the ~4s the snackbar is on screen.
+- extendedWaitUntil:
+    visible:
+      text: "Logged: Bag"
+    timeout: 25000
+
+# The event really reached the DB — an event row shows up in History.
+- tapOn:
+    id: "overflowButton"
+    index: 0
+- tapOn:
+    text: "View history"
+- extendedWaitUntil:
+    visible:
+      id: "eventRow"
+    timeout: 10000

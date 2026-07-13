@@ -10,27 +10,30 @@ name: "Journey 8: Biometric gate on Settings"
     optional: true
 
 # Wait for home screen
-- assertVisible:
-    text: "Ostomate"
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
     timeout: 5000
 
 # Enable biometric lock in Settings
 - tapOn:
-    text: "Settings"
-- assertVisible:
-    text: "Biometric Lock"
+    id: "nav_settings"
+- extendedWaitUntil:
+    visible:
+      text: "Biometric Lock"
     timeout: 3000
 - tapOn:
     id: "biometricLockSwitch"
 
 # Navigate away then back to trigger the re-lock on ON_RESUME
 - tapOn:
-    text: "Home"
+    id: "nav_home"
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 
 # On emulator without enrolled biometrics: NotEnrolled → auto-unlock.
 # Settings content becomes visible once auto-unlock completes.
-- assertVisible:
-    text: "Manage Supplies"
+- extendedWaitUntil:
+    visible:
+      text: "Manage Supplies"
     timeout: 4000

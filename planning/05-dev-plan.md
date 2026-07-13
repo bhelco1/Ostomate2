@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.5 ✅, 2.5.6+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.6 ✅, 2.5.7+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -113,7 +113,31 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - Fixed: biometric gate moved from Settings screen to count-editing action only
 - Fixed: biometric session resets on ManageSupplies exit
 
-### 2.3 — Maestro E2E All Green ✅
+### 2.3 — Maestro E2E All Green ✅ (genuinely, as of 2026-07-13 — see the correction below)
+
+> **This item was marked ✅ on 2026-06-xx without the suite ever having passed — or ever
+> having run.** Corrected 2026-07-13, when the flows executed green for the first time
+> (run 29271755324: 02, 03, 04, 05, 08 all PASS). The fixes listed below were real, but they
+> were never verified, and underneath them sat defects that could not have passed even once:
+>
+> - Text matchers were globs fed to a **regex** engine. `"Set*count"` means "Se" + zero-or-more
+>   "t" + "count" — it can never match "Set Bag count".
+> - **No `id:` selector could ever resolve**: `testTagsAsResourceId` was never set, so Compose
+>   testTags were never published to the accessibility tree at all.
+> - Selectors inside dialogs still could not resolve after that, because a Compose dialog is a
+>   separate window with its own composition root.
+> - `swipe: element:` is not a Maestro key (it is `from:`), so the delete gesture silently
+>   degraded to a swipe across empty screen.
+> - Even with `from:`, an element swipe travels ~40% of screen width while `SwipeToDismissBox`
+>   needs 50% of the row width — it *cannot* dismiss, at any duration.
+> - `clearText` is not a Maestro command (`eraseText` is).
+> - The emulator had no `-no-window`, so it could never boot on a headless runner.
+> - `tapOn: text: "Home"` matched the emulator's **system** Home button, backgrounding the app.
+>
+> **Lesson (now in CLAUDE.md): never mark a test item done without a run showing execution
+> counts.** A gate that only runs post-merge gates nothing, and a suite nobody has watched
+> pass is a suite that does not pass.
+
 - Fixed all 5 CI flows (02–05, 08):
   - All flows: added `tapOn: "Skip" optional: true` to handle fresh onboarding after `clearState: true`
   - Flow 01: fixed wildcard `id: "overflowButton_*"` → `id: "overflowButton"` with `index: 0`
@@ -232,11 +256,23 @@ optional check later if belt-and-suspenders wanted.
       codecov.io after signing in with GitHub).
 - **Done when** ✅: suite health + coverage trend readable without opening CI logs.
 
-### 2.5.6 — iOS E2E ⬜
-*Biggest remaining hole — iOS correctness is 100% manual today.*
-- Maestro on the iOS simulator for onboarding, log, share, and deep-link flows
-  (the clusters where device bugs appeared).
-- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite.
+### 2.5.6 — iOS E2E ✅
+*Was the biggest remaining hole — iOS correctness had been 100% manual.*
+- New `ios-e2e` CI job: creates a fresh iPhone simulator, builds + installs the app,
+  runs Maestro. Post-merge / `workflow_dispatch` only, same gate as `android-e2e`.
+- Covers the clusters where device bugs appeared: onboarding (`ios/00`), deep link
+  (`ios/01`), log a change (`ios/02`), backup/share (`ios/05`), plus the reused
+  platform-neutral `08_biometric_gate.yaml`.
+- iOS variants exist because Maestro full-string-matches `text:` on iOS, because
+  `launchApp.arguments.url` does not trigger `onOpenURL` (use `openLink`), and
+  because `pressKey: BACK` / `hideKeyboard` are no-ops there. Android flows untouched.
+- Onboarding was previously skipped by every flow on both platforms; `ios/00` is the
+  first automated test that walks the wizard.
+- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite. ✅
+
+**Known gap left for 2.5.8:** `04_set_inventory.yaml` uses `clearText`, which is not
+a Maestro command (it is `eraseText`) and is a hard error in 2.x — so it cannot run on
+either platform yet, and is not in the iOS job.
 
 ### 2.5.7 — Screenshot tests ✅ (2026-07-13)
 - **Engine: Roborazzi** (`08` §8 decision closed). Runs under the Robolectric setup
@@ -321,12 +357,17 @@ See `planning/07-business-plan.md` and `docs/store-listing.md`.
 
 - Google Play: store listing content + screenshots (5 minimum)
 - App Store Connect: metadata + screenshots (6.7" + 5.5" required)
-- Privacy policy URL: GitHub Pages at this repo's `/docs/privacy-policy.html`
+- Privacy policy URL: **https://bhelco1.github.io/Ostomate2/** (serves `docs/privacy.html`).
+  There is no `/docs/privacy-policy.html` — that path never existed.
 
-### 3.5 — Enable GitHub Pages ⬜
+### 3.5 — Enable GitHub Pages ✅ (already live; verified 2026-07-13)
 
-Settings → Pages → Source: main, folder `/docs`.
-Verify privacy policy is live at the public URL before store submission.
+Pages is **already enabled**: source `main` / folder `/docs`, published at
+https://bhelco1.github.io/Ostomate2/, where `docs/index.html` redirects to
+`docs/privacy.html`. Nothing to do here — this item was stale, not pending.
+
+Before store submission, re-verify the page loads and that its crash-reporting section
+still matches what the app actually does.
 
 ---
 
@@ -353,7 +394,8 @@ Verify privacy policy is live at the public URL before store submission.
 
 ### 5.1 — Real-Device Test Period (minimum 3–5 days) ⬜
 - Use app daily on primary devices
-- Monitor Firebase Crashlytics for crashes
+- Monitor **Sentry** for crashes (not Crashlytics — that was never what shipped). Note it is
+  opt-in and OFF by default, so enable it on the test devices or you will see nothing.
 - File GitHub Issues for any bugs found
 
 ### 5.2 — Pre-Release Audit ⬜
