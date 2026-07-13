@@ -42,17 +42,22 @@ class ChangeEventRepository(
 
     fun observeBySupply(supplyTypeId: Long): Flow<List<ChangeEventWithSupply>> = eventDao.observeBySupply(supplyTypeId)
 
-    suspend fun logChange(supplyTypeId: Long): ChangeEventEntity = logChangeAt(supplyTypeId, clock())
+    suspend fun logChange(
+        supplyTypeId: Long,
+        source: ChangeSource = ChangeSource.MANUAL,
+    ): ChangeEventEntity = logChangeAt(supplyTypeId, clock(), source = source)
 
     suspend fun logChangeAt(
         supplyTypeId: Long,
         timestampMillis: Long,
         createdAtMillis: Long = timestampMillis,
+        source: ChangeSource = ChangeSource.MANUAL,
     ): ChangeEventEntity {
         val event =
             ChangeEventEntity(
                 supplyTypeId = supplyTypeId,
                 timestampMillis = timestampMillis,
+                tags = source.tag,
                 createdAtMillis = createdAtMillis,
             )
         val id = eventDao.insert(event)
@@ -93,8 +98,11 @@ class ChangeEventRepository(
     }
 
     /** Logs a change unconditionally (used to confirm a rapid repeat) and returns the supply name. */
-    suspend fun forceLogChange(supplyTypeId: Long): String {
-        logChange(supplyTypeId)
+    suspend fun forceLogChange(
+        supplyTypeId: Long,
+        source: ChangeSource = ChangeSource.MANUAL,
+    ): String {
+        logChange(supplyTypeId, source)
         return supplyTypeDao.getById(supplyTypeId)?.name.orEmpty()
     }
 
@@ -162,7 +170,7 @@ class ChangeEventRepository(
         if (minutesAgo != null) {
             return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo)
         }
-        val event = logChange(supply.id)
+        val event = logChange(supply.id, ChangeSource.QR)
         onLogged(event.id)
         return DeepLinkOutcome.Logged(supply.name)
     }

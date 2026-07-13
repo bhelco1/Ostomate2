@@ -38,6 +38,14 @@ class ChangeEventDaoTest {
         runTest { ChangeEventDaoScenarios.repositoryHandlesValidDeepLink(db) }
 
     @Test
+    fun deepLinkLogTagsEventWithQrSource() =
+        runTest { ChangeEventDaoScenarios.deepLinkLogTagsEventWithQrSource(db) }
+
+    @Test
+    fun manualLogTagsEventWithManualSource() =
+        runTest { ChangeEventDaoScenarios.manualLogTagsEventWithManualSource(db) }
+
+    @Test
     fun repositoryIgnoresInvalidDeepLink() =
         runTest { ChangeEventDaoScenarios.repositoryIgnoresInvalidDeepLink(db) }
 

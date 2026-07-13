@@ -1,6 +1,7 @@
 package com.ostomate.app.data.db
 
 import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.ChangeSource
 import com.ostomate.app.data.DeepLinkOutcome
 import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
 import com.ostomate.app.data.diagnostics.DiagnosticLog
@@ -88,6 +89,21 @@ object ChangeEventDaoScenarios {
         assertEquals(event.timestampMillis, event.createdAtMillis)
         assertNull(event.editedAtMillis)
         assertEquals(1, db.changeEventDao().count())
+    }
+
+    suspend fun deepLinkLogTagsEventWithQrSource(db: OstomateDatabase) {
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        repository.handleDeepLink("ostomate://log?item=bag")
+        val stored = db.changeEventDao().getAllRaw().single()
+        assertEquals(ChangeSource.QR, ChangeSource.fromTags(stored.tags))
+    }
+
+    suspend fun manualLogTagsEventWithManualSource(db: OstomateDatabase) {
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))
+        repository.logChange(bag.id)
+        val stored = db.changeEventDao().getAllRaw().single()
+        assertEquals(ChangeSource.MANUAL, ChangeSource.fromTags(stored.tags))
     }
 
     suspend fun repositoryHandlesValidDeepLink(db: OstomateDatabase) {

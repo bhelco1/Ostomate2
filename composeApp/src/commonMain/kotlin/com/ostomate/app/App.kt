@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.ostomate.app.data.ChangeEventRepository
+import com.ostomate.app.data.ChangeSource
 import com.ostomate.app.data.DeepLinkOutcome
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.DeepLinkBus
@@ -140,7 +141,7 @@ private fun MainApp() {
                     onClick = {
                         pendingDeepLinkConfirm = null
                         scope.launch {
-                            eventRepository.logChange(confirm.supplyId)
+                            eventRepository.logChange(confirm.supplyId, ChangeSource.QR)
                             snackbarHostState.showSnackbar(loggedMsg.replace("%1\$s", confirm.supplyName))
                         }
                     },
