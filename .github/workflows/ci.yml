@@ -175,8 +175,12 @@ jobs:
           arch: x86_64
           profile: pixel_4
           disable-animations: true
-          emulator-options: -no-snapshot -noaudio -no-boot-anim
-          boot-timeout: 600
+          # -no-window + swiftshader_indirect are required on a headless runner: without
+          # them the emulator waits on a display that never appears and boot times out.
+          emulator-options: >-
+            -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+            -camera-back none -camera-front none
+          boot-timeout: 900
           script: |
             adb start-server
             adb wait-for-device
