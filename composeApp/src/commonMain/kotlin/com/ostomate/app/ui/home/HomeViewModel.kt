@@ -36,7 +36,14 @@ class HomeViewModel(
     private val supplyRepository: SupplyRepository,
     private val notificationScheduler: NotificationScheduler,
 ) : ViewModel() {
-    private data class PendingUndo(val event: ChangeEventEntity, val supplyName: String, val onHandAfter: Int)
+    private data class PendingUndo(
+        val event: ChangeEventEntity,
+        val supplyName: String,
+        val onHandAfter: Int,
+        // Captured so undo restores the exact prior count. The log's decrement clamps at zero,
+        // so its inverse (+1) would invent a unit whenever the count was already 0.
+        val onHandBefore: Int,
+    )
 
     private data class PendingConfirm(val supply: SupplyTypeEntity, val minutesAgo: Int)
 
@@ -98,7 +105,13 @@ class HomeViewModel(
 
     private suspend fun recordLog(supply: SupplyTypeEntity) {
         val event = eventRepository.logChange(supply.id)
-        _pendingUndo.value = PendingUndo(event, supply.name, maxOf(0, supply.onHand - 1))
+        _pendingUndo.value =
+            PendingUndo(
+                event = event,
+                supplyName = supply.name,
+                onHandAfter = maxOf(0, supply.onHand - 1),
+                onHandBefore = supply.onHand,
+            )
     }
 
     fun confirmPendingLog() {
@@ -114,7 +127,7 @@ class HomeViewModel(
     fun undoLog() {
         viewModelScope.launch {
             val pending = _pendingUndo.value ?: return@launch
-            eventRepository.delete(pending.event)
+            eventRepository.undoLog(pending.event, pending.onHandBefore)
             _pendingUndo.value = null
         }
     }

@@ -57,6 +57,17 @@ class RepositoryTest {
         runTest { RepositoryScenarios.deleteRestocksAndReinsertConsumesInventory(db) }
 
     @Test
+    fun loggingAtZeroOnHandNeverGoesNegative() =
+        runTest { RepositoryScenarios.loggingAtZeroOnHandNeverGoesNegative(db) }
+
+    @Test
+    fun undoingALogAtZeroDoesNotInventInventory() =
+        runTest { RepositoryScenarios.undoingALogAtZeroDoesNotInventInventory(db) }
+
+    @Test
+    fun undoLogRestoresThePriorCount() = runTest { RepositoryScenarios.undoLogRestoresThePriorCount(db) }
+
+    @Test
     fun updateStampsEditedAt() = runTest { RepositoryScenarios.updateStampsEditedAt(db) }
 
     @Test

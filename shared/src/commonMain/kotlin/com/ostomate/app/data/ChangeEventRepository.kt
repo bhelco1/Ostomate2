@@ -71,6 +71,21 @@ class ChangeEventRepository(
         supplyTypeDao.incrementOnHand(event.supplyTypeId)
     }
 
+    /**
+     * Undoes a just-logged event, restoring inventory to exactly what it was before the log.
+     *
+     * Not the same as [delete]: a blind +1 would be wrong whenever the log's decrement was
+     * clamped at zero (log at 0 on hand → stays 0 → undo would hand back a unit that was never
+     * taken, inventing inventory). Restoring the captured prior count is exact either way.
+     */
+    suspend fun undoLog(
+        event: ChangeEventEntity,
+        restoreOnHand: Int,
+    ) {
+        eventDao.delete(event)
+        supplyTypeDao.setOnHand(event.supplyTypeId, restoreOnHand)
+    }
+
     /** Re-inserts a previously deleted event (undo-delete) and takes one unit from inventory. */
     suspend fun reinsert(event: ChangeEventEntity): ChangeEventEntity {
         val newId = eventDao.insert(event.copy(id = 0))
