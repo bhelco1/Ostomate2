@@ -193,11 +193,29 @@ jobs:
             adb wait-for-device
             until adb shell getprop sys.boot_completed 2>/dev/null | grep -q '1'; do sleep 3; done
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            maestro test .maestro/02_log_and_undo.yaml
-            maestro test .maestro/03_edit_delete_event.yaml
-            maestro test .maestro/04_set_inventory.yaml
-            maestro test .maestro/05_backup_round_trip.yaml
-            maestro test .maestro/08_biometric_gate.yaml
+            # Run every flow even after one fails, so a red run reports ALL broken flows
+            # instead of only the first — otherwise each CI cycle surfaces one bug at a time.
+            # --debug-output keeps the UI hierarchy + screenshots for the upload step below;
+            # "element not found" is unfixable without seeing the tree Maestro actually saw.
+            fail=0
+            for flow in \
+              .maestro/02_log_and_undo.yaml \
+              .maestro/03_edit_delete_event.yaml \
+              .maestro/04_set_inventory.yaml \
+              .maestro/05_backup_round_trip.yaml \
+              .maestro/08_biometric_gate.yaml; do
+              echo "::group::maestro $flow"
+              maestro test --debug-output maestro-debug "$flow" || fail=1
+              echo "::endgroup::"
+            done
+            exit $fail
+      - name: Upload Maestro debug output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-debug
+          path: maestro-debug/
+          if-no-files-found: ignore
 
   ios:
     name: iOS shared tests + app build

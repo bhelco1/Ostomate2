@@ -45,10 +45,15 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
       text: ".*Add an entry.*"
     timeout: 2000
 
-# Swipe down to dismiss sheet
-- swipe:
-    direction: DOWN
-    duration: 500
+# Dismiss the day-detail sheet. A bare coordinate swipe does not reliably dismiss a
+# ModalBottomSheet: the sheet stayed up, so the supply-card overflow button below it
+# was in the hierarchy but not hittable, and Maestro reported it as not found.
+# Press BACK and assert the sheet is actually gone before touching Home.
+- pressKey: BACK
+- extendedWaitUntil:
+    notVisible:
+      text: ".*Add an entry.*"
+    timeout: 3000
 
 # Navigate to History via supply card overflow
 - tapOn:
