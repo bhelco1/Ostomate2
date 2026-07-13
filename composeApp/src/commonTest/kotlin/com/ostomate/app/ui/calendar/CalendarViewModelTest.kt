@@ -39,7 +39,7 @@ class CalendarViewModelTest : MainDispatcherTest() {
     private val tz = TimeZone.currentSystemDefault()
     private val today = Clock.System.now().toLocalDateTime(tz).date
 
-    private fun viewModel() = CalendarViewModel(eventRepository, SupplyRepository(supplyDao))
+    private fun viewModel() = CalendarViewModel(eventRepository, SupplyRepository(supplyDao), Clock.System)
 
     private fun noonMillis(date: LocalDate): Long =
         LocalDateTime(date.year, date.monthNumber, date.dayOfMonth, 12, 0)

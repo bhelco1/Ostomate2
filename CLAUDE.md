@@ -21,14 +21,22 @@ serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redire
 
 ## Current status (2026-07-13)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.5 done.**
-Shared: 79 tests on JVM host + iOS sim. ViewModels: 47 tests on both targets.
-(Shared dropped 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression.)
-JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
-ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
+**Phases 0–2 complete; Phase 2.5 (test hardening) — 2.5.1–2.5.8 done, 2.5.9 remaining.**
+JVM host gate: 82 shared tests + 57 composeApp tests (47 ViewModel/UiState + 10 Roborazzi
+screenshot tests). Shared also runs on the iOS sim. JaCoCo coverage floors gate every PR
+(shared domain+data 91%, composeApp ViewModel+UiState 93%). ktlint + detekt green.
+Maestro E2E: all 7 Android flows + 4 iOS flows green. See `planning/05-dev-plan.md`.
+
+(Shared went 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression —
+then 79 → 82 with the negative-inventory regression tests.)
 
 **Trust `test-results/*/TEST-*.xml` execution counts over any number written in a doc —
 including this one.** Docs drift; the XML does not.
+
+Screenshot baselines live in `composeApp/screenshots/` and are verified by
+`:composeApp:testAndroidHostTest`. After an intended UI change, re-record with
+`./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record` and commit the PNGs —
+anything captured must stay deterministic (no wall-clock reads; see `ScreenshotTest.kt`).
 
 ## Stack
 

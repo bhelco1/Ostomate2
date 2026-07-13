@@ -62,12 +62,23 @@ jobs:
       - name: Run JVM host tests with coverage
         # jacocoCoverageVerification fails the build if line coverage drops below the
         # floors in shared/build.gradle.kts (domain + data) and composeApp/build.gradle.kts
-        # (ViewModel + UiState).
+        # (ViewModel + UiState). :composeApp:testAndroidHostTest also verifies the Roborazzi
+        # screenshot baselines in composeApp/screenshots/ (2.5.7) — a layout change fails here.
         run: >
           ./gradlew
           :shared:testAndroidHostTest :shared:jacocoHostTestReport :shared:jacocoCoverageVerification
           :composeApp:testAndroidHostTest :composeApp:jacocoHostTestReport :composeApp:jacocoCoverageVerification
           --stacktrace
+      - name: Upload screenshot diffs
+        # Only produced when a baseline mismatched: <name>_compare.png is a
+        # reference | diff | new triptych, <name>_actual.png is the new render. Download this
+        # artifact to see what moved; re-record with -Pscreenshot.record if the change is wanted.
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-diffs
+          path: composeApp/build/outputs/roborazzi/
+          if-no-files-found: ignore
       - name: Publish coverage summary
         if: always()
         run: |

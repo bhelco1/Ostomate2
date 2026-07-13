@@ -61,9 +61,10 @@ data class CalendarUiState(
 class CalendarViewModel(
     private val eventRepository: ChangeEventRepository,
     supplyRepository: SupplyRepository,
+    clock: Clock,
 ) : ViewModel() {
     private val tz = TimeZone.currentSystemDefault()
-    private val today = Clock.System.now().toLocalDateTime(tz).date
+    private val today = clock.now().toLocalDateTime(tz).date
 
     private val _currentMonth = MutableStateFlow(LocalDate(today.year, today.monthNumber, 1))
     private val _selectedDate = MutableStateFlow<LocalDate?>(null)

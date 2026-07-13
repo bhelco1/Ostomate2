@@ -274,12 +274,33 @@ optional check later if belt-and-suspenders wanted.
 a Maestro command (it is `eraseText`) and is a hard error in 2.x — so it cannot run on
 either platform yet, and is not in the iOS job.
 
-### 2.5.7 — Screenshot tests ⬜
-- Screenshot-diff coverage for Home, Onboarding, Calendar, QrLabels (catches
-  layout regressions like BUG-03 keyboard overlap).
-- Engine (Roborazzi vs Paparazzi vs Compose-native) is the one deferred decision
-  in `08` §8 — pick it when starting this item.
-- **Done when:** baseline images committed; diffs fail CI on layout change.
+### 2.5.7 — Screenshot tests ✅ (2026-07-13)
+- **Engine: Roborazzi** (`08` §8 decision closed). Runs under the Robolectric setup
+  the repo already had, inside `:composeApp:testAndroidHostTest` — no new CI job,
+  no emulator, no new recurring cost.
+- [x] 10 baselines committed in `composeApp/screenshots/`: Home (3: stocked, low
+      stock, empty), Onboarding (3: appliance type, **counts — the BUG-03 screen**,
+      QR explainer), Calendar (2: month with events, empty month), QrLabels (2: grid,
+      empty).
+- [x] Screens render from the real ViewModels over the existing DAO/platform fakes
+      (`FakeSupplyTypeDao`, `FakeChangeEventDao`, `InMemoryDataStore`), so a baseline
+      is state the app can actually produce, not a hand-built preview.
+- [x] Determinism: `CalendarViewModel` takes an injected `Clock` (Koin `single<Clock>`)
+      and `HomeScreen` an injectable `today`; screenshot runs pin both to 2026-03-15
+      and the JVM zone to UTC. Device size/density pinned by Robolectric qualifiers.
+- [x] `changeThreshold = 0.2%` of pixels — **measured, not guessed.** Baselines are
+      recorded on macOS/arm64 but verified on ubuntu CI, and the two platforms' native
+      Skia builds antialias curves/text differently: up to **0.08%** of pixels across the
+      10 baselines. A *one-dp* padding change moves **1.3–1.8%**. 0.2% sits ~2.5x above the
+      noise and ~6.5x below the smallest regression, so the suite is portable between the
+      M1 and CI without going blind. Verified in both directions: a 1dp change still fails.
+      Raising this to silence a failure defeats the item — re-record instead.
+- [x] CI: verification is on by default in the existing gate; a mismatch fails the
+      build and uploads the `screenshot-diffs` artifact (reference | diff | new).
+      Adds ~11 s to the ubuntu `android` job.
+- Re-record after an intended UI change:
+  `./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record`, then commit the PNGs.
+- **Done when** ✅: baseline images committed; diffs fail CI on layout change.
 
 ### 2.5.8 — Wire orphan Maestro flows ⬜
 - Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI

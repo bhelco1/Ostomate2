@@ -30,6 +30,10 @@ kotlin {
             enable = true
         }
         withHostTestBuilder {
+        }.configure {
+            // Screenshot tests (2.5.7) render real composables, so the host test JVM needs the
+            // merged resources + the composeResources assets that `stringResource` reads from.
+            isIncludeAndroidResources = true
         }
     }
 
@@ -65,6 +69,14 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+        }
+        // Screenshot tests (2.5.7): Roborazzi renders the real composables on the JVM host
+        // through Robolectric's native graphics. Test-only — none of this reaches production.
+        getByName("androidHostTest").dependencies {
+            implementation(libs.robolectric)
+            implementation(libs.androidx.test.core)
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.compose)
         }
     }
 }
@@ -112,6 +124,40 @@ val generateBuildInfo by tasks.registering {
 
 kotlin.sourceSets.commonMain {
     kotlin.srcDir(generateBuildInfo)
+}
+
+// Screenshot tests (2.5.7, 08-test-strategy §8). Roborazzi runs inside the existing host-test
+// task, so every PR verifies the committed baselines in `composeApp/screenshots/` — a layout
+// change fails the build and drops a side-by-side diff in build/outputs/roborazzi/.
+// Re-record with:  ./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record
+val recordScreenshots = providers.gradleProperty("screenshot.record").isPresent
+val screenshotBaselines = layout.projectDirectory.dir("screenshots")
+
+tasks.withType<Test>().matching { it.name == "testAndroidHostTest" }.configureEach {
+    // NATIVE graphics = real Skia rendering under Robolectric; LEGACY draws nothing.
+    systemProperty("robolectric.graphicsMode", "NATIVE")
+    systemProperty("roborazzi.test.record", recordScreenshots.toString())
+    systemProperty("roborazzi.test.verify", (!recordScreenshots).toString())
+    systemProperty("roborazzi.output.dir", screenshotBaselines.asFile.absolutePath)
+    // Without this, a bare "home.png" resolves against the test JVM's working directory and
+    // the baselines are written next to the module instead of into the baseline dir.
+    systemProperty("roborazzi.record.filePathStrategy", "relativePathFromRoborazziContextOutputDirectory")
+    // Failure artifacts (actual + side-by-side diff) land in the build dir, never in the
+    // committed baseline dir.
+    systemProperty(
+        "roborazzi.compare.output.dir",
+        layout.buildDirectory.dir("outputs/roborazzi").get().asFile.absolutePath,
+    )
+    // Baselines are an input: change one and the (cacheable) test task must re-run, or a
+    // stale cache hit would silently pass — the "skipped task looks like success" trap.
+    inputs.dir(screenshotBaselines).withPropertyName("screenshotBaselines").optional(true)
+    inputs.property("screenshotRecord", recordScreenshots)
+    configure<JacocoTaskExtension> {
+        // Robolectric's instrumenting classloader strips source-location info; without this
+        // the classes it loads report 0 coverage (same flag as shared/build.gradle.kts).
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
 }
 
 // Coverage (2.5.3, 08-test-strategy §5): ViewModel + UiState classes only — composables
