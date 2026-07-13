@@ -331,12 +331,34 @@ jobs:
         # accessibility tree, so the Android flows' `text: "logged"` never matches the
         # "Bag logged · 0 left" snackbar; and their Android-only bits (`pressKey: BACK`,
         # `launchApp.arguments.url`) are no-ops here.
+        env:
+          # The XCUITest driver never came up on the runner and the job died before a single
+          # step ran ("iOS driver not ready in time" / IOSDriverTimeoutException). The default
+          # startup timeout is fine on a warm local M1 and not on a cold macOS runner.
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 300000
         run: |
-          maestro test --device "$SIM_UDID" .maestro/ios/00_ios_onboarding.yaml
-          maestro test --device "$SIM_UDID" .maestro/ios/01_ios_deep_link_log.yaml
-          maestro test --device "$SIM_UDID" .maestro/ios/02_ios_log_and_undo.yaml
-          maestro test --device "$SIM_UDID" .maestro/ios/05_ios_backup_share.yaml
-          maestro test --device "$SIM_UDID" .maestro/08_biometric_gate.yaml
+          # Run every flow even after one fails, so a red run names ALL the broken flows
+          # rather than only the first — same reason as scripts/run_android_e2e.sh.
+          fail=0
+          for flow in \
+            .maestro/ios/00_ios_onboarding.yaml \
+            .maestro/ios/01_ios_deep_link_log.yaml \
+            .maestro/ios/02_ios_log_and_undo.yaml \
+            .maestro/ios/05_ios_backup_share.yaml \
+            .maestro/08_biometric_gate.yaml; do
+            echo "::group::maestro (iOS) $flow"
+            if maestro test --device "$SIM_UDID" "$flow"; then
+              echo "PASS  $flow" >> /tmp/ios_e2e_summary
+            else
+              echo "FAIL  $flow" >> /tmp/ios_e2e_summary
+              fail=1
+            fi
+            echo "::endgroup::"
+          done
+          echo "===== iOS E2E SUMMARY ====="
+          cat /tmp/ios_e2e_summary
+          echo "=========================="
+          exit $fail
       - name: Collect Maestro debug output
         # Maestro writes logs + screenshots under $HOME; upload-artifact does not expand
         # `~`/`$HOME` in `path`, so stage them inside the workspace first.
