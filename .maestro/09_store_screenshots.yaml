@@ -20,7 +20,7 @@ name: "Store screenshots — phone"
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "logged"
+      text: ".*logged.*"
     timeout: 3000
 - takeScreenshot: "02_logged"
 

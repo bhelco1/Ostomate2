@@ -15,7 +15,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "logged"
+      text: ".*logged.*"
     timeout: 3000
 - tapOn:
     text: "Undo"
@@ -42,7 +42,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 # Day detail sheet appears — "+ Add an entry for this day" is always shown
 - extendedWaitUntil:
     visible:
-      text: "+ Add an entry*"
+      text: ".*Add an entry.*"
     timeout: 2000
 
 # Swipe down to dismiss sheet
@@ -60,7 +60,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     text: "View history"
 - extendedWaitUntil:
     visible:
-      text: "Bag*"
+      text: ".*Bag.*"
     timeout: 3000
 
 # Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox)

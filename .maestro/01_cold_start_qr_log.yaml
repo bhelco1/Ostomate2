@@ -16,7 +16,7 @@ name: "Journey 1: Cold-start QR log"
 # After MainApp composes, the buffered DeepLinkBus event fires the snackbar.
 - extendedWaitUntil:
     visible:
-      text: "Logged:*"
+      text: ".*Logged:.*"
     timeout: 4000
 
 # Navigate to History to verify event was created
@@ -31,4 +31,4 @@ name: "Journey 1: Cold-start QR log"
 
 # At least one event visible
 - assertVisible:
-    text: "Bag*"
+    text: ".*Bag.*"

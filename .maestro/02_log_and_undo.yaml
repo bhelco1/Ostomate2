@@ -23,7 +23,7 @@ name: "Journey 2: Log + undo"
 # Undo snackbar should appear
 - extendedWaitUntil:
     visible:
-      text: "logged"
+      text: ".*logged.*"
     timeout: 3000
 
 # Tap Undo within 5 seconds
@@ -33,5 +33,5 @@ name: "Journey 2: Log + undo"
 # Verify snackbar gone
 - extendedWaitUntil:
     notVisible:
-      text: "logged"
+      text: ".*logged.*"
     timeout: 2000

@@ -40,7 +40,7 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 # Dialog title is "Set Bag count" (manage_supplies_set_count_title = "Set %1$s count")
 - extendedWaitUntil:
     visible:
-      text: "Set*count"
+      text: ".*Set.*count.*"
     timeout: 3000
 
 # Clear field and type 12
@@ -56,7 +56,7 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 # Count row shows "12 on hand · box of 30" — assert on substring
 - extendedWaitUntil:
     visible:
-      text: "12 on hand*"
+      text: ".*12 on hand.*"
     timeout: 3000
 
 # Navigate back via Settings nav to verify persistence across re-entry
@@ -66,5 +66,5 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     text: "Manage Supplies"
 - extendedWaitUntil:
     visible:
-      text: "12 on hand*"
+      text: ".*12 on hand.*"
     timeout: 3000

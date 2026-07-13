@@ -25,7 +25,7 @@ name: "Journey 5: Backup round-trip"
     text: "Settings"
 - extendedWaitUntil:
     visible:
-      text: "Backup*"
+      text: ".*Backup.*"
     timeout: 3000
 
 # Export the JSON backup — triggers Android share sheet.
