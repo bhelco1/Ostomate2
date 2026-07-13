@@ -13,8 +13,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 - tapOn:
     id: "logButton"
     index: 0
-- assertVisible:
-    text: "logged"
+- extendedWaitUntil:
+    visible:
+      text: "logged"
     timeout: 3000
 - tapOn:
     text: "Undo"
@@ -29,8 +30,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 # Navigate to Calendar tab
 - tapOn:
     text: "Calendar"
-- assertVisible:
-    text: "Calendar"
+- extendedWaitUntil:
+    visible:
+      text: "Calendar"
     timeout: 3000
 
 # Tap on today's date cell (testTag added to DayCell when day.isToday)
@@ -38,8 +40,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     id: "dayCell_today"
 
 # Day detail sheet appears — "+ Add an entry for this day" is always shown
-- assertVisible:
-    text: "+ Add an entry*"
+- extendedWaitUntil:
+    visible:
+      text: "+ Add an entry*"
     timeout: 2000
 
 # Swipe down to dismiss sheet
@@ -55,8 +58,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     index: 0
 - tapOn:
     text: "View history"
-- assertVisible:
-    text: "Bag*"
+- extendedWaitUntil:
+    visible:
+      text: "Bag*"
     timeout: 3000
 
 # Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox)
@@ -68,8 +72,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     duration: 300
 
 # Undo delete
-- assertVisible:
-    text: "Event deleted"
+- extendedWaitUntil:
+    visible:
+      text: "Event deleted"
     timeout: 3000
 - tapOn:
     text: "Undo"

@@ -150,9 +150,16 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --stacktrace
       - name: Install Maestro
+        # Pinned: the installer defaults to latest, so a new Maestro release can change
+        # the flow schema and break the suite with no commit of ours. 2.x turned unknown
+        # properties into hard errors, which is how `timeout:` on assertVisible silently
+        # rotted every flow. Bump deliberately, not by drift.
+        env:
+          MAESTRO_VERSION: 2.6.1
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
       - name: Free disk space
         run: |
           sudo rm -rf /usr/local/lib/android/sdk/ndk

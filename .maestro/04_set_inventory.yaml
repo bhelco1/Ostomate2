@@ -10,22 +10,25 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     optional: true
 
 # Wait for home screen
-- assertVisible:
-    text: "Ostomate"
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
     timeout: 5000
 
 # Navigate to Settings
 - tapOn:
     text: "Settings"
-- assertVisible:
-    text: "Manage Supplies"
+- extendedWaitUntil:
+    visible:
+      text: "Manage Supplies"
     timeout: 3000
 
 # Open Manage Supplies
 - tapOn:
     text: "Manage Supplies"
-- assertVisible:
-    text: "Manage Supplies"
+- extendedWaitUntil:
+    visible:
+      text: "Manage Supplies"
     timeout: 3000
 
 # Tap the on-hand count number to open the set-count dialog
@@ -35,8 +38,9 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     index: 0
 
 # Dialog title is "Set Bag count" (manage_supplies_set_count_title = "Set %1$s count")
-- assertVisible:
-    text: "Set*count"
+- extendedWaitUntil:
+    visible:
+      text: "Set*count"
     timeout: 3000
 
 # Clear field and type 12
@@ -50,8 +54,9 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     text: "Save"
 
 # Count row shows "12 on hand · box of 30" — assert on substring
-- assertVisible:
-    text: "12 on hand*"
+- extendedWaitUntil:
+    visible:
+      text: "12 on hand*"
     timeout: 3000
 
 # Navigate back via Settings nav to verify persistence across re-entry
@@ -59,6 +64,7 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
     text: "Settings"
 - tapOn:
     text: "Manage Supplies"
-- assertVisible:
-    text: "12 on hand*"
+- extendedWaitUntil:
+    visible:
+      text: "12 on hand*"
     timeout: 3000
