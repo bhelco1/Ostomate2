@@ -113,7 +113,31 @@ iOS has a no-op stub — Sentry is called from Swift, not Kotlin (by design).
 - Fixed: biometric gate moved from Settings screen to count-editing action only
 - Fixed: biometric session resets on ManageSupplies exit
 
-### 2.3 — Maestro E2E All Green ✅
+### 2.3 — Maestro E2E All Green ✅ (genuinely, as of 2026-07-13 — see the correction below)
+
+> **This item was marked ✅ on 2026-06-xx without the suite ever having passed — or ever
+> having run.** Corrected 2026-07-13, when the flows executed green for the first time
+> (run 29271755324: 02, 03, 04, 05, 08 all PASS). The fixes listed below were real, but they
+> were never verified, and underneath them sat defects that could not have passed even once:
+>
+> - Text matchers were globs fed to a **regex** engine. `"Set*count"` means "Se" + zero-or-more
+>   "t" + "count" — it can never match "Set Bag count".
+> - **No `id:` selector could ever resolve**: `testTagsAsResourceId` was never set, so Compose
+>   testTags were never published to the accessibility tree at all.
+> - Selectors inside dialogs still could not resolve after that, because a Compose dialog is a
+>   separate window with its own composition root.
+> - `swipe: element:` is not a Maestro key (it is `from:`), so the delete gesture silently
+>   degraded to a swipe across empty screen.
+> - Even with `from:`, an element swipe travels ~40% of screen width while `SwipeToDismissBox`
+>   needs 50% of the row width — it *cannot* dismiss, at any duration.
+> - `clearText` is not a Maestro command (`eraseText` is).
+> - The emulator had no `-no-window`, so it could never boot on a headless runner.
+> - `tapOn: text: "Home"` matched the emulator's **system** Home button, backgrounding the app.
+>
+> **Lesson (now in CLAUDE.md): never mark a test item done without a run showing execution
+> counts.** A gate that only runs post-merge gates nothing, and a suite nobody has watched
+> pass is a suite that does not pass.
+
 - Fixed all 5 CI flows (02–05, 08):
   - All flows: added `tapOn: "Skip" optional: true` to handle fresh onboarding after `clearState: true`
   - Flow 01: fixed wildcard `id: "overflowButton_*"` → `id: "overflowButton"` with `index: 0`

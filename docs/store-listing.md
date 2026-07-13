@@ -39,7 +39,7 @@ change instantly — no app-opening required.
 • Low-supply push notifications
 • Monthly calendar usage view
 • Usage stats: weekly, monthly, yearly
-• CSV data export
+• Full backup and restore — move to a new phone with everything intact
 • Biometric-protected settings (Face ID / Touch ID / fingerprint)
 • Developer mode for safe testing
 

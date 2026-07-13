@@ -83,6 +83,7 @@ import com.ostomate.app.resources.manage_supplies_title
 import com.ostomate.app.resources.manage_supplies_warn_days_label
 import com.ostomate.app.ui.theme.OstomateColors
 import com.ostomate.app.ui.theme.supplyColor
+import com.ostomate.app.ui.util.exposeTestTagsAsResourceIds
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -296,6 +297,7 @@ private fun EditCountDialog(
     LaunchedEffect(target.id) { input = target.onHand.toString() }
 
     AlertDialog(
+        modifier = Modifier.exposeTestTagsAsResourceIds(),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.manage_supplies_set_count_title, target.name)) },
         text = {
@@ -335,6 +337,7 @@ private fun EditSupplyDialog(
     var selectedColor by rememberSaveable(supply.id) { mutableIntStateOf(supply.colorIndex ?: 0) }
 
     AlertDialog(
+        modifier = Modifier.exposeTestTagsAsResourceIds(),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.manage_supplies_edit_title, supply.name)) },
         text = {
@@ -411,6 +414,7 @@ private fun AddCustomSupplyDialog(
     var selectedColor by rememberSaveable { mutableIntStateOf(0) }
 
     AlertDialog(
+        modifier = Modifier.exposeTestTagsAsResourceIds(),
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.manage_supplies_add_title)) },
         text = {

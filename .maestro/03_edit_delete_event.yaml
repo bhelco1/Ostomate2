@@ -13,8 +13,9 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 - tapOn:
     id: "logButton"
     index: 0
-- assertVisible:
-    text: "logged"
+- extendedWaitUntil:
+    visible:
+      text: ".*logged.*"
     timeout: 3000
 - tapOn:
     text: "Undo"
@@ -28,9 +29,10 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 
 # Navigate to Calendar tab
 - tapOn:
-    text: "Calendar"
-- assertVisible:
-    text: "Calendar"
+    id: "nav_calendar"
+- extendedWaitUntil:
+    visible:
+      text: "Calendar"
     timeout: 3000
 
 # Tap on today's date cell (testTag added to DayCell when day.isToday)
@@ -38,38 +40,58 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
     id: "dayCell_today"
 
 # Day detail sheet appears — "+ Add an entry for this day" is always shown
-- assertVisible:
-    text: "+ Add an entry*"
+- extendedWaitUntil:
+    visible:
+      text: ".*Add an entry.*"
     timeout: 2000
 
-# Swipe down to dismiss sheet
-- swipe:
-    direction: DOWN
-    duration: 500
+# Dismiss the day-detail sheet. A bare coordinate swipe does not reliably dismiss a
+# ModalBottomSheet: the sheet stayed up, so the supply-card overflow button below it
+# was in the hierarchy but not hittable, and Maestro reported it as not found.
+# Press BACK and assert the sheet is actually gone before touching Home.
+- pressKey: BACK
+- extendedWaitUntil:
+    notVisible:
+      text: ".*Add an entry.*"
+    timeout: 3000
 
 # Navigate to History via supply card overflow
 - tapOn:
-    text: "Home"
+    id: "nav_home"
 - tapOn:
     id: "overflowButton"
     index: 0
 - tapOn:
     text: "View history"
-- assertVisible:
-    text: "Bag*"
+- extendedWaitUntil:
+    visible:
+      text: ".*Bag.*"
     timeout: 3000
 
-# Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox)
-- swipe:
-    element:
+# Swipe left to delete the first event.
+#
+# This must be a COORDINATE swipe, not `from: {id: eventRow} direction: LEFT`. Maestro's
+# element swipe (AndroidDriver.swipe(elementPoint, LEFT)) starts at the element's CENTRE
+# and ends at 10% of screen width — a travel of only ~40% of the width. SwipeToDismissBox
+# uses the default positional threshold of 50% of the ROW's width, so the element swipe
+# cannot dismiss the row at any duration. It runs, reports COMPLETED, and changes nothing.
+#
+# Measured from the captured UI hierarchy: screen 1080x2148, row x=44..1036 (992 px wide),
+# y=578..781 → centre y ≈ 32%. Swiping 90% → 5% carries ~918 px, well past the ~496 px
+# threshold.
+- extendedWaitUntil:
+    visible:
       id: "eventRow"
-      index: 0
-    direction: LEFT
-    duration: 300
+    timeout: 3000
+- swipe:
+    start: "90%, 32%"
+    end: "5%, 32%"
+    duration: 600
 
 # Undo delete
-- assertVisible:
-    text: "Event deleted"
+- extendedWaitUntil:
+    visible:
+      text: "Event deleted"
     timeout: 3000
 - tapOn:
     text: "Undo"

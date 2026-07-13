@@ -22,14 +22,16 @@ name: "Journey 5: Backup round-trip"
 
 # Navigate to Settings
 - tapOn:
-    text: "Settings"
-- assertVisible:
-    text: "Backup*"
+    id: "nav_settings"
+- extendedWaitUntil:
+    visible:
+      text: ".*Backup.*"
     timeout: 3000
 
-# Export CSV — triggers Android share sheet
+# Export the JSON backup — triggers Android share sheet.
+# Targeted by id: "Export backup" and "Export log" both contain "Export".
 - tapOn:
-    text: "Export"
+    id: "exportBackupButton"
 - waitForAnimationToEnd
 
 # Share sheet cannot be fully automated; dismiss it

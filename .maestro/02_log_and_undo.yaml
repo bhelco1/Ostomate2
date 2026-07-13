@@ -10,8 +10,9 @@ name: "Journey 2: Log + undo"
     optional: true
 
 # Wait for home screen to load
-- assertVisible:
-    text: "Ostomate"
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
     timeout: 5000
 
 # Tap the log button on the first supply card
@@ -20,8 +21,9 @@ name: "Journey 2: Log + undo"
     index: 0
 
 # Undo snackbar should appear
-- assertVisible:
-    text: "logged"
+- extendedWaitUntil:
+    visible:
+      text: ".*logged.*"
     timeout: 3000
 
 # Tap Undo within 5 seconds
@@ -29,6 +31,7 @@ name: "Journey 2: Log + undo"
     text: "Undo"
 
 # Verify snackbar gone
-- assertNotVisible:
-    text: "logged"
+- extendedWaitUntil:
+    notVisible:
+      text: ".*logged.*"
     timeout: 2000

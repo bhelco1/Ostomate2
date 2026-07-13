@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -160,6 +161,7 @@ private fun MainApp() {
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
+                    modifier = Modifier.testTag("nav_home"),
                     icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_home)) },
                     selected = currentDestination?.hasRoute<HomeDestination>() == true,
@@ -172,6 +174,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
+                    modifier = Modifier.testTag("nav_calendar"),
                     icon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_calendar)) },
                     selected = currentDestination?.hasRoute<CalendarDestination>() == true,
@@ -184,6 +187,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
+                    modifier = Modifier.testTag("nav_stats"),
                     icon = { Icon(Icons.Filled.Info, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_stats)) },
                     selected = currentDestination?.hasRoute<StatsDestination>() == true,
@@ -196,6 +200,7 @@ private fun MainApp() {
                     },
                 )
                 NavigationBarItem(
+                    modifier = Modifier.testTag("nav_settings"),
                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_settings)) },
                     selected =

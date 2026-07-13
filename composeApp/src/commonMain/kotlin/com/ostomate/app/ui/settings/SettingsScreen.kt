@@ -301,6 +301,7 @@ fun SettingsScreen(
                             }
                         },
                         enabled = !backupState.isBusy,
+                        modifier = Modifier.testTag("exportBackupButton"),
                     ) {
                         Text(stringResource(Res.string.settings_export_backup))
                     }

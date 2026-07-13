@@ -7,6 +7,12 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.ostomate.app.data.ChangeEventRepository
@@ -18,6 +24,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 // FragmentActivity (not ComponentActivity) because BiometricPrompt requires it.
+@OptIn(ExperimentalComposeUiApi::class)
 class MainActivity : FragmentActivity() {
 
     private val repository: ChangeEventRepository by inject()
@@ -31,7 +38,16 @@ class MainActivity : FragmentActivity() {
         CurrentActivityHolder.activity = this
         enableEdgeToEdge()
         setContent {
-            App()
+            // Compose testTags are semantics-only; without this they never reach the
+            // accessibility tree as resource-ids, so Maestro's `id:` matcher can't see
+            // them and every id-based E2E selector fails with "Element not found".
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .semantics { testTagsAsResourceId = true },
+            ) {
+                App()
+            }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)

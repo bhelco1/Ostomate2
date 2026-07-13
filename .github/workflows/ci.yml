@@ -42,6 +42,10 @@ jobs:
   android:
     name: Android build + JVM tests
     runs-on: ubuntu-latest
+    env:
+      # Job-level so the Codecov step's `if` can see it — the secrets context
+      # itself is not allowed in step `if` expressions (invalidates the workflow).
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -108,11 +112,11 @@ jobs:
       - name: Upload coverage to Codecov
         # Approved in 08-test-strategy §6 (free — public repo). Inert until the
         # CODECOV_TOKEN secret is added under Settings → Secrets → Actions.
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
+        if: ${{ env.CODECOV_TOKEN != '' }}
         uses: codecov/codecov-action@v5
         continue-on-error: true
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ env.CODECOV_TOKEN }}
           files: >-
             shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml,
             composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
@@ -146,9 +150,16 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --stacktrace
       - name: Install Maestro
+        # Pinned: the installer defaults to latest, so a new Maestro release can change
+        # the flow schema and break the suite with no commit of ours. 2.x turned unknown
+        # properties into hard errors, which is how `timeout:` on assertVisible silently
+        # rotted every flow. Bump deliberately, not by drift.
+        env:
+          MAESTRO_VERSION: 2.6.1
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
       - name: Free disk space
         run: |
           sudo rm -rf /usr/local/lib/android/sdk/ndk
@@ -171,18 +182,28 @@ jobs:
           arch: x86_64
           profile: pixel_4
           disable-animations: true
-          emulator-options: -no-snapshot -noaudio -no-boot-anim
-          boot-timeout: 600
+          # -no-window + swiftshader_indirect are required on a headless runner: without
+          # them the emulator waits on a display that never appears and boot times out.
+          emulator-options: >-
+            -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+            -camera-back none -camera-front none
+          boot-timeout: 900
           script: |
             adb start-server
             adb wait-for-device
             until adb shell getprop sys.boot_completed 2>/dev/null | grep -q '1'; do sleep 3; done
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            maestro test .maestro/02_log_and_undo.yaml
-            maestro test .maestro/03_edit_delete_event.yaml
-            maestro test .maestro/04_set_inventory.yaml
-            maestro test .maestro/05_backup_round_trip.yaml
-            maestro test .maestro/08_biometric_gate.yaml
+            bash scripts/run_android_e2e.sh
+      - name: Upload E2E failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-diagnostics
+          # Workspace-relative on purpose: the previous attempt pointed at maestro-debug/
+          # and ~/.maestro/tests/ and got "No files were found" for both, so every
+          # "element not found" so far has been reasoned about rather than looked at.
+          path: e2e-diagnostics/
+          if-no-files-found: warn
 
   ios:
     name: iOS shared tests + app build
