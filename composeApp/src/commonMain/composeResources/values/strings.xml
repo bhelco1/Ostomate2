@@ -202,7 +202,7 @@
     <string name="privacy_section_account_title">No account required</string>
     <string name="privacy_section_account_body">Ostomate works without creating an account or providing any personal information. Your name, email, and identity are never collected.</string>
     <string name="privacy_section_backups_title">Backups</string>
-    <string name="privacy_section_backups_body">The Export feature creates a CSV file on your device that you can save wherever you choose. Ostomate does not upload backups anywhere automatically.</string>
+    <string name="privacy_section_backups_body">The Export feature creates a backup file on your device that you can save wherever you choose. Ostomate does not upload backups anywhere automatically.</string>
     <string name="privacy_section_deletion_title">Data deletion</string>
     <string name="privacy_section_deletion_body">Uninstalling Ostomate removes all app data from your device. There is no data stored elsewhere to delete.</string>
     <string name="privacy_section_contact_title">Contact</string>
