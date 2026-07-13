@@ -3,9 +3,10 @@
 *.jks
 *.p12
 
-# iOS secrets — DSN and other keys go in Secrets.swift / Secrets.xcconfig (both gitignored)
+# iOS secrets — the Sentry DSN lives ONLY in Secrets.xcconfig (gitignored), which
+# Config.xcconfig includes and Info.plist exposes as SentryDSN. There is deliberately no
+# Secrets.swift: a gitignored *source* file made a fresh clone unbuildable.
 iosApp/Configuration/Secrets.xcconfig
-iosApp/iosApp/Secrets.swift
 
 *.iml
 .kotlin
