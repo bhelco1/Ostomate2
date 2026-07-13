@@ -287,11 +287,12 @@ Add GitHub Secrets: `KEYSTORE_FILE` (base64), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, 
 
 **Code:** Configure `iosApp/Configuration/Config.xcconfig` for release target. Add Fastlane lane for TestFlight upload.
 
-### 3.3 — App Icon ⬜
+### 3.3 — App Icon ✅ (2026-07-12)
 
-Design branded icon (1024 × 1024 px source, no rounded corners).
-- Android: generate adaptive icons via Android Studio Image Asset wizard → all mipmap densities
-- iOS: 1024 × 1024 PNG in Assets.xcassets → AppIcon
+Branded mark: white "O" progress ring with dot on brand blue (#2563EB), replacing the
+placeholder stoma illustration. Artwork fits the 66 dp adaptive-icon safe zone.
+- Android: adaptive icon vectors (foreground/background/monochrome) + legacy mipmap PNGs
+- iOS: 1024 × 1024 PNG in Assets.xcassets → AppIcon (no rounded corners; this is the source)
 
 ### 3.4 — Store Listings ⬜
 
