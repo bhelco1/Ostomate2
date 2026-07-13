@@ -84,7 +84,7 @@ val gitSha: Provider<String> =
 
 val gitDirty: Provider<String> =
     providers
-        .exec { commandLine("git", "status", "--porcelain") }
+        .exec { commandLine("git", "status", "--porcelain", "--untracked-files=no") }
         .standardOutput.asText
         .map { if (it.isBlank()) "" else "-dirty" }
 
