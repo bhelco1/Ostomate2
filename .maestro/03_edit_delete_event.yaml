@@ -68,18 +68,24 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
       text: ".*Bag.*"
     timeout: 3000
 
-# Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox).
-# The element key is `from:`, not `element:` — Maestro's YamlSwipeElement takes
-# (direction, from). With `element:` the swipe silently degraded to a plain directional
-# swipe across the middle of the screen, which missed the row (it sits near the top), so
-# nothing was ever dismissed and the "Event deleted" snackbar never appeared.
-# Longer duration than the 300 ms default-ish: SwipeToDismissBox's positional threshold is
-# 50% of the row width, so the gesture has to actually carry it past halfway.
-- swipe:
-    from:
+# Swipe left to delete the first event.
+#
+# This must be a COORDINATE swipe, not `from: {id: eventRow} direction: LEFT`. Maestro's
+# element swipe (AndroidDriver.swipe(elementPoint, LEFT)) starts at the element's CENTRE
+# and ends at 10% of screen width — a travel of only ~40% of the width. SwipeToDismissBox
+# uses the default positional threshold of 50% of the ROW's width, so the element swipe
+# cannot dismiss the row at any duration. It runs, reports COMPLETED, and changes nothing.
+#
+# Measured from the captured UI hierarchy: screen 1080x2148, row x=44..1036 (992 px wide),
+# y=578..781 → centre y ≈ 32%. Swiping 90% → 5% carries ~918 px, well past the ~496 px
+# threshold.
+- extendedWaitUntil:
+    visible:
       id: "eventRow"
-      index: 0
-    direction: LEFT
+    timeout: 3000
+- swipe:
+    start: "90%, 32%"
+    end: "5%, 32%"
     duration: 600
 
 # Undo delete
