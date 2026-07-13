@@ -7,7 +7,7 @@
 ## Test Pyramid (current reality)
 
 ```
-         [E2E]          Maestro — 5 flows in CI (Android only), iOS E2E = 0 (manual)
+         [E2E]          Maestro — 5 flows in CI on Android + 5 on the iOS simulator
         [device]        Manual — physical iPhone + Android device checklist
       [UI / VM]         Not automated — 7 ViewModels, 0 tests; composables manual
     [data tests]        9 SQLite tests (Room DAO + migrations) — JVM host + iOS sim
@@ -73,7 +73,10 @@ Every suite must show `failures="0" errors="0" skipped="0"`.
 
 ## E2E Tests (Maestro — `.maestro/`)
 
-Runs on Android emulator in CI. Triggered on `main` merges and `workflow_dispatch` only.
+Maestro is pinned to **2.6.1** in CI. It is a local CLI, not a project dependency.
+Both E2E jobs trigger on `main` merges and `workflow_dispatch` only — never on PRs.
+
+### Android (`android-e2e` job — ubuntu emulator, API 29)
 
 | Flow | In CI? | What it tests |
 |---|---|---|
@@ -81,14 +84,50 @@ Runs on Android emulator in CI. Triggered on `main` merges and `workflow_dispatc
 | `02_log_and_undo.yaml` | ✅ | Log a change, verify count, undo |
 | `03_edit_delete_event.yaml` | ✅ | Edit history entry, delete it |
 | `04_set_inventory.yaml` | ✅ | Set inventory counts in Settings |
-| `05_backup_round_trip.yaml` | ✅ | Export CSV, re-import, verify events |
+| `05_backup_round_trip.yaml` | ✅ | Export JSON backup via the share sheet |
 | `08_biometric_gate.yaml` | ✅ | Settings locked before auth |
 | `09_store_screenshots.yaml` | ❌ not wired | Capture Play Store screenshots |
 
-> Only 5 of 7 flows run in CI, and only on Android. iOS has **no** automated
-> E2E coverage. See `08-test-strategy.md` for the plan to close this.
+Wiring the two orphans is 2.5.8.
 
-**Run locally (requires Android emulator or connected device):**
+### iOS (`ios-e2e` job — macOS runner, freshly created iPhone simulator)
+
+Added in 2.5.6. The job `simctl create`s a **new** device (a pre-existing simulator
+can surface a stray SpringBoard alert that hides the app from Maestro), builds the
+app for `iphonesimulator`, installs it, and runs:
+
+| Flow | What it tests |
+|---|---|
+| `ios/00_ios_onboarding.yaml` | Full 4-step wizard; counts persist to Home; no re-run on relaunch |
+| `ios/01_ios_deep_link_log.yaml` | `ostomate://log?item=bag` cold start → snackbar → event in History |
+| `ios/02_ios_log_and_undo.yaml` | Log a change, undo it |
+| `ios/05_ios_backup_share.yaml` | Export backup → iOS share sheet offers the JSON file |
+| `08_biometric_gate.yaml` | Reused as-is — platform-neutral |
+
+**Why iOS needs variants rather than reusing every Android flow.** Three real
+platform differences, each of which silently no-ops or fails otherwise:
+
+1. Maestro **full-string-matches** `text:` against the iOS accessibility tree. The
+   Android flows' `text: "logged"` never matches the snackbar `Bag logged · 0 left`;
+   iOS flows must write `text: "Bag logged.*"`.
+2. `launchApp.arguments.url` is only a launch argument on iOS — it never reaches
+   `onOpenURL`, so it logs nothing. `openLink` is the mechanism that drives the
+   `ostomate://` scheme, and iOS asks "Open in Ostomate?" the first time it is used.
+3. `pressKey: BACK` and `hideKeyboard` do nothing on iOS.
+
+**Run locally (M1 — build, install, then target the simulator by UDID):**
+```bash
+read -r RUNTIME DEVTYPE < <(python3 scripts/pick_ios_simulator.py)
+UDID=$(xcrun simctl create maestro-ios "$DEVTYPE" "$RUNTIME")
+xcrun simctl boot "$UDID" && xcrun simctl bootstatus "$UDID" -b
+cd iosApp && xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug \
+  -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+  ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO -derivedDataPath /tmp/dd build
+xcrun simctl install "$UDID" /tmp/dd/Build/Products/Debug-iphonesimulator/Ostomate.app
+maestro test --device "$UDID" .maestro/ios/02_ios_log_and_undo.yaml
+```
+
+**Run locally on Android (emulator or connected device):**
 ```bash
 maestro test .maestro/02_log_and_undo.yaml
 ```

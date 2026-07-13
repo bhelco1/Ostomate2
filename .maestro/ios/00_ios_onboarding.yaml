@@ -1,0 +1,90 @@
+appId: com.ostomate.app
+name: "iOS Journey: Onboarding walkthrough"
+# iOS variant. Every Android flow taps "Skip" past onboarding, so the wizard itself
+# was never exercised by an automated test on either platform. This one walks it.
+#
+# Two iOS-only facts drive the shape of every flow in this directory:
+#  1. Maestro matches `text:` as a FULL-string regex against the iOS accessibility
+#     tree, so substrings need explicit `.*` (on Android the same selector is laxer).
+#  2. The app asks for notification permission on first `schedule()` after install.
+#     The system alert is timing-dependent, so each flow optionally dismisses it.
+---
+- launchApp:
+    clearState: true
+
+# Step 1 of 4 — appliance type. Default is 2-piece; select it explicitly.
+- extendedWaitUntil:
+    visible:
+      text: "What type of appliance do you use\\?"
+    timeout: 20000
+- assertVisible:
+    text: "Step 1 of 4"
+- tapOn:
+    text: "2-piece system"
+- tapOn:
+    text: "Next →"
+
+# Step 2 of 4 — supplies. Bag + Flange are pre-selected for a 2-piece system.
+- extendedWaitUntil:
+    visible:
+      text: "What supplies do you use\\?"
+    timeout: 5000
+- assertVisible:
+    text: "Step 2 of 4"
+- assertVisible:
+    text: "Pouches / Bags"
+- assertVisible:
+    text: "Flanges / Wafers"
+- tapOn:
+    text: "Next →"
+
+# Step 3 of 4 — on-hand counts.
+- extendedWaitUntil:
+    visible:
+      text: "How many do you have on hand\\?"
+    timeout: 5000
+- assertVisible:
+    text: "Step 3 of 4"
+- tapOn:
+    id: "onboardingBagCountField"
+- inputText: "30"
+- tapOn:
+    id: "onboardingFlangeCountField"
+- inputText: "12"
+# No `hideKeyboard` — Maestro 2.6.1 does not implement it on iOS. The step Column
+# uses imePadding(), so "Next →" stays above the keyboard and is tappable as-is.
+- tapOn:
+    text: "Next →"
+
+# Step 4 of 4 — QR explainer, then finish.
+- extendedWaitUntil:
+    visible:
+      text: "Log in under 2 seconds"
+    timeout: 5000
+- assertVisible:
+    text: "Step 4 of 4"
+- tapOn:
+    text: "Get started"
+
+# Home shows the counts entered during onboarding — proves the wizard persisted them.
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
+- assertVisible:
+    text: "30"
+- assertVisible:
+    text: "12"
+
+# Onboarding does not run again on a warm relaunch (the completion flag persisted).
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- assertNotVisible:
+    text: "What type of appliance do you use\\?"

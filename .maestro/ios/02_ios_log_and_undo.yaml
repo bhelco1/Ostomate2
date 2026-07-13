@@ -1,0 +1,37 @@
+appId: com.ostomate.app
+name: "iOS Journey 2: Log + undo"
+# iOS variant of 02_log_and_undo.yaml. Same journey; the assertions differ because
+# Maestro full-string-matches `text:` on iOS — the Android flow's `text: "logged"`
+# does not match the snackbar "Bag logged · 0 left" here.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# Log a bag change.
+- tapOn:
+    id: "logButton"
+    index: 0
+
+# Undo snackbar: "Bag logged · N left".
+- extendedWaitUntil:
+    visible:
+      text: "Bag logged.*"
+    timeout: 5000
+- tapOn:
+    text: "Undo"
+
+# Snackbar dismisses once the log is rolled back.
+- extendedWaitUntil:
+    notVisible:
+      text: "Bag logged.*"
+    timeout: 5000

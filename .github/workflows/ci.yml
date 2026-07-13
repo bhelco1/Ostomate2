@@ -253,6 +253,94 @@ jobs:
             -sdk iphonesimulator ARCHS=arm64 ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO build
 
+  ios-e2e:
+    name: iOS E2E (Maestro)
+    runs-on: macos-latest
+    # Post-merge / manual dispatch only, same as android-e2e: macOS runners are slow
+    # (and bill at 10x on private repos — free here, but the wall-clock cost is real).
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select newest Xcode
+        # Same reason as the `ios` job: the runner default is too old for CMP 1.11.
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode_*.app | sort -V | tail -n1)"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Generate Secrets.swift stub
+        # Gitignored (holds the Sentry DSN) so it is absent in CI, but the Xcode target
+        # compiles it. Empty DSN => iOSApp.swift keeps Sentry off.
+        run: |
+          cat > iosApp/iosApp/Secrets.swift <<'SWIFT'
+          enum Secrets {
+              static let sentryDSN = ""
+          }
+          SWIFT
+      - name: Install Maestro
+        # Pinned for the same reason as android-e2e — keep the two in lockstep.
+        env:
+          MAESTRO_VERSION: 2.6.1
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          "$HOME/.maestro/bin/maestro" --version
+      - name: Build iOS app for the simulator
+        # -scheme (not -target) so the product lands in a predictable -derivedDataPath.
+        # ARCHS=arm64: composeApp publishes no x86_64 slice (CMP 1.11+ dropped it).
+        run: |
+          cd iosApp
+          xcodebuild -project iosApp.xcodeproj -scheme iosApp -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            ARCHS=arm64 ONLY_ACTIVE_ARCH=YES CODE_SIGNING_ALLOWED=NO \
+            -derivedDataPath "$RUNNER_TEMP/dd" build
+      - name: Boot a clean simulator
+        # A *freshly created* device matters. Booting a pre-existing simulator can raise
+        # a stray SpringBoard alert ("Allow widgets from Maps to use your location?") that
+        # sits on top of the app — Maestro then sees only the alert and every flow fails.
+        # A new device from `simctl create` has no such state.
+        run: |
+          read -r RUNTIME DEVTYPE < <(python3 scripts/pick_ios_simulator.py)
+          echo "runtime=$RUNTIME device-type=$DEVTYPE"
+          UDID=$(xcrun simctl create maestro-ios "$DEVTYPE" "$RUNTIME")
+          echo "SIM_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+      - name: Install app on the simulator
+        run: |
+          xcrun simctl install "$SIM_UDID" \
+            "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Ostomate.app"
+      - name: Run Maestro E2E flows (iOS)
+        # Covers the clusters where real device bugs appeared: onboarding, log a change,
+        # deep link, backup/share. `.maestro/ios/` holds the iOS variants — the Android
+        # flows they mirror stay untouched. 08 is platform-neutral and is reused as-is.
+        #
+        # Why variants at all: on iOS Maestro full-string-matches `text:` against the
+        # accessibility tree, so the Android flows' `text: "logged"` never matches the
+        # "Bag logged · 0 left" snackbar; and their Android-only bits (`pressKey: BACK`,
+        # `launchApp.arguments.url`) are no-ops here.
+        run: |
+          maestro test --device "$SIM_UDID" .maestro/ios/00_ios_onboarding.yaml
+          maestro test --device "$SIM_UDID" .maestro/ios/01_ios_deep_link_log.yaml
+          maestro test --device "$SIM_UDID" .maestro/ios/02_ios_log_and_undo.yaml
+          maestro test --device "$SIM_UDID" .maestro/ios/05_ios_backup_share.yaml
+          maestro test --device "$SIM_UDID" .maestro/08_biometric_gate.yaml
+      - name: Collect Maestro debug output
+        # Maestro writes logs + screenshots under $HOME; upload-artifact does not expand
+        # `~`/`$HOME` in `path`, so stage them inside the workspace first.
+        if: failure()
+        run: |
+          mkdir -p maestro-debug
+          cp -R "$HOME/.maestro/tests/." maestro-debug/ 2>/dev/null || true
+      - name: Upload Maestro debug artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-debug
+          path: maestro-debug/
+          if-no-files-found: ignore
+
   dashboard:
     name: Publish QA dashboard
     # Post-merge/dispatch only: regenerates the static dashboard (Unit / Integration /
@@ -260,7 +348,7 @@ jobs:
     # Pi pulls that branch and serves it (scripts/pi/update-dashboard.sh); trend history
     # lives in history.json, so the branch keeps a single commit.
     runs-on: ubuntu-latest
-    needs: [android, ios, android-e2e]
+    needs: [android, ios, android-e2e, ios-e2e]
     if: always() && github.event_name != 'pull_request'
     permissions:
       contents: write
