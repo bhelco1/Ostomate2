@@ -22,7 +22,7 @@ name: "Journey 5: Backup round-trip"
 
 # Navigate to Settings
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 - extendedWaitUntil:
     visible:
       text: ".*Backup.*"

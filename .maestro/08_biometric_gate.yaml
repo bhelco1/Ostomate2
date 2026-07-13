@@ -17,7 +17,7 @@ name: "Journey 8: Biometric gate on Settings"
 
 # Enable biometric lock in Settings
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 - extendedWaitUntil:
     visible:
       text: "Biometric Lock"
@@ -27,9 +27,9 @@ name: "Journey 8: Biometric gate on Settings"
 
 # Navigate away then back to trigger the re-lock on ON_RESUME
 - tapOn:
-    text: "Home"
+    id: "nav_home"
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 
 # On emulator without enrolled biometrics: NotEnrolled → auto-unlock.
 # Settings content becomes visible once auto-unlock completes.

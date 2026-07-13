@@ -17,7 +17,7 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 
 # Navigate to Settings
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 - extendedWaitUntil:
     visible:
       text: "Manage Supplies"
@@ -61,7 +61,7 @@ name: "Journey 4: Set on-hand inventory count via Settings → Manage Supplies"
 
 # Navigate back via Settings nav to verify persistence across re-entry
 - tapOn:
-    text: "Settings"
+    id: "nav_settings"
 - tapOn:
     text: "Manage Supplies"
 - extendedWaitUntil:

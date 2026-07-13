@@ -29,7 +29,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 
 # Navigate to Calendar tab
 - tapOn:
-    text: "Calendar"
+    id: "nav_calendar"
 - extendedWaitUntil:
     visible:
       text: "Calendar"
@@ -57,7 +57,7 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 
 # Navigate to History via supply card overflow
 - tapOn:
-    text: "Home"
+    id: "nav_home"
 - tapOn:
     id: "overflowButton"
     index: 0

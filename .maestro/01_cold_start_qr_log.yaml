@@ -21,7 +21,7 @@ name: "Journey 1: Cold-start QR log"
 
 # Navigate to History to verify event was created
 - tapOn:
-    text: "Home"
+    id: "nav_home"
     optional: true
 - tapOn:
     id: "overflowButton"
