@@ -1,34 +1,40 @@
 appId: com.ostomate.app
 name: "Journey 1: Cold-start QR log"
 ---
-# Launch with deep link (simulates QR scan on cold start)
+# Get past onboarding first: a fresh install shows it, and it would swallow the deep link.
 - launchApp:
-    arguments:
-      url: "ostomate://log?item=bag"
     clearState: true
-
-# Skip onboarding — clearState resets the onboarding flag.
-# DB is seeded with Bag + Flange on fresh create, so supplies exist after skip.
 - tapOn:
     text: "Skip"
     optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 5000
 
-# After MainApp composes, the buffered DeepLinkBus event fires the snackbar.
+# Cold start: kill the app so the deep link genuinely starts a dead process, which is what
+# scanning a QR sticker does.
+- stopApp
+
+# Fire the real VIEW intent. NOTE: `launchApp.arguments.url` (what this flow used to do) is
+# a no-op — it passes a launch *argument*, it does not deliver the URL to the app, so this
+# flow silently proved nothing. openLink is the only thing that drives the scheme.
+- openLink: "ostomate://log?item=bag"
+
+# The buffered DeepLinkBus event fires the snackbar once MainApp composes.
 - extendedWaitUntil:
     visible:
       text: ".*Logged:.*"
-    timeout: 4000
+    timeout: 8000
 
-# Navigate to History to verify event was created
-- tapOn:
-    id: "nav_home"
-    optional: true
+# ...and the event must actually reach the database, not just flash a snackbar.
+# No nav tap needed: the deep link starts MainActivity on Home.
 - tapOn:
     id: "overflowButton"
     index: 0
 - tapOn:
     text: "View history"
-
-# At least one event visible
-- assertVisible:
-    text: ".*Bag.*"
+- extendedWaitUntil:
+    visible:
+      id: "eventRow"
+    timeout: 5000

@@ -6,8 +6,14 @@ name: "Store screenshots — phone"
 ---
 
 # 1 — Home screen: supply cards with days-remaining predictions
+# clearState so the flow is self-sufficient: it used to assume a device that had already
+# been onboarded and had data, which is never true on a fresh CI emulator — onboarding
+# would sit in front of every assertion. A fresh DB seeds Bag + Flange.
 - launchApp:
-    clearState: false
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
 - extendedWaitUntil:
     visible:
       text: "Ostomate"
