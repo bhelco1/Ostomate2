@@ -56,6 +56,19 @@ cd iosApp && xcodebuild -project iosApp.xcodeproj -target iosApp \
 adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" com.ostomate.app
 ```
 
+## Device state vs repo state (post-mortem 2026-07-12)
+
+- Bobby's phone is the deliverable. "Merged to main" / gate-green / `assembleDebug` is NOT
+  "on the phone" — only `:androidApp:installDebug` is, verified by
+  `adb shell dumpsys package com.ostomate.app | grep lastUpdateTime` showing "now".
+- Before debugging ANY reported on-device behavior, FIRST pin which build the device runs
+  (lastUpdateTime vs commit times). Never reason from code on main until the installed
+  build is confirmed current — a stale build makes correct code look broken.
+- versionName is a static "1.0" and About says "v2.0.0-dev" regardless of commit — neither
+  identifies a build. Trust lastUpdateTime only.
+- Empty results from sandboxed `find`/`ls` over ~/Downloads etc. can be macOS TCC denials,
+  not absence — treat "found nothing" as "can't see" until a direct path read confirms.
+
 ## Architecture rules (enforced; full text in 02-architecture.md)
 
 - UI → ViewModel (one `UiState` per screen via `StateFlow`, UDF) → UseCase → Repository → Room/DataStore
