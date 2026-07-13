@@ -48,21 +48,19 @@ Package `com.ostomate.app`, deep-link scheme `ostomate://log?item=bag|flange`.
 
 | Module | Rule |
 |---|---|
-| `shared` | Domain + data only. **No Compose imports, ever.** Declares an `iosX64` target that nothing currently uses — see Hardware below. |
+| `shared` | Domain + data only. **No Compose imports, ever.** iOS targets: arm64 + simulator-arm64. |
 | `composeApp` | All CMP UI, ViewModels, theme, `initKoin`. iOS arm64-only (CMP dropped iosX64). Builds `Shared.framework` for Xcode. |
 | `androidApp` / `iosApp` | Thin launchers + platform glue (deep-link entry, app icons, widgets later). |
 
 ## Hardware (Apple Silicon M1)
 
 Full Compose Multiplatform iOS app runs in the local simulator. Use `iosSimulatorArm64`
-targets for all local iOS work.
+targets for all local iOS work. `iosX64` was removed 2026-07-13 — nothing built or tested it.
 
-**`iosX64` is dead weight (verified 2026-07-13).** `shared/build.gradle.kts` still declares
-it, and its comment still claims it exists "for local simulator testing on Bobby's Intel
-Mac" — this machine is an M1, and CI runs only `:shared:iosSimulatorArm64Test` /
-`:composeApp:iosSimulatorArm64Test` on an Apple-Silicon `macos-latest` runner. Nothing on
-either side builds or tests iosX64. It is a candidate for removal; left in place only
-because dropping a KMP target is a build change, not a doc fix.
+**iOS secrets:** the Sentry DSN lives only in gitignored `iosApp/Configuration/Secrets.xcconfig`,
+reaching the app via `Config.xcconfig` → `Info.plist` (`SentryDSN`). **xcconfig treats `//` as a
+comment**, so escape it: `SENTRY_DSN=https:/$()/key@host/123`. Unescaped, it truncates to
+"https:" and crash reporting silently dies.
 
 ## Commands
 
@@ -89,25 +87,18 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 - Empty results from sandboxed `find`/`ls` over ~/Downloads etc. can be macOS TCC denials,
   not absence — treat "found nothing" as "can't see" until a direct path read confirms.
 
-## CI: "red" and "no checks" are both ambiguous (post-mortem 2026-07-13)
+## CI (post-mortem 2026-07-13 — full story in PR #15)
 
-- CI was **completely dead for 11 days** (2026-07-02 → 07-13) and nobody noticed. A
-  step-level `if: ${{ secrets.X != '' }}` is invalid — `secrets` is not an allowed
-  context in a step `if` — so GitHub **rejected the whole workflow file and ran nothing**.
-- It hid because a rejected workflow still appears in the Actions list as an ordinary
-  red ✗ — just **0 jobs, 0s duration** — and PRs show **no checks at all**, which reads
-  as "checks haven't started yet," not "CI is broken." FEAT-00/01/02, source-tagging and
-  the app icon all merged with CI never having run.
-- **Before trusting a green/red signal, confirm jobs actually executed** (nonzero
-  duration, real job list). A run existing is not a run happening.
-- **A dead gate hides other rot.** With CI revived, two further breakages surfaced that
-  had been invisible: the E2E emulator never booted (missing `-no-window` /
-  `-gpu swiftshader_indirect` on a headless runner), and every Maestro flow used
-  `timeout:` on `assertVisible`, which Maestro 2.x rejects outright. When reviving a
-  dead gate, assume it stopped catching things and go looking.
-- **Pin tool versions in CI.** `curl get.maestro.mobile.dev | bash` installs *latest*, so
-  a Maestro release can break the suite with no commit of ours. `MAESTRO_VERSION` is now
-  pinned; bump it deliberately.
+- **A run existing is not a run happening.** An invalid workflow is rejected wholesale and
+  shows as an ordinary red ✗ with 0 jobs / 0s, while PRs show *no checks* — which reads as
+  "pending", not "broken". CI was dead 11 days that way. Confirm jobs actually executed.
+- **Never mark a test item done without a run showing execution counts.** The E2E suite was
+  recorded "✅ All Green" having never once passed; every defect in it was unpassable-by-
+  construction. A gate that only runs post-merge gates nothing.
+- **A dead gate hides other rot** — reviving it surfaced six further breakages, then two real
+  app bugs. Assume it stopped catching things and go looking.
+- **Pin tool versions.** `curl … | bash` installs *latest*, so a release can rot the suite with
+  no commit of ours (`MAESTRO_VERSION` is pinned; bump deliberately).
 
 ## Architecture rules (enforced; full text in 02-architecture.md)
 
