@@ -23,10 +23,11 @@ failed=()
 
 for flow in "${FLOWS[@]}"; do
   echo "::group::maestro $flow"
-  # --debug-output is a GLOBAL flag and must precede the `test` subcommand — placed after
-  # it, it is silently ignored and no artifacts are written at all. It keeps the UI
-  # hierarchy + screenshots, without which "element not found" can only be guessed at.
-  if maestro --debug-output maestro-debug test "$flow"; then
+  # --debug-output belongs AFTER `test` (2.6.1 rejects it as a global flag: "Unknown
+  # options"). Maestro also always writes a debug dir under ~/.maestro/tests/, which the
+  # upload step collects — that is the reliable source for the UI hierarchy + screenshots,
+  # without which "element not found" can only be guessed at.
+  if maestro test --debug-output maestro-debug "$flow"; then
     passed+=("$flow")
   else
     failed+=("$flow")
