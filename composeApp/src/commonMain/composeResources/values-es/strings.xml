@@ -193,13 +193,15 @@
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Política de privacidad</string>
     <string name="privacy_section_local_title">Tus datos permanecen en tu dispositivo</string>
-    <string name="privacy_section_local_body">Ostomate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Nada se envía a ningún servidor, servicio en la nube ni tercero.</string>
+    <string name="privacy_section_local_body">Ostomate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Tus datos de salud nunca se envían a ningún servidor, servicio en la nube ni tercero. Lo único que puede salir de tu dispositivo es un informe de fallos opcional; consulta más abajo.</string>
     <string name="privacy_section_analytics_title">Sin análisis ni seguimiento</string>
     <string name="privacy_section_analytics_body">Ostomate no contiene SDKs de análisis, redes publicitarias ni telemetría de ningún tipo. No sabemos cómo usas la app.</string>
     <string name="privacy_section_account_title">Sin cuenta requerida</string>
     <string name="privacy_section_account_body">Ostomate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan.</string>
     <string name="privacy_section_backups_title">Copias de seguridad</string>
     <string name="privacy_section_backups_body">La función Exportar crea un archivo de copia de seguridad en tu dispositivo que puedes guardar donde prefieras. Ostomate no sube copias de seguridad automáticamente.</string>
+    <string name="privacy_section_crash_title">Informes de fallos (opcional)</string>
+    <string name="privacy_section_crash_body">Ostomate incluye informes de fallos opcionales mediante Sentry, desactivados de forma predeterminada. Si los activas en Ajustes, solo se envían los registros técnicos del fallo, nunca tus datos de suministros, notas ni información personal. Puedes desactivarlos cuando quieras.</string>
     <string name="privacy_section_deletion_title">Eliminación de datos</string>
     <string name="privacy_section_deletion_body">Desinstalar Ostomate elimina todos los datos de la app de tu dispositivo. No hay datos almacenados en ningún otro lugar.</string>
     <string name="privacy_section_contact_title">Contacto</string>

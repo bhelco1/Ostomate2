@@ -300,12 +300,17 @@ See `planning/07-business-plan.md` and `docs/store-listing.md`.
 
 - Google Play: store listing content + screenshots (5 minimum)
 - App Store Connect: metadata + screenshots (6.7" + 5.5" required)
-- Privacy policy URL: GitHub Pages at this repo's `/docs/privacy-policy.html`
+- Privacy policy URL: **https://bhelco1.github.io/Ostomate2/** (serves `docs/privacy.html`).
+  There is no `/docs/privacy-policy.html` — that path never existed.
 
-### 3.5 — Enable GitHub Pages ⬜
+### 3.5 — Enable GitHub Pages ✅ (already live; verified 2026-07-13)
 
-Settings → Pages → Source: main, folder `/docs`.
-Verify privacy policy is live at the public URL before store submission.
+Pages is **already enabled**: source `main` / folder `/docs`, published at
+https://bhelco1.github.io/Ostomate2/, where `docs/index.html` redirects to
+`docs/privacy.html`. Nothing to do here — this item was stale, not pending.
+
+Before store submission, re-verify the page loads and that its crash-reporting section
+still matches what the app actually does.
 
 ---
 
@@ -332,7 +337,8 @@ Verify privacy policy is live at the public URL before store submission.
 
 ### 5.1 — Real-Device Test Period (minimum 3–5 days) ⬜
 - Use app daily on primary devices
-- Monitor Firebase Crashlytics for crashes
+- Monitor **Sentry** for crashes (not Crashlytics — that was never what shipped). Note it is
+  opt-in and OFF by default, so enable it on the test devices or you will see nothing.
 - File GitHub Issues for any bugs found
 
 ### 5.2 — Pre-Release Audit ⬜

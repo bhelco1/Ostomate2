@@ -196,13 +196,15 @@
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Privacy Policy</string>
     <string name="privacy_section_local_title">Your data stays on your device</string>
-    <string name="privacy_section_local_body">Ostomate stores all your supply and change event data locally on this device using a private database. Nothing is sent to any server, cloud service, or third party.</string>
+    <string name="privacy_section_local_body">Ostomate stores all your supply and change event data locally on this device using a private database. Your health data is never sent to any server, cloud service, or third party. The only thing that can leave your device is an optional crash report — see below.</string>
     <string name="privacy_section_analytics_title">No analytics or tracking</string>
     <string name="privacy_section_analytics_body">Ostomate contains no analytics SDKs, no advertising networks, and no telemetry of any kind. We do not know how you use the app.</string>
     <string name="privacy_section_account_title">No account required</string>
     <string name="privacy_section_account_body">Ostomate works without creating an account or providing any personal information. Your name, email, and identity are never collected.</string>
     <string name="privacy_section_backups_title">Backups</string>
     <string name="privacy_section_backups_body">The Export feature creates a backup file on your device that you can save wherever you choose. Ostomate does not upload backups anywhere automatically.</string>
+    <string name="privacy_section_crash_title">Crash reporting (optional)</string>
+    <string name="privacy_section_crash_body">Ostomate includes optional crash reporting powered by Sentry, which is off by default. If you turn it on in Settings, only crash stack traces are sent — never your supply data, event notes, or any personal information. You can turn it off at any time.</string>
     <string name="privacy_section_deletion_title">Data deletion</string>
     <string name="privacy_section_deletion_body">Uninstalling Ostomate removes all app data from your device. There is no data stored elsewhere to delete.</string>
     <string name="privacy_section_contact_title">Contact</string>

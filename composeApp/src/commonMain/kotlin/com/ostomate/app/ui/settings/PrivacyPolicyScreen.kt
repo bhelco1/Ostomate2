@@ -31,6 +31,8 @@ import com.ostomate.app.resources.privacy_section_backups_body
 import com.ostomate.app.resources.privacy_section_backups_title
 import com.ostomate.app.resources.privacy_section_contact_body
 import com.ostomate.app.resources.privacy_section_contact_title
+import com.ostomate.app.resources.privacy_section_crash_body
+import com.ostomate.app.resources.privacy_section_crash_title
 import com.ostomate.app.resources.privacy_section_deletion_body
 import com.ostomate.app.resources.privacy_section_deletion_title
 import com.ostomate.app.resources.privacy_section_local_body
@@ -84,6 +86,10 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
             PolicySection(
                 stringResource(Res.string.privacy_section_backups_title),
                 stringResource(Res.string.privacy_section_backups_body),
+            )
+            PolicySection(
+                stringResource(Res.string.privacy_section_crash_title),
+                stringResource(Res.string.privacy_section_crash_body),
             )
             PolicySection(
                 stringResource(Res.string.privacy_section_deletion_title),
