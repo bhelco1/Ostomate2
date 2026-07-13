@@ -10,11 +10,13 @@
 set -uo pipefail
 
 FLOWS=(
+  .maestro/01_cold_start_qr_log.yaml
   .maestro/02_log_and_undo.yaml
   .maestro/03_edit_delete_event.yaml
   .maestro/04_set_inventory.yaml
   .maestro/05_backup_round_trip.yaml
   .maestro/08_biometric_gate.yaml
+  .maestro/09_store_screenshots.yaml
 )
 
 fail=0
