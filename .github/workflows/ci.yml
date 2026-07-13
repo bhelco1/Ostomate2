@@ -194,16 +194,15 @@ jobs:
             until adb shell getprop sys.boot_completed 2>/dev/null | grep -q '1'; do sleep 3; done
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
             bash scripts/run_android_e2e.sh
-      - name: Upload Maestro debug output
+      - name: Upload E2E failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-debug
-          # ~/.maestro/tests is Maestro's own default debug dir; keep both so a failure
-          # always ships the UI hierarchy and screenshots even if the explicit dir moves.
-          path: |
-            maestro-debug/
-            ~/.maestro/tests/
+          name: e2e-diagnostics
+          # Workspace-relative on purpose: the previous attempt pointed at maestro-debug/
+          # and ~/.maestro/tests/ and got "No files were found" for both, so every
+          # "element not found" so far has been reasoned about rather than looked at.
+          path: e2e-diagnostics/
           if-no-files-found: warn
 
   ios:
