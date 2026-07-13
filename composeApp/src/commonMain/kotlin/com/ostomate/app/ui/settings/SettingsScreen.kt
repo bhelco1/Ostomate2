@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.ostomate.app.BuildInfo
 import com.ostomate.app.data.RestoreError
 import com.ostomate.app.data.RestoreResult
 import com.ostomate.app.platform.FeedbackHelper
@@ -39,6 +40,7 @@ import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_cancel
 import com.ostomate.app.resources.action_ok
+import com.ostomate.app.resources.settings_app_build
 import com.ostomate.app.resources.settings_app_version
 import com.ostomate.app.resources.settings_backup
 import com.ostomate.app.resources.settings_backup_sub
@@ -377,7 +379,15 @@ fun SettingsScreen(
                         }
                     },
             )
-            SettingsItem(title = "Ostomate", subtitle = stringResource(Res.string.settings_app_version))
+            SettingsItem(
+                title = "Ostomate",
+                subtitle =
+                    stringResource(
+                        Res.string.settings_app_build,
+                        stringResource(Res.string.settings_app_version),
+                        BuildInfo.GIT_SHA,
+                    ),
+            )
             ListItem(
                 headlineContent = {
                     Text(

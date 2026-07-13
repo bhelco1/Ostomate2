@@ -102,6 +102,7 @@
     <string name="settings_section_about">Acerca de</string>
     <string name="settings_section_about_dev">Acerca de [DEV]</string>
     <string name="settings_app_version">v2.0.0-dev</string>
+    <string name="settings_app_build">%1$s · compilación %2$s</string>
     <string name="settings_privacy_policy">Política de privacidad</string>
     <string name="settings_restore_confirm_title">¿Restaurar copia de seguridad?</string>
     <string name="settings_restore_confirm_body">Esto reemplaza todos los datos actuales de este dispositivo.</string>
