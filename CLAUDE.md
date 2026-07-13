@@ -17,12 +17,16 @@ Planning docs live in `planning/` within this repo:
 
 Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
 
-## Current status (2026-07-02)
+## Current status (2026-07-13)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.4 done.**
-Shared: 86 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
+**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.5 done.**
+Shared: 79 tests on JVM host + iOS sim. ViewModels: 47 tests on both targets.
+(Shared dropped 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression.)
 JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
 ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
+
+**Trust `test-results/*/TEST-*.xml` execution counts over any number written in a doc —
+including this one.** Docs drift; the XML does not.
 
 ## Stack
 
@@ -68,6 +72,26 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
   identifies a build. Trust lastUpdateTime only.
 - Empty results from sandboxed `find`/`ls` over ~/Downloads etc. can be macOS TCC denials,
   not absence — treat "found nothing" as "can't see" until a direct path read confirms.
+
+## CI: "red" and "no checks" are both ambiguous (post-mortem 2026-07-13)
+
+- CI was **completely dead for 11 days** (2026-07-02 → 07-13) and nobody noticed. A
+  step-level `if: ${{ secrets.X != '' }}` is invalid — `secrets` is not an allowed
+  context in a step `if` — so GitHub **rejected the whole workflow file and ran nothing**.
+- It hid because a rejected workflow still appears in the Actions list as an ordinary
+  red ✗ — just **0 jobs, 0s duration** — and PRs show **no checks at all**, which reads
+  as "checks haven't started yet," not "CI is broken." FEAT-00/01/02, source-tagging and
+  the app icon all merged with CI never having run.
+- **Before trusting a green/red signal, confirm jobs actually executed** (nonzero
+  duration, real job list). A run existing is not a run happening.
+- **A dead gate hides other rot.** With CI revived, two further breakages surfaced that
+  had been invisible: the E2E emulator never booted (missing `-no-window` /
+  `-gpu swiftshader_indirect` on a headless runner), and every Maestro flow used
+  `timeout:` on `assertVisible`, which Maestro 2.x rejects outright. When reviving a
+  dead gate, assume it stopped catching things and go looking.
+- **Pin tool versions in CI.** `curl get.maestro.mobile.dev | bash` installs *latest*, so
+  a Maestro release can break the suite with no commit of ours. `MAESTRO_VERSION` is now
+  pinned; bump it deliberately.
 
 ## Architecture rules (enforced; full text in 02-architecture.md)
 
