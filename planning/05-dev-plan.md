@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.5 ✅, 2.5.6+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.6 ✅, 2.5.7+ ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -232,11 +232,23 @@ optional check later if belt-and-suspenders wanted.
       codecov.io after signing in with GitHub).
 - **Done when** ✅: suite health + coverage trend readable without opening CI logs.
 
-### 2.5.6 — iOS E2E ⬜
-*Biggest remaining hole — iOS correctness is 100% manual today.*
-- Maestro on the iOS simulator for onboarding, log, share, and deep-link flows
-  (the clusters where device bugs appeared).
-- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite.
+### 2.5.6 — iOS E2E ✅
+*Was the biggest remaining hole — iOS correctness had been 100% manual.*
+- New `ios-e2e` CI job: creates a fresh iPhone simulator, builds + installs the app,
+  runs Maestro. Post-merge / `workflow_dispatch` only, same gate as `android-e2e`.
+- Covers the clusters where device bugs appeared: onboarding (`ios/00`), deep link
+  (`ios/01`), log a change (`ios/02`), backup/share (`ios/05`), plus the reused
+  platform-neutral `08_biometric_gate.yaml`.
+- iOS variants exist because Maestro full-string-matches `text:` on iOS, because
+  `launchApp.arguments.url` does not trigger `onOpenURL` (use `openLink`), and
+  because `pressKey: BACK` / `hideKeyboard` are no-ops there. Android flows untouched.
+- Onboarding was previously skipped by every flow on both platforms; `ios/00` is the
+  first automated test that walks the wizard.
+- **Done when:** iOS E2E runs post-merge alongside the Android Maestro suite. ✅
+
+**Known gap left for 2.5.8:** `04_set_inventory.yaml` uses `clearText`, which is not
+a Maestro command (it is `eraseText`) and is a hard error in 2.x — so it cannot run on
+either platform yet, and is not in the iOS job.
 
 ### 2.5.7 — Screenshot tests ⬜
 - Screenshot-diff coverage for Home, Onboarding, Calendar, QrLabels (catches
