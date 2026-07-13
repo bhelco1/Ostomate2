@@ -199,8 +199,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: maestro-debug
-          path: maestro-debug/
-          if-no-files-found: ignore
+          # ~/.maestro/tests is Maestro's own default debug dir; keep both so a failure
+          # always ships the UI hierarchy and screenshots even if the explicit dir moves.
+          path: |
+            maestro-debug/
+            ~/.maestro/tests/
+          if-no-files-found: warn
 
   ios:
     name: iOS shared tests + app build

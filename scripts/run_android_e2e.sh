@@ -23,9 +23,10 @@ failed=()
 
 for flow in "${FLOWS[@]}"; do
   echo "::group::maestro $flow"
-  # --debug-output keeps the UI hierarchy + screenshots; "element not found" cannot be
-  # diagnosed without seeing the tree Maestro actually saw.
-  if maestro test --debug-output maestro-debug "$flow"; then
+  # --debug-output is a GLOBAL flag and must precede the `test` subcommand — placed after
+  # it, it is silently ignored and no artifacts are written at all. It keeps the UI
+  # hierarchy + screenshots, without which "element not found" can only be guessed at.
+  if maestro --debug-output maestro-debug test "$flow"; then
     passed+=("$flow")
   else
     failed+=("$flow")
