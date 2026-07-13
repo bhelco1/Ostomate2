@@ -33,7 +33,11 @@ interface SupplyTypeDao {
         onHand: Int,
     )
 
-    @Query("UPDATE supply_types SET onHand = onHand - 1 WHERE id = :id")
+    // MAX(...,0): you cannot physically hold -1 bags. Logging a change with 0 on hand used to
+    // write -1 to the DB (and into backups), which then drove "0 days remaining" and a reorder
+    // warning off nonsense data. Undo does not rely on the inverse of this — it restores the
+    // exact prior count via undoLog() — so clamping here cannot invent inventory.
+    @Query("UPDATE supply_types SET onHand = MAX(onHand - 1, 0) WHERE id = :id")
     suspend fun decrementOnHand(id: Long)
 
     @Query("UPDATE supply_types SET onHand = onHand + 1 WHERE id = :id")
