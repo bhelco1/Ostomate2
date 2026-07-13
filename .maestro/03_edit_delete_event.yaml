@@ -68,13 +68,19 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
       text: ".*Bag.*"
     timeout: 3000
 
-# Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox)
+# Swipe left to delete the first event (testTag "eventRow" on SwipeToDismissBox).
+# The element key is `from:`, not `element:` — Maestro's YamlSwipeElement takes
+# (direction, from). With `element:` the swipe silently degraded to a plain directional
+# swipe across the middle of the screen, which missed the row (it sits near the top), so
+# nothing was ever dismissed and the "Event deleted" snackbar never appeared.
+# Longer duration than the 300 ms default-ish: SwipeToDismissBox's positional threshold is
+# 50% of the row width, so the gesture has to actually carry it past halfway.
 - swipe:
-    element:
+    from:
       id: "eventRow"
       index: 0
     direction: LEFT
-    duration: 300
+    duration: 600
 
 # Undo delete
 - extendedWaitUntil:
