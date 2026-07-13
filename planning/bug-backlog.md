@@ -45,16 +45,23 @@ Bugs and UX issues found during physical device testing. Work through these befo
 **Problem:** The share sheet sends raw text data rather than an image of the QR code. The recipient gets a string that does not function as a QR code.  
 **Fix:** Render the QR code composable to a bitmap/image first, then share the image (PNG or PDF). Do not share the raw string.
 
-### [x] BUG-07: Print button does not work with HP printer app on iPhone
+### [x] BUG-07: Print button does not work with HP printer app on iPhone — ⚠️ code landed, **not verified on hardware**
 **Screen:** QR Labels — Print  
 **Problem:** On an iPhone with the HP Smart app installed and a printer configured, tapping Print does nothing (or fails).  
 **Fix:** Investigate whether the iOS print path is using `UIPrintInteractionController` correctly. Ensure the printable content is provided as a `UIPrintPageRenderer` or `UIPrintFormatter` compatible type. Test with HP Smart.
+
+**Status (audited 2026-07-13):** `QrPrinter.ios.kt` does implement the fix — it presents
+`UIPrintInteractionController` with `printingItems` set to `UIImage`s rendered from
+`QrCodeEncoder.encodeToPng`. But unlike BUG-01…06 this item carries no
+"verified <date>" stamp, and printing cannot be exercised by an emulator or a unit
+test. **Treat as unproven until someone taps Print on a real iPhone against a real HP
+printer.** Added to the Phase 5.2 pre-release device audit.
 
 ---
 
 ## Backup & Restore
 
-### [ ] FEAT-00: Full-state backup & restore — survive a "new phone"
+### [x] FEAT-00: Full-state backup & restore — survive a "new phone" — landed 2026-07-12 (`5c9e3ea`); JSON full-state backup + restore, CSV and all v1 compat removed. Round-trip proven by `RepositoryScenarios` on both targets.
 **Goal:** Back up and restore so a new phone is indistinguishable from the old one — all data and settings, IDs and relationships intact. Replaces the CSV backup entirely (see "Retire CSV" below).
 
 **Motivating bug (confirmed on-device):** the current CSV restore silently drops all events for custom supply types. Bobby's 2026-06-17 backup held 17 events (11 Bag, 3 Flange, 3 custom: rings ×2, junk ×1); after restore the 14 Bag/Flange events returned but all 3 custom events were gone. Root cause: `BackupRepository.importCsv` remaps rows by `supply_kind`, handling only BAG/FLANGE (`else -> null -> continue`, `BackupRepository.kt:50-55`), and the CSV never carries supply *definitions*, so custom supplies can't be recreated on a fresh device. The full-state backup below subsumes this fix — a backup that carries supply definitions and maps by ID cannot drop custom supplies.
@@ -86,7 +93,7 @@ Bugs and UX issues found during physical device testing. Work through these befo
 
 ## Duplicate Change Events
 
-### [ ] BUG-09: Duplicate change events — Android replays the deep-link intent on Activity recreation
+### [x] BUG-09: Duplicate change events — Android replays the deep-link intent on Activity recreation — fixed 2026-07-12; `MainActivity` now guards `onCreate` on `savedInstanceState == null` and consumes the intent (`intent.data = null`) so a recreation cannot replay the scan. FEAT-02's scan audit log is in place to confirm if it ever recurs on-device.
 **Screen:** QR log deep link → `MainActivity` → `ChangeEventRepository.handleDeepLink`
 **Problem:** One QR scan produces 2–3 change events for the same supply within the same minute. **Confirmed on-device:** survivors show the fingerprint — ids 37/38 are a bag+flange written **1 ms apart** (consecutive rows), and ids 36/38 are two flanges **8 s apart**, both outside the existing debounce window.
 **Root cause (prime suspect):** `MainActivity.onCreate` calls `handleDeepLink(intent)` unconditionally (`MainActivity.kt:38`) with no `savedInstanceState == null` guard and never consumes the intent. `launchMode=singleTask` prevents new-instance dupes, but any Activity recreation (rotation, dark-mode toggle, POST_NOTIFICATIONS dialog at first launch, process-death restore) re-runs `onCreate` with the *same* `ostomate://log?item=…` still attached, logging again. The only protection is a 3 s, in-memory, per-item debounce (`ChangeEventRepository.kt:12,63-68`), which is escaped by:
@@ -104,14 +111,14 @@ Bugs and UX issues found during physical device testing. Work through these befo
 
 ## Feature Requests
 
-### [ ] FEAT-01: Confirm rapid-repeat changes instead of silently suppressing
+### [x] FEAT-01: Confirm rapid-repeat changes instead of silently suppressing — landed 2026-07-12 (`11c733d`); QR + manual paths both confirm, covered by `HomeViewModelTest`.
 **Area:** Change logging (home-screen log buttons + QR deep link)
 **Request:** If a genuine, user-initiated change is logged for a supply within a configurable window (default ~10 min) of the previous one, show a confirmation ("You logged a Bag 2 minutes ago — add another?") instead of writing it blindly. Catches fat-finger double-taps (notably older/less-technical users mashing buttons) and re-scans by someone unsure the first registered, while reassuring them it did.
 **Why not silent suppression:** a silent long window would eat *legitimate* immediate re-changes (a bag/flange that fails right after application and is redone within minutes) — the same class of quiet data loss as BUG-08. Confirmation hands the ambiguous case to the only one who knows: the user.
 **Key rule:** confirm what the **user** did twice; silently drop what the **framework** did twice. Phantom re-fires (BUG-09 intent replay) must be eliminated at the source and must **never** raise this dialog, or the user sees a prompt for something they never did.
 **Implementation note:** the QR path currently commits in `handleDeepLink` and only posts a snackbar. Confirming means holding a *pending* change and routing it through the UI (dialog → commit) rather than writing straight to the DB — moves the commit decision from the repository to the UI layer.
 
-### [ ] FEAT-02: Exportable local diagnostic/support log
+### [x] FEAT-02: Exportable local diagnostic/support log — landed 2026-07-12 (`3f4ef34`, `c981cc2`); local-only log with BUG-09 scan audit, plus change events tagged with their source (qr/manual).
 **Area:** Diagnostics / Support (local-first)
 **Request:** A rolling on-device log the user can export and send on request (reuse `FileSharer`, same plumbing as CSV backup). Diagnostics now (confirms BUG-09 the next time it recurs), support channel later as more users come on.
 **Privacy constraint:** must stay local-first — no analytics, no network, no silent collection (`06-security-privacy.md`). Support = the user chooses to export and share; nothing is phoned home.

@@ -15,14 +15,20 @@ Planning docs live in `planning/` within this repo:
 - `planning/06-security-privacy.md` — privacy posture (local-first, no analytics), threat model
 - `planning/07-business-plan.md` — cost rules (no new recurring costs without justification)
 
-Store assets: `docs/privacy-policy.md`, `docs/store-listing.md`.
+Store assets: `docs/privacy.html` (**the** privacy policy — it is what GitHub Pages actually
+serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redirect), and
+`docs/store-listing.md`.
 
-## Current status (2026-07-02)
+## Current status (2026-07-13)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.4 done.**
-Shared: 86 tests on JVM host + iOS sim. ViewModels: 42 tests on both targets.
+**Phases 0–2 complete; Phase 2.5 (test hardening) in progress — 2.5.1–2.5.5 done.**
+Shared: 79 tests on JVM host + iOS sim. ViewModels: 47 tests on both targets.
+(Shared dropped 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression.)
 JaCoCo coverage floors gate every PR (shared domain+data 91%, composeApp
 ViewModel+UiState 93%). ktlint + detekt green. See `planning/05-dev-plan.md`.
+
+**Trust `test-results/*/TEST-*.xml` execution counts over any number written in a doc —
+including this one.** Docs drift; the XML does not.
 
 ## Stack
 
@@ -34,15 +40,21 @@ Package `com.ostomate.app`, deep-link scheme `ostomate://log?item=bag|flange`.
 
 | Module | Rule |
 |---|---|
-| `shared` | Domain + data only. **No Compose imports, ever.** Targets include iosX64 so tests run on this Intel Mac's simulator. |
+| `shared` | Domain + data only. **No Compose imports, ever.** Declares an `iosX64` target that nothing currently uses — see Hardware below. |
 | `composeApp` | All CMP UI, ViewModels, theme, `initKoin`. iOS arm64-only (CMP dropped iosX64). Builds `Shared.framework` for Xcode. |
 | `androidApp` / `iosApp` | Thin launchers + platform glue (deep-link entry, app icons, widgets later). |
 
 ## Hardware (Apple Silicon M1)
 
 Full Compose Multiplatform iOS app runs in the local simulator. Use `iosSimulatorArm64`
-targets for all local iOS work. The `iosX64` target in `shared` remains for CI
-compatibility but is not needed locally.
+targets for all local iOS work.
+
+**`iosX64` is dead weight (verified 2026-07-13).** `shared/build.gradle.kts` still declares
+it, and its comment still claims it exists "for local simulator testing on Bobby's Intel
+Mac" — this machine is an M1, and CI runs only `:shared:iosSimulatorArm64Test` /
+`:composeApp:iosSimulatorArm64Test` on an Apple-Silicon `macos-latest` runner. Nothing on
+either side builds or tests iosX64. It is a candidate for removal; left in place only
+because dropping a KMP target is a build change, not a doc fix.
 
 ## Commands
 
@@ -69,6 +81,26 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 - Empty results from sandboxed `find`/`ls` over ~/Downloads etc. can be macOS TCC denials,
   not absence — treat "found nothing" as "can't see" until a direct path read confirms.
 
+## CI: "red" and "no checks" are both ambiguous (post-mortem 2026-07-13)
+
+- CI was **completely dead for 11 days** (2026-07-02 → 07-13) and nobody noticed. A
+  step-level `if: ${{ secrets.X != '' }}` is invalid — `secrets` is not an allowed
+  context in a step `if` — so GitHub **rejected the whole workflow file and ran nothing**.
+- It hid because a rejected workflow still appears in the Actions list as an ordinary
+  red ✗ — just **0 jobs, 0s duration** — and PRs show **no checks at all**, which reads
+  as "checks haven't started yet," not "CI is broken." FEAT-00/01/02, source-tagging and
+  the app icon all merged with CI never having run.
+- **Before trusting a green/red signal, confirm jobs actually executed** (nonzero
+  duration, real job list). A run existing is not a run happening.
+- **A dead gate hides other rot.** With CI revived, two further breakages surfaced that
+  had been invisible: the E2E emulator never booted (missing `-no-window` /
+  `-gpu swiftshader_indirect` on a headless runner), and every Maestro flow used
+  `timeout:` on `assertVisible`, which Maestro 2.x rejects outright. When reviving a
+  dead gate, assume it stopped catching things and go looking.
+- **Pin tool versions in CI.** `curl get.maestro.mobile.dev | bash` installs *latest*, so
+  a Maestro release can break the suite with no commit of ours. `MAESTRO_VERSION` is now
+  pinned; bump it deliberately.
+
 ## Architecture rules (enforced; full text in 02-architecture.md)
 
 - UI → ViewModel (one `UiState` per screen via `StateFlow`, UDF) → UseCase → Repository → Room/DataStore
@@ -76,7 +108,9 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 - Room schema export stays ON (`shared/schemas/`); every version bump ships a migration + migration test
 - No `!!`; all user-facing strings externalized; code lands with tests (see 04-test-plan.md)
 - Parity before new features — check the current phase in 05-dev-plan.md before building anything new
-- Privacy: local-first, no analytics SDKs, no network calls (06-security-privacy.md); new
-  recurring costs need a written case in 07-business-plan.md
+- Privacy: local-first, no analytics SDKs. **No network calls except opt-in crash reporting
+  (Sentry), which is OFF by default** — the app is not "zero outbound requests", and saying
+  so on a store form would be false. Everything else stays on-device (06-security-privacy.md);
+  new recurring costs need a written case in 07-business-plan.md
 - A skipped/disabled test task looks like success — after touching test config, verify
   execution counts in `shared/build/test-results/*/TEST-*.xml`, not just BUILD SUCCESSFUL

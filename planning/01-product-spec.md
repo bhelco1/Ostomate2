@@ -170,7 +170,7 @@ macOS runners bill at 10× — iOS job is gated to non-PR events intentionally.
 |---|---|---|
 | Package / Bundle ID | `com.ostomate.app` | `com.ostomate.app` |
 | Developer account | Google Play ($25 one-time) | Apple Developer Program ($99/year) |
-| Privacy policy | GitHub Pages `/docs/privacy-policy.md` | Same URL |
+| Privacy policy | GitHub Pages → `docs/privacy.html` (https://bhelco1.github.io/Ostomate2/) | Same URL |
 | Release signing | Keystore via GitHub Secrets | Certificate + provisioning via Fastlane |
 | Distribution track | Internal → Production | TestFlight → App Store |
 
