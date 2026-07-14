@@ -7,11 +7,13 @@ plugins {
 }
 
 kotlin {
-    // Logic-only module: no Compose, so all three iOS targets are supported.
-    // iosX64 exists for local simulator testing on Bobby's Intel Mac.
+    // Logic-only module: no Compose, so iOS targets are unconstrained.
+    // No iosX64: it existed "for local simulator testing on Bobby's Intel Mac", but this
+    // machine is Apple Silicon and CI runs only :shared:iosSimulatorArm64Test on an
+    // arm64 macos runner. Nothing built or tested it — it was pure build time.
+    // composeApp cannot have it either (CMP 1.11+ drops Intel-simulator artifacts).
     iosArm64()
     iosSimulatorArm64()
-    iosX64()
 
     androidLibrary {
         namespace = "com.ostomate.app.shared"
@@ -60,7 +62,6 @@ dependencies {
     add("kspAndroid", libs.room.compiler)
     add("kspIosArm64", libs.room.compiler)
     add("kspIosSimulatorArm64", libs.room.compiler)
-    add("kspIosX64", libs.room.compiler)
 }
 
 // Coverage (2.5.2, 08-test-strategy §5): JaCoCo on the JVM host run. Kover stays out —

@@ -2,7 +2,15 @@ TEAM_ID=
 BUNDLE_ID=com.ostomate.app
 APP_NAME=Ostomate
 
-// Local secrets (gitignored). Create iosApp/Configuration/Secrets.xcconfig with:
-//   SENTRY_DSN=https://your-key@o123.ingest.sentry.io/456
+// Local secrets (gitignored). Create iosApp/Configuration/Secrets.xcconfig.
+//
+// TRAP: xcconfig treats `//` as a COMMENT, so a DSN pasted verbatim is silently truncated
+// to "https:" and Sentry never initializes — with no error anywhere. Escape the slashes
+// with /$()/ , which is an empty variable substitution that evaluates back to `//`:
+//
+//   SENTRY_DSN=https:/$()/your-key@o123.ingest.sentry.io/456
+//
+// (This is why a duplicate DSN used to live in a Swift file. iOSApp.swift now rejects a
+// malformed DSN loudly rather than starting Sentry with a truncated one.)
 SENTRY_DSN=
 #include? "Secrets.xcconfig"

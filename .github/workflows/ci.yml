@@ -244,17 +244,6 @@ jobs:
         run: swiftlint lint --config iosApp/.swiftlint.yml --strict iosApp/
       - name: Shared + ViewModel tests on iOS simulator (arm64)
         run: ./gradlew :shared:iosSimulatorArm64Test :composeApp:iosSimulatorArm64Test --stacktrace
-      - name: Generate Secrets.swift stub
-        # Secrets.swift is gitignored (holds the Sentry DSN) so it is absent in CI, but
-        # the Xcode target compiles it. Write an empty-DSN stub: iOSApp.swift guards on
-        # `!dsn.isEmpty`, so Sentry stays off for CI builds. Secrets.xcconfig is optional
-        # (Config.xcconfig uses `#include?`), so no stub is needed for it.
-        run: |
-          cat > iosApp/iosApp/Secrets.swift <<'SWIFT'
-          enum Secrets {
-              static let sentryDSN = ""
-          }
-          SWIFT
       - name: Build iOS app (simulator, unsigned)
         # ARCHS=arm64 because composeApp publishes no x86_64 slice (CMP 1.11+ dropped it);
         # an unconstrained simulator build tries both archs and fails.
@@ -280,15 +269,6 @@ jobs:
           distribution: 'zulu'
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
-      - name: Generate Secrets.swift stub
-        # Gitignored (holds the Sentry DSN) so it is absent in CI, but the Xcode target
-        # compiles it. Empty DSN => iOSApp.swift keeps Sentry off.
-        run: |
-          cat > iosApp/iosApp/Secrets.swift <<'SWIFT'
-          enum Secrets {
-              static let sentryDSN = ""
-          }
-          SWIFT
       - name: Install Maestro
         # Pinned for the same reason as android-e2e — keep the two in lockstep.
         env:
