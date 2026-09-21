@@ -61,7 +61,7 @@ printer.** Added to the Phase 5.2 pre-release device audit.
 
 ## Stats
 
-### [x] BUG-10: Stats average ignores the selected period — fixed 2026-09-21 (StatsViewModel: average now computed from in-period events only); awaiting on-device verification
+### [x] BUG-10: Stats average ignores the selected period — fixed 2026-09-21 (StatsViewModel: average now computed from in-period events only); verified on Pixel 8 Pro 2026-09-21
 **Screen:** Stats tab — Week / Month / Year chips  
 **Problem:** Only the change count and sparkline honoured the period. `avgDaysBetween` was fed every event ever logged (capped at the 10 most recent), so switching chips never changed the "days between changes" figure, and a single change this week showed e.g. "~59d avg" from a change two months ago.  
 **Decision:** Periods stay rolling windows ("last 7 / 30 / 365 days"), not calendar weeks/months. Average stays the mean gap between consecutive changes *inside* the window. Fewer than 2 changes in the window → no number; card shows "Not enough changes in this period yet". Chips relabelled "7 days / 30 days / 1 year" so the window is unambiguous.  
