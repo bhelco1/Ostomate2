@@ -12,6 +12,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.time.Clock
 
@@ -82,6 +83,97 @@ class StatsViewModelTest : MainDispatcherTest() {
             // One event → no interval → no average → no summary claim about it.
             assertNull(vm.uiState.value.rows.single().avgDaysBetween)
             assertNull(vm.uiState.value.summaryLine)
+        }
+
+    @Test
+    fun averageUsesOnlyEventsInSelectedPeriod() =
+        runTest {
+            val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
+            val now = Clock.System.now().toEpochMilliseconds()
+            // Week window holds two events 2 days apart; month adds one 12 days
+            // earlier; year adds one 85 days before that. Each period therefore
+            // has a distinct interval-based average: 2.0 / 7.0 / 33.0.
+            eventRepository.logChangeAt(bagId, now - 100 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now - 15 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now - 3 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now - DAY_MS)
+
+            val vm = viewModel()
+            keepSubscribed(vm.uiState)
+
+            vm.selectPeriod(StatsPeriod.WEEK)
+            advanceUntilIdle()
+            val week = vm.uiState.value.rows.single()
+            assertEquals(2, week.countInPeriod)
+            assertEquals(2.0, week.avgDaysBetween, "week average must only use the 2 events in the last 7 days")
+            assertEquals("You change bag every 2 days on average.", vm.uiState.value.summaryLine)
+
+            vm.selectPeriod(StatsPeriod.MONTH)
+            advanceUntilIdle()
+            val month = vm.uiState.value.rows.single()
+            assertEquals(3, month.countInPeriod)
+            assertEquals(7.0, month.avgDaysBetween, "month average must only use the 3 events in the last 30 days")
+            assertEquals("You change bag every 7 days on average.", vm.uiState.value.summaryLine)
+
+            vm.selectPeriod(StatsPeriod.YEAR)
+            advanceUntilIdle()
+            val year = vm.uiState.value.rows.single()
+            assertEquals(4, year.countInPeriod)
+            assertEquals(33.0, year.avgDaysBetween, "year average must use all 4 events in the last 365 days")
+            assertEquals("You change bag every 33 days on average.", vm.uiState.value.summaryLine)
+        }
+
+    @Test
+    fun switchingPeriodChangesTheAverage() =
+        runTest {
+            val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
+            val now = Clock.System.now().toEpochMilliseconds()
+            eventRepository.logChangeAt(bagId, now - 60 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now - 2 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now)
+
+            val vm = viewModel()
+            keepSubscribed(vm.uiState)
+
+            vm.selectPeriod(StatsPeriod.WEEK)
+            advanceUntilIdle()
+            val weekAvg = vm.uiState.value.rows.single().avgDaysBetween
+
+            vm.selectPeriod(StatsPeriod.YEAR)
+            advanceUntilIdle()
+            val yearAvg = vm.uiState.value.rows.single().avgDaysBetween
+
+            assertNotEquals(
+                weekAvg,
+                yearAvg,
+                "week and year windows contain different events, so their averages must differ",
+            )
+        }
+
+    @Test
+    fun singleChangeInPeriodHasNoAverageEvenWithOlderHistory() =
+        runTest {
+            val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
+            val now = Clock.System.now().toEpochMilliseconds()
+            eventRepository.logChangeAt(bagId, now - 60 * DAY_MS)
+            eventRepository.logChangeAt(bagId, now - DAY_MS)
+
+            val vm = viewModel()
+            keepSubscribed(vm.uiState)
+            vm.selectPeriod(StatsPeriod.WEEK)
+            advanceUntilIdle()
+
+            // The 60-day-old change must not leak in as a 59-day "average".
+            val week = vm.uiState.value.rows.single()
+            assertEquals(1, week.countInPeriod)
+            assertNull(week.avgDaysBetween, "one change in the window is not a rhythm")
+            assertNull(vm.uiState.value.summaryLine)
+
+            vm.selectPeriod(StatsPeriod.YEAR)
+            advanceUntilIdle()
+            val year = vm.uiState.value.rows.single()
+            assertEquals(2, year.countInPeriod)
+            assertEquals(59.0, year.avgDaysBetween)
         }
 
     @Test

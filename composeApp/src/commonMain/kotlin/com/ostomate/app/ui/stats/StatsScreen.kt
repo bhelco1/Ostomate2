@@ -40,6 +40,7 @@ import com.ostomate.app.resources.stats_avg_days
 import com.ostomate.app.resources.stats_changes_count
 import com.ostomate.app.resources.stats_days_between
 import com.ostomate.app.resources.stats_no_events
+import com.ostomate.app.resources.stats_not_enough_changes
 import com.ostomate.app.resources.stats_period_month
 import com.ostomate.app.resources.stats_period_week
 import com.ostomate.app.resources.stats_period_year
@@ -155,12 +156,18 @@ private fun StatsCard(row: SupplyStats) {
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
                         )
+                        Text(
+                            stringResource(Res.string.stats_days_between),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            stringResource(Res.string.stats_not_enough_changes),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                    Text(
-                        stringResource(Res.string.stats_days_between),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                 }
                 if (row.periodTimestamps.size >= 2) {
                     Sparkline(

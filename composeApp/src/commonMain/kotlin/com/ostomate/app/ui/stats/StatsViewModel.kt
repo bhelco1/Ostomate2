@@ -15,10 +15,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlin.time.Clock
 
+/** Rolling windows ending now — not calendar weeks/months/years. */
 enum class StatsPeriod(val label: String, val days: Long) {
-    WEEK("Week", 7),
-    MONTH("Month", 30),
-    YEAR("Year", 365),
+    WEEK("7 days", 7),
+    MONTH("30 days", 30),
+    YEAR("1 year", 365),
 }
 
 data class SupplyStats(
@@ -26,6 +27,7 @@ data class SupplyStats(
     val supplyName: String,
     val kind: SupplyKind,
     val countInPeriod: Int,
+    /** Mean gap between consecutive changes inside the period; null with fewer than 2 changes. */
     val avgDaysBetween: Double?,
     /** Timestamps within the selected period, sorted ASC — used to draw the sparkline. */
     val periodTimestamps: List<Long> = emptyList(),
@@ -65,7 +67,7 @@ class StatsViewModel(
                         countInPeriod = inPeriod.size,
                         avgDaysBetween =
                             PredictionEngine.averageDaysBetween(
-                                supplyEvents.map { it.event.timestampMillis },
+                                inPeriod.map { it.event.timestampMillis },
                             ),
                         periodTimestamps = inPeriod.map { it.event.timestampMillis }.reversed(),
                     )
