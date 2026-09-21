@@ -77,7 +77,9 @@ fun HomeScreen(
             snackbarHostState.showSnackbar(
                 message = message,
                 actionLabel = undoLabel,
-                duration = SnackbarDuration.Short,
+                // Long (10 s): Short (4 s) auto-dismissed under a hesitant Undo tap, and a
+                // dismissal clears the pending undo WITHOUT deleting the event (BUG-11).
+                duration = SnackbarDuration.Long,
             )
         when (result) {
             SnackbarResult.ActionPerformed -> viewModel.undoLog()

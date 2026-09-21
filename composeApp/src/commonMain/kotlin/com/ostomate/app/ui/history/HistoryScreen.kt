@@ -157,7 +157,8 @@ fun HistoryScreen(
             snackbarHostState.showSnackbar(
                 message = eventDeletedMsg,
                 actionLabel = undoLabel,
-                duration = SnackbarDuration.Short,
+                // BUG-11: give the Undo a real 10 s window
+                duration = SnackbarDuration.Long,
             )
         when (result) {
             SnackbarResult.ActionPerformed -> viewModel.undoDelete()

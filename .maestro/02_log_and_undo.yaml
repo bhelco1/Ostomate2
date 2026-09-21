@@ -26,7 +26,8 @@ name: "Journey 2: Log + undo"
       text: ".*logged.*"
     timeout: 3000
 
-# Tap Undo within 5 seconds
+# Tap Undo. The snackbar is Long (10 s); Maestro's settle wait after the log tap eats
+# ~3.5 s, which used to race Short's 4 s auto-dismiss (BUG-11).
 - tapOn:
     text: "Undo"
 
@@ -35,3 +36,19 @@ name: "Journey 2: Log + undo"
     notVisible:
       text: ".*logged.*"
     timeout: 2000
+
+# "Snackbar gone" is also true when it merely timed out, and a timeout clears the pending
+# undo without deleting. Prove the event was really removed: History must have no rows.
+- tapOn:
+    id: "overflowButton"
+    index: 0
+- tapOn:
+    text: "View history"
+- extendedWaitUntil:
+    visible:
+      text: ".*history.*"
+    timeout: 3000
+- extendedWaitUntil:
+    notVisible:
+      id: "eventRow"
+    timeout: 3000

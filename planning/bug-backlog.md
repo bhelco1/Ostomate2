@@ -69,6 +69,16 @@ printer.** Added to the Phase 5.2 pre-release device audit.
 
 ---
 
+## Logging / Undo
+
+### [x] BUG-11: Undo snackbar auto-dismisses after 4 s, and a dismissal silently keeps the event — fixed 2026-09-21 (Home/Calendar/History undo snackbars: `SnackbarDuration.Short` → `Long`, 10 s)
+**Screen:** Home (log change → "Bag logged · N left  UNDO"), plus the "Event deleted  UNDO" snackbars on Calendar and History  
+**Found by:** running the Maestro suite on the Pixel 8 Pro. Flow 03 tapped Undo, then logged again and hit the FEAT-01 "Add another?" prompt — the undone event was still in History. Maestro's Undo tap landed ~3.5–3.9 s after the snackbar appeared, right at Short's 4 s auto-dismiss.  
+**Problem:** `showSnackbar` returns `Dismissed` on timeout, which routes to `clearUndo()` — correct, nothing should be deleted if the user did not tap. But 4 s is too short for a real person to notice a mistaken tap and hit Undo, so a hesitant tap races the dismissal and appears to do nothing. Material guidance: snackbars with an action should use the longer duration.  
+**Fix:** all three undo snackbars use `SnackbarDuration.Long` (10 s). Flow 02 now opens History after Undo and asserts there are no event rows — previously it only asserted the snackbar was gone, which a timeout also satisfies, so it never proved Undo worked.
+
+---
+
 ## Backup & Restore
 
 ### [x] FEAT-00: Full-state backup & restore — survive a "new phone" — landed 2026-07-12 (`5c9e3ea`); JSON full-state backup + restore, CSV and all v1 compat removed. Round-trip proven by `RepositoryScenarios` on both targets.
