@@ -225,6 +225,13 @@ it supports `com.android.kotlin.multiplatform.library`.
   CI, the Pi stays private. GitHub Pages can serve the same files as a
   secondary view at no extra cost.)*
 - **Badge:** README status + coverage badges updated by CI.
+- **External publication (added 2026-09-22):** the `android` and `ios` jobs also POST
+  their JUnit XML (and, on the JVM, the JaCoCo XML) to **testpulse**, Bobby's public
+  test dashboard, via `scripts/testpulse-report.sh` — a verbatim copy of that project's
+  canonical reporter, configured by the `TESTPULSE_URL` variable and `TESTPULSE_TOKEN`
+  secret. The step runs `if: always()` and the script exits 0 on every failure path, so
+  it can never fail a build. A weekly `schedule:` trigger keeps reports flowing while the
+  repo is quiet, because testpulse treats 8 days of silence as a stale project.
 
 ### Optional third-party (requires a cost case in `07-business-plan.md`)
 
