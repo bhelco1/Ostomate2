@@ -22,9 +22,10 @@ serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redire
 ## Current status (2026-07-13)
 
 **Phases 0–2 complete; Phase 2.5 (test hardening) — 2.5.1–2.5.8 done, 2.5.9 remaining.**
-JVM host gate: 82 shared tests + 57 composeApp tests (47 ViewModel/UiState + 10 Roborazzi
-screenshot tests). Shared also runs on the iOS sim. JaCoCo coverage floors gate every PR
-(shared domain+data 91%, composeApp ViewModel+UiState 93%). ktlint + detekt green.
+JVM host gate: 82 shared tests + 60 composeApp tests (50 ViewModel/UiState + 10 Roborazzi
+screenshot tests; counts from CI run 35644117162). Shared also runs on the iOS sim. JaCoCo
+coverage floors gate every PR (shared domain+data 91%, composeApp ViewModel+UiState 93%).
+ktlint + detekt green.
 Maestro E2E: all 7 Android flows + 4 iOS flows green. See `planning/05-dev-plan.md`.
 
 (Shared went 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression —
