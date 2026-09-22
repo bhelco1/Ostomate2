@@ -1,4 +1,4 @@
-app_identifier("com.ostimate.app")
+app_identifier("com.ostomate.app")
 apple_id("bhelco@gmail.com")
 
 # Fill in after App Store Connect account is created:
