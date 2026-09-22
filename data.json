@@ -1,0 +1,244 @@
+{
+  "generatedAt": "2026-09-22T20:14:18+00:00",
+  "run": {
+    "sha": "cebddb1c9aae4d0459224d84bb0237327465cb0a",
+    "branch": "main",
+    "url": "https://github.com/bhelco1/Ostomate2/actions/runs/35776037304"
+  },
+  "categories": {
+    "unit": {
+      "tests": 40,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.domain.CalendarAggregatorTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.559
+        },
+        {
+          "name": "com.ostomate.app.domain.DeepLinkParserTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.016
+        },
+        {
+          "name": "com.ostomate.app.domain.NotificationSchedulerTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.012
+        },
+        {
+          "name": "com.ostomate.app.domain.PredictionEngineTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.205
+        }
+      ],
+      "status": "pass"
+    },
+    "integration": {
+      "tests": 42,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.data.ChangeSourceTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.372
+        },
+        {
+          "name": "com.ostomate.app.data.RepositoryTest",
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 15.273
+        },
+        {
+          "name": "com.ostomate.app.data.db.ChangeEventDaoTest",
+          "tests": 14,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.854
+        },
+        {
+          "name": "com.ostomate.app.data.db.MigrationTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.02
+        },
+        {
+          "name": "com.ostomate.app.data.diagnostics.DiagnosticLogTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.208
+        },
+        {
+          "name": "com.ostomate.app.data.settings.SettingsRepositoryTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.228
+        }
+      ],
+      "status": "pass"
+    },
+    "ui": {
+      "tests": 60,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.ui.calendar.CalendarViewModelTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.601
+        },
+        {
+          "name": "com.ostomate.app.ui.history.HistoryViewModelTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.072
+        },
+        {
+          "name": "com.ostomate.app.ui.home.HomeViewModelTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.117
+        },
+        {
+          "name": "com.ostomate.app.ui.onboarding.OnboardingViewModelTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.036
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.CalendarScreenshotTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 13.567
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.HomeScreenshotTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.956
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.OnboardingScreenshotTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.254
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.QrLabelsScreenshotTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.659
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.ManageSuppliesViewModelTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.06
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.SettingsViewModelTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.065
+        },
+        {
+          "name": "com.ostomate.app.ui.stats.StatsViewModelTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.035
+        }
+      ],
+      "e2e": "success",
+      "status": "pass"
+    },
+    "cicd": {
+      "jobs": [
+        {
+          "name": "Android build + JVM tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "iOS E2E (Maestro)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Detect iOS / DB changes",
+          "conclusion": "success"
+        },
+        {
+          "name": "iOS shared tests + app build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Android E2E (Maestro)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Publish QA dashboard",
+          "conclusion": "in_progress"
+        }
+      ],
+      "status": "pass"
+    }
+  },
+  "coverage": {
+    "shared": {
+      "covered": 457,
+      "total": 490,
+      "percent": 93.3
+    },
+    "composeApp": {
+      "covered": 497,
+      "total": 527,
+      "percent": 94.3
+    }
+  }
+}
