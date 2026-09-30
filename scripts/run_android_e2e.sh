@@ -73,6 +73,8 @@ for flow in "${FLOWS[@]}"; do
   echo "::endgroup::"
 done
 
+bash "$(dirname "$0")/sanitize_artifact_names.sh" "$DIAG"
+
 echo "===== E2E SUMMARY ====="
 for f in "${passed[@]:-}"; do [ -n "$f" ] && echo "PASS  $f"; done
 for f in "${failed[@]:-}"; do [ -n "$f" ] && echo "FAIL  $f"; done
