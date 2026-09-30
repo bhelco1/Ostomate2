@@ -60,6 +60,8 @@
     <string name="calendar_add_entry_button">+ Add an entry for this day</string>
     <string name="calendar_add_entry_title">Add entry</string>
     <string name="calendar_add_entry_question">Which supply did you use?</string>
+    <string name="calendar_used_this_month">Used this month</string>
+    <string name="calendar_used_in_month">Used in %1$s</string>
     <string name="cd_previous_month">Previous month</string>
     <string name="cd_next_month">Next month</string>
     <string name="cd_delete_event">Delete event</string>
