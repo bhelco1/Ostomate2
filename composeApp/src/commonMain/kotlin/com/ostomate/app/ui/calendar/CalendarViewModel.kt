@@ -50,6 +50,9 @@ private val MONTH_NAMES =
 
 data class CalendarUiState(
     val monthLabel: String = "",
+    val isCurrentMonth: Boolean = true,
+    /** Every active supply with its total for the displayed month, zeros included. */
+    val monthTotals: List<SupplyPill> = emptyList(),
     val days: List<CalendarDay> = emptyList(),
     val selectedDayEvents: List<ChangeEventWithSupply>? = null,
     val selectedDayLabel: String = "",
@@ -106,6 +109,14 @@ class CalendarViewModel(
                     CalendarDay(date = date, isCurrentMonth = isCurrentMonth, isToday = date == today, pills = pills)
                 }
 
+            val totalsBySupply = mutableMapOf<Long, Int>()
+            countsByDay.values.forEach { perSupply ->
+                perSupply.forEach { (supplyId, count) ->
+                    totalsBySupply[supplyId] = (totalsBySupply[supplyId] ?: 0) + count
+                }
+            }
+            val monthTotals = supplies.map { SupplyPill(it.id, it.name, it.kind, totalsBySupply[it.id] ?: 0) }
+
             val selectedDayEvents =
                 selectedDate?.let { sel ->
                     events.filter { row ->
@@ -123,6 +134,8 @@ class CalendarViewModel(
 
             CalendarUiState(
                 monthLabel = "${MONTH_NAMES[month.monthNumber - 1]} ${month.year}",
+                isCurrentMonth = month.year == today.year && month.monthNumber == today.monthNumber,
+                monthTotals = monthTotals,
                 days = days,
                 selectedDayEvents = selectedDayEvents,
                 selectedDayLabel = selectedDayLabel,

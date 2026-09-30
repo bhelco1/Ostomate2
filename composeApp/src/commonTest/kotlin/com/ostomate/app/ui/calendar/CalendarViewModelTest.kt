@@ -4,6 +4,7 @@ package com.ostomate.app.ui.calendar
 
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.data.SupplyRepository
+import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.ui.FakeChangeEventDao
 import com.ostomate.app.ui.FakeSupplyTypeDao
 import com.ostomate.app.ui.MainDispatcherTest
@@ -21,6 +22,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
@@ -156,5 +158,41 @@ class CalendarViewModelTest : MainDispatcherTest() {
 
             assertEquals(noonMillis(today), eventDao.events.value.single().timestampMillis)
             assertEquals(4, supplyDao.getById(bagId)?.onHand)
+        }
+
+    @Test
+    fun monthTotalsListEverySupplyWithItsCountForTheShownMonth() =
+        runTest {
+            val (bagId, flangeId, _) =
+                supplyDao.seed(
+                    testSupply(name = "Bag"),
+                    testSupply(name = "Flange", kind = SupplyKind.FLANGE, sortOrder = 1),
+                    testSupply(name = "Paste", kind = SupplyKind.CUSTOM, sortOrder = 2),
+                )
+            val firstOfMonth = LocalDate(today.year, today.monthNumber, 1)
+            eventRepository.logChangeAt(bagId, noonMillis(firstOfMonth))
+            eventRepository.logChangeAt(bagId, noonMillis(today))
+            eventRepository.logChangeAt(flangeId, noonMillis(today))
+            // Last month's change must not count toward this month.
+            eventRepository.logChangeAt(bagId, noonMillis(firstOfMonth.minus(1, DateTimeUnit.DAY)))
+
+            val vm = viewModel()
+            keepSubscribed(vm.uiState)
+            advanceUntilIdle()
+
+            val state = vm.uiState.value
+            assertTrue(state.isCurrentMonth)
+            assertEquals(
+                listOf("Bag" to 2, "Flange" to 1, "Paste" to 0),
+                state.monthTotals.map { it.supplyName to it.count },
+            )
+
+            vm.prevMonth()
+            advanceUntilIdle()
+            assertFalse(vm.uiState.value.isCurrentMonth)
+            assertEquals(
+                listOf("Bag" to 1, "Flange" to 0, "Paste" to 0),
+                vm.uiState.value.monthTotals.map { it.supplyName to it.count },
+            )
         }
 }

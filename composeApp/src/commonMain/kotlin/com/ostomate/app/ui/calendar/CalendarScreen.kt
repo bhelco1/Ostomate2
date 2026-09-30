@@ -2,8 +2,15 @@
 
 package com.ostomate.app.ui.calendar
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -77,6 +82,8 @@ import com.ostomate.app.resources.calendar_add_entry_question
 import com.ostomate.app.resources.calendar_add_entry_title
 import com.ostomate.app.resources.calendar_event_deleted
 import com.ostomate.app.resources.calendar_no_events_today
+import com.ostomate.app.resources.calendar_used_in_month
+import com.ostomate.app.resources.calendar_used_this_month
 import com.ostomate.app.resources.cd_delete_event
 import com.ostomate.app.resources.cd_next_month
 import com.ostomate.app.resources.cd_previous_month
@@ -164,6 +171,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 12.dp),
         ) {
             // Month nav header
@@ -192,32 +200,124 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
                 }
             }
 
-            // Weekday headers — Sunday-first (US convention)
-            Row(modifier = Modifier.fillMaxWidth()) {
-                WEEKDAY_LABELS.forEachIndexed { index, label ->
-                    Text(
-                        text = label,
-                        modifier = Modifier.weight(1f).semantics { contentDescription = WEEKDAY_FULL[index] },
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+            Column(
+                modifier =
+                    Modifier.fillMaxWidth().pointerInput(Unit) {
+                        val threshold = 56.dp.toPx()
+                        var dragTotal = 0f
+                        detectHorizontalDragGestures(
+                            onDragStart = { dragTotal = 0f },
+                            onDragEnd = {
+                                when {
+                                    dragTotal <= -threshold -> viewModel.nextMonth()
+                                    dragTotal >= threshold -> viewModel.prevMonth()
+                                }
+                            },
+                        ) { _, dragAmount -> dragTotal += dragAmount }
+                    },
+            ) {
+                // Weekday headers — Sunday-first (US convention)
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    WEEKDAY_LABELS.forEachIndexed { index, label ->
+                        Text(
+                            text = label,
+                            modifier = Modifier.weight(1f).semantics { contentDescription = WEEKDAY_FULL[index] },
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                AnimatedContent(
+                    targetState = uiState.days,
+                    transitionSpec = {
+                        val from = initialState.firstOrNull()?.date
+                        val to = targetState.firstOrNull()?.date
+                        if (from == null || to == null) {
+                            EnterTransition.None togetherWith ExitTransition.None
+                        } else {
+                            val sign = if (to > from) 1 else -1
+                            slideInHorizontally { width -> sign * width } togetherWith
+                                slideOutHorizontally { width -> -sign * width }
+                        }
+                    },
+                    contentKey = { days -> days.firstOrNull()?.date },
+                    label = "calendarMonth",
+                ) { days ->
+                    // Plain rows, not a lazy grid: a lazy grid can't sit inside the scrolling column.
+                    Column {
+                        days.chunked(7).forEach { week ->
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                week.forEach { day ->
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        DayCell(
+                                            day = day,
+                                            onClick = { if (day.isCurrentMonth) viewModel.selectDay(day.date) },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+            MonthTotals(
+                title =
+                    if (uiState.isCurrentMonth) {
+                        stringResource(Res.string.calendar_used_this_month)
+                    } else {
+                        stringResource(Res.string.calendar_used_in_month, uiState.monthLabel)
+                    },
+                totals = uiState.monthTotals,
+            )
+        }
+    }
+}
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                modifier = Modifier.fillMaxWidth(),
-                userScrollEnabled = false,
+@Composable
+private fun MonthTotals(
+    title: String,
+    totals: List<SupplyPill>,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 24.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp).semantics { heading() },
+        )
+        totals.forEachIndexed { index, total ->
+            if (index > 0) HorizontalDivider()
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 12.dp)
+                        .testTag("monthTotal_${total.supplyId}")
+                        .semantics(mergeDescendants = true) {},
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                items(uiState.days, key = { it.date.toString() }) { day ->
-                    DayCell(
-                        day = day,
-                        onClick = { if (day.isCurrentMonth) viewModel.selectDay(day.date) },
-                    )
-                }
+                Spacer(
+                    Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(supplyColor(total.kind))
+                        .clearAndSetSemantics {},
+                )
+                Text(
+                    text = total.supplyName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f).padding(start = 10.dp),
+                )
+                Text(
+                    text = total.count.toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }
