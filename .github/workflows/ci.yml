@@ -22,23 +22,50 @@ on:
 
 jobs:
   detect-changes:
-    name: Detect iOS / DB changes
+    name: Detect changes
     runs-on: ubuntu-latest
     outputs:
+      code: ${{ steps.filter.outputs.code }}
       ios: ${{ steps.filter.outputs.ios }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - id: filter
-        # Non-PR events (main push, manual dispatch) always validate iOS. On PRs,
+        # code: false when every changed file is docs (docs/, planning/, any *.md), and every
+        # other job then skips. Jobs are skipped rather than the workflow filtered with
+        # paths-ignore on purpose: a filtered PR shows *no checks*, which is exactly how 11
+        # days of dead CI went unnoticed (PR #15). A skipped job shows up as skipped.
+        # The weekly schedule and manual dispatch always run everything.
+        #
+        # ios: non-PR events (main push, manual dispatch) always validate iOS. On PRs,
         # only when files that can break the iOS build or the native SQLite path
         # (Room DAO + migrations live in shared/.../data/db) change.
         run: |
+          case "${{ github.event_name }}" in
+            pull_request) base="${{ github.event.pull_request.base.sha }}" ;;
+            push) base="${{ github.event.before }}" ;;
+            *) base="" ;;
+          esac
+          # No usable base (schedule, dispatch, or a push that created the branch): run it all.
+          if [ -z "$base" ] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "ios=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          changed=$(git diff --name-only "$base" "${{ github.sha }}")
+          echo "Changed files:"; echo "$changed"
+          # List the non-docs files and test for none, rather than `! grep -qv`: that form
+          # depends on grep's -q/-v interplay, which not every grep gets right.
+          code_files=$(echo "$changed" | grep -vE '^(docs/|planning/)|\.md$' || true)
+          if [ -n "$changed" ] && [ -z "$code_files" ]; then
+            echo "Docs-only change: skipping build, tests and E2E."
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
           if [ "${{ github.event_name }}" != "pull_request" ]; then
             echo "ios=true" >> "$GITHUB_OUTPUT"; exit 0
           fi
-          changed=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" HEAD)
           if echo "$changed" | grep -qE \
             '^(iosApp/|composeApp/src/iosMain/|shared/src/ios|shared/src/commonMain/kotlin/com/ostomate/app/data/db/|shared/schemas/|.*\.gradle\.kts$|gradle/libs\.versions\.toml$)'; then
             echo "ios=true" >> "$GITHUB_OUTPUT"
@@ -49,6 +76,8 @@ jobs:
   android:
     name: Android build + JVM tests
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code == 'true'
     env:
       # Job-level so the Codecov step's `if` can see it — the secrets context
       # itself is not allowed in step `if` expressions (invalidates the workflow).
@@ -276,7 +305,7 @@ jobs:
     # (see detect-changes), else main only.
     runs-on: macos-latest
     needs: detect-changes
-    if: needs.detect-changes.outputs.ios == 'true'
+    if: needs.detect-changes.outputs.code == 'true' && needs.detect-changes.outputs.ios == 'true'
     steps:
       - uses: actions/checkout@v4
       - name: Select newest Xcode
@@ -329,7 +358,8 @@ jobs:
     # Post-merge / manual dispatch only, same as android-e2e (and excluded from the
     # weekly schedule for the same reason): macOS runners are slow and bill at 10x on
     # private repos — free here, but the wall-clock cost is real.
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: detect-changes
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.detect-changes.outputs.code == 'true'
     steps:
       - uses: actions/checkout@v4
       - name: Select newest Xcode
@@ -461,8 +491,12 @@ jobs:
     # Pi pulls that branch and serves it (scripts/pi/update-dashboard.sh); trend history
     # lives in history.json, so the branch keeps a single commit.
     runs-on: ubuntu-latest
-    needs: [android, ios, android-e2e, ios-e2e]
-    if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [detect-changes, android, ios, android-e2e, ios-e2e]
+    # Not on a docs-only push: with every test job skipped it would record an empty run
+    # in the trend history.
+    if: >-
+      always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && needs.detect-changes.outputs.code == 'true'
     permissions:
       contents: write
       actions: read
