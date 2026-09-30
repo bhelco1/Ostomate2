@@ -122,3 +122,11 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
   new recurring costs need a written case in 07-business-plan.md
 - A skipped/disabled test task looks like success — after touching test config, verify
   execution counts in `shared/build/test-results/*/TEST-*.xml`, not just BUILD SUCCESSFUL
+
+## testpulse reporting
+
+This project reports test results to testpulse and conforms to the
+[testpulse reporting standard, v1](https://github.com/bhelco1/testpulse/blob/main/docs/reporting-standard.md)
+(in a local checkout: `../testpulse/docs/reporting-standard.md`).
+Any change to CI test jobs, test frameworks or result output is a reporting change:
+follow the standard's Change checklist and update `projects/ostomate2.yaml` in testpulse.
