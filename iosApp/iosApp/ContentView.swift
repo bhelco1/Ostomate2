@@ -16,3 +16,5 @@ struct ContentView: View {
                 .ignoresSafeArea()
     }
 }
+
+private let probeLint = 1;
