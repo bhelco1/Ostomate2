@@ -19,14 +19,22 @@ Store assets: `docs/privacy.html` (**the** privacy policy — it is what GitHub 
 serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redirect), and
 `docs/store-listing.md`.
 
-## Current status (2026-07-13)
+## Current status (2026-09-29)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) — 2.5.1–2.5.8 done, 2.5.9 remaining.**
-JVM host gate: 82 shared tests + 60 composeApp tests (50 ViewModel/UiState + 10 Roborazzi
-screenshot tests; counts from CI run 35644117162). Shared also runs on the iOS sim. JaCoCo
+**Phases 0–2 complete; Phase 2.5 (test hardening) — 2.5.1–2.5.7 done, 2.5.8 half done
+(orphan flows 01/09 wired in PR #20; flow 08 still asserts emulator auto-unlock, not the
+gate logic), 2.5.9 remaining.**
+JVM host gate: 82 shared tests + 61 composeApp tests (51 ViewModel/UiState + 10 Roborazzi
+screenshot tests; counts from CI run 36666728008). Shared also runs on the iOS sim. JaCoCo
 coverage floors gate every PR (shared domain+data 91%, composeApp ViewModel+UiState 93%).
 ktlint + detekt green.
-Maestro E2E: all 7 Android flows + 4 iOS flows green. See `planning/05-dev-plan.md`.
+Maestro E2E: all 7 Android flows + 5 iOS flows green (run 36666728008); both jobs report
+JUnit to testpulse and keep it as `e2e-junit-android` / `e2e-junit-ios`. See `planning/05-dev-plan.md`.
+
+**Open: iOS E2E "App crashed or stopped"** right after launch, CI only, a different flow
+each time (4 of 6 runs on 2026-09-29/30). Cause unknown. On the next one, read
+`crash-reports/` and `simulator-app.log` in that run's `maestro-ios-debug` artifact
+before rerunning — a rerun that goes green explains nothing.
 
 (Shared went 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression —
 then 79 → 82 with the negative-inventory regression tests.)

@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.6 ✅, 2.5.7+ ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.7 ✅, 2.5.8 🚧, 2.5.9 ⬜) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -302,11 +302,12 @@ either platform yet, and is not in the iOS job.
   `./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record`, then commit the PNGs.
 - **Done when** ✅: baseline images committed; diffs fail CI on layout change.
 
-### 2.5.8 — Wire orphan Maestro flows ⬜
-- Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
-  `android-e2e` job (currently only 5 of 7 run).
-- Strengthen flow `08` so it asserts the biometric **gate logic**, not emulator
-  auto-unlock behavior.
+### 2.5.8 — Wire orphan Maestro flows 🚧
+- [x] Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
+  `android-e2e` job — done in PR #20; all 7 run and pass (run 36666728008).
+- [ ] Strengthen flow `08` so it asserts the biometric **gate logic**, not emulator
+  auto-unlock behavior. Still open: it enables the lock, re-enters Settings, and passes
+  when the emulator's NotEnrolled path auto-unlocks.
 - **Done when:** all 7 flows run in CI with meaningful assertions.
 
 ### 2.5.9 — Comprehensive extras ⬜
@@ -315,6 +316,23 @@ either platform yet, and is not in the iOS job.
   VoiceOver/TalkBack for screen-reader feel.
 - Flakiness tracking / E2E quarantine lane.
 - **Done when:** the full target-state pyramid in `08` §3 is in place.
+
+### Shipped outside the plan (2026-09-29)
+Recorded so the plan matches what is on main; neither was a checklist item.
+- **Calendar (PR #25):** "Used this month" totals per active supply under the grid
+  (zeros included; "Used in <Month Year>" for other months) and horizontal swipe between
+  months. New ViewModel test; both calendar screenshot baselines re-recorded. A small UX
+  change Bobby asked for, taken ahead of 2.5.9 despite "parity before new features".
+- **E2E reporting (PRs #26–#29):** Maestro writes JUnit per flow; both E2E jobs report to
+  testpulse and keep `e2e-junit-*` artifacts; the Pi dashboard lists every E2E job (it
+  showed only the first). JVM test steps use `--continue` so every module reports on a red
+  run. Debug artifact names are sanitized (flow titles contain `:`, which upload-artifact
+  rejects). The iOS deep-link flow's snackbar wait is optional — `openLink` blocks ~24 s on
+  a cold runner — and the History `eventRow` check stays the real assertion. E2E jobs are
+  capped at 45 min, and the iOS debug step keeps crash reports + the simulator log, also
+  on cancel.
+- **Open, feeds 2.5.9's flakiness item:** intermittent iOS "App crashed or stopped" right
+  after launch (see CLAUDE.md "Current status").
 
 ---
 
