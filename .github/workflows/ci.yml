@@ -404,6 +404,7 @@ jobs:
         run: |
           mkdir -p maestro-debug
           cp -R "$HOME/.maestro/tests/." maestro-debug/ 2>/dev/null || true
+          bash scripts/sanitize_artifact_names.sh maestro-debug
       - name: Upload Maestro debug artifacts
         if: failure()
         uses: actions/upload-artifact@v4
