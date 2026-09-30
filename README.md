@@ -51,3 +51,4 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 Architecture rules live in `../Ostomate/ostimate-2.0/02-architecture.md`. Short version:
 logic in `shared/commonMain`; UI state as one `UiState` per screen via `StateFlow`;
 DI via Koin only; Room schema export ON with a migration test per version bump; no `!!`.
+
