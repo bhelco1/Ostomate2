@@ -52,14 +52,18 @@ name: "iOS Journey 1: Cold-start QR deep link"
 # Cold start straight from the deep link, exactly as the camera/QR scanner does.
 - openLink: "ostomate://log?item=bag"
 
-# The buffered DeepLinkBus event fires the snackbar once MainApp composes. No dialog
-# can appear here, so nothing eats the ~4s the snackbar is on screen.
+# The buffered DeepLinkBus event fires the snackbar once MainApp composes. Optional
+# because it cannot be relied on in CI: on a cold macOS runner `openLink` itself blocks
+# ~24 s while the app starts (runs 36650407670 and 36654502621), so the ~4 s snackbar
+# has come and gone before this line runs. Locally it matches in well under a second.
 - extendedWaitUntil:
     visible:
       text: "Logged: Bag"
-    timeout: 25000
+    timeout: 5000
+    optional: true
 
-# The event really reached the DB — an event row shows up in History.
+# The assertion that matters: the event really reached the DB — an event row shows up
+# in History. A silent cold-start scan (BUG-09) logs nothing, so this still catches it.
 - tapOn:
     id: "overflowButton"
     index: 0
