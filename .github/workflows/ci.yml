@@ -176,6 +176,9 @@ jobs:
   android-e2e:
     name: Android E2E (Maestro)
     runs-on: ubuntu-latest
+    # A normal run takes ~8 min. Without a cap a hung emulator or Maestro holds the runner
+    # for GitHub's 6-hour default.
+    timeout-minutes: 45
     # Merges and manual dispatch only — spelled out as `push || workflow_dispatch`
     # rather than `!= 'pull_request'` so the weekly `schedule` does not drag the E2E
     # suites in with it. That schedule exists solely so the testpulse dashboard can tell
@@ -320,6 +323,9 @@ jobs:
   ios-e2e:
     name: iOS E2E (Maestro)
     runs-on: macos-latest
+    # A normal run takes ~20-25 min. Run 36661054658 hung in the Maestro step for over an
+    # hour; the 6-hour default would bill that at the macOS 10x rate.
+    timeout-minutes: 45
     # Post-merge / manual dispatch only, same as android-e2e (and excluded from the
     # weekly schedule for the same reason): macOS runners are slow and bill at 10x on
     # private repos — free here, but the wall-clock cost is real.
@@ -424,13 +430,24 @@ jobs:
       - name: Collect Maestro debug output
         # Maestro writes logs + screenshots under $HOME; upload-artifact does not expand
         # `~`/`$HOME` in `path`, so stage them inside the workspace first.
-        if: failure()
+        # cancelled() too: a job stopped by timeout-minutes is cancelled, not failed.
+        if: failure() || cancelled()
         run: |
           mkdir -p maestro-debug
           cp -R "$HOME/.maestro/tests/." maestro-debug/ 2>/dev/null || true
+          # "App crashed or stopped" is undiagnosable from Maestro alone: a simulator app's
+          # crash report lands on the HOST as an .ips file, and an exit without one (a
+          # watchdog or jetsam kill) is only named in runningboardd's log.
+          mkdir -p maestro-debug/crash-reports
+          cp "$HOME"/Library/Logs/DiagnosticReports/Ostomate* maestro-debug/crash-reports/ 2>/dev/null || true
+          ls -la maestro-debug/crash-reports
+          xcrun simctl spawn "$SIM_UDID" log show --last 60m --style compact \
+            --predicate 'process == "Ostomate" OR eventMessage CONTAINS[c] "com.ostomate.app"' \
+            > maestro-debug/simulator-app.log 2>&1 || true
           bash scripts/sanitize_artifact_names.sh maestro-debug
       - name: Upload Maestro debug artifacts
-        if: failure()
+        # cancelled() too: a job stopped by timeout-minutes is cancelled, not failed.
+        if: failure() || cancelled()
         uses: actions/upload-artifact@v4
         with:
           name: maestro-ios-debug
