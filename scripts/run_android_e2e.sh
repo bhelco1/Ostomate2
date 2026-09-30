@@ -27,7 +27,8 @@ FLOWS=(
 )
 
 DIAG="$PWD/e2e-diagnostics"
-mkdir -p "$DIAG"
+RESULTS="$PWD/e2e-results"
+mkdir -p "$DIAG" "$RESULTS"
 
 fail=0
 passed=()
@@ -41,7 +42,9 @@ for flow in "${FLOWS[@]}"; do
 
   # --debug-output must come AFTER `test` (2.6.1 rejects it as a global flag). Absolute
   # path: a relative one has not been landing anywhere the upload step can find.
-  if maestro test --debug-output "$DIAG/$name/maestro" "$flow"; then
+  # One JUnit file per flow: a single --output would be overwritten by each flow in turn.
+  if maestro test --debug-output "$DIAG/$name/maestro" \
+    --format junit --output "$RESULTS/$name.xml" "$flow"; then
     passed+=("$flow")
   else
     failed+=("$flow")

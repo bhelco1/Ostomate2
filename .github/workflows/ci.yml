@@ -234,6 +234,14 @@ jobs:
             until adb shell getprop sys.boot_completed 2>/dev/null | grep -q '1'; do sleep 3; done
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
             bash scripts/run_android_e2e.sh
+      - name: Report to testpulse
+        # One JUnit file per flow, written by scripts/run_android_e2e.sh. `always()` so a red
+        # E2E run is reported too — it used to reach no dashboard at all.
+        if: always()
+        env:
+          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
+          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
+        run: scripts/testpulse-report.sh android-e2e e2e android-emulator junit "e2e-results/*.xml"
       - name: Upload E2E failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -362,6 +370,7 @@ jobs:
           # Run every flow even after one fails, so a red run names ALL the broken flows
           # rather than only the first — same reason as scripts/run_android_e2e.sh.
           fail=0
+          mkdir -p e2e-results
           for flow in \
             .maestro/ios/00_ios_onboarding.yaml \
             .maestro/ios/01_ios_deep_link_log.yaml \
@@ -369,7 +378,8 @@ jobs:
             .maestro/ios/05_ios_backup_share.yaml \
             .maestro/08_biometric_gate.yaml; do
             echo "::group::maestro (iOS) $flow"
-            if maestro test --device "$SIM_UDID" "$flow"; then
+            if maestro test --device "$SIM_UDID" \
+              --format junit --output "e2e-results/$(basename "$flow" .yaml).xml" "$flow"; then
               echo "PASS  $flow" >> /tmp/ios_e2e_summary
             else
               echo "FAIL  $flow" >> /tmp/ios_e2e_summary
@@ -381,6 +391,12 @@ jobs:
           cat /tmp/ios_e2e_summary
           echo "=========================="
           exit $fail
+      - name: Report to testpulse
+        if: always()
+        env:
+          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
+          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
+        run: scripts/testpulse-report.sh ios-e2e e2e ios-sim junit "e2e-results/*.xml"
       - name: Collect Maestro debug output
         # Maestro writes logs + screenshots under $HOME; upload-artifact does not expand
         # `~`/`$HOME` in `path`, so stage them inside the workspace first.
