@@ -110,9 +110,15 @@ def build_data(repo: Path, jobs_json: Path | None, run_meta: dict) -> dict:
                     "conclusion": job.get("conclusion") or "in_progress",
                 }
             )
-    e2e = next((j for j in cicd_jobs if "E2E" in j["name"]), None)
-    if e2e and e2e["conclusion"] in ("success", "failure"):
-        ui["e2e"] = e2e["conclusion"]
+    # Every E2E job, not the first one found: with Android and iOS both named "… E2E …",
+    # taking one hid the other, so a red iOS run could sit behind a green Android one.
+    e2e = {
+        j["name"]: j["conclusion"]
+        for j in cicd_jobs
+        if "E2E" in j["name"] and j["conclusion"] in ("success", "failure")
+    }
+    if e2e:
+        ui["e2e"] = e2e
 
     relevant = [j for j in cicd_jobs if j["conclusion"] not in ("in_progress",)]
     cicd_status = "empty"
@@ -210,7 +216,8 @@ async function load() {
       div.innerHTML = `<h2>${label} <span class="badge ${c.status}">${c.status}</span></h2>` +
         "<ul>" + c.jobs.map(j => `<li>${j.name}: <b>${j.conclusion}</b></li>`).join("") + "</ul>";
     } else {
-      const extra = c.e2e ? `<div>E2E: <span class="badge ${c.e2e === "success" ? "pass" : "fail"}">${c.e2e}</span></div>` : "";
+      const extra = Object.entries(c.e2e || {}).map(([name, result]) =>
+        `<div>${name}: <span class="badge ${result === "success" ? "pass" : "fail"}">${result}</span></div>`).join("");
       div.innerHTML = `<h2>${label} <span class="badge ${c.status}">${c.status}</span></h2>` +
         `<div class="big">${c.tests}</div><div>${c.failed} failed · ${c.skipped} skipped</div>` + extra;
     }
