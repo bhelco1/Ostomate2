@@ -1,5 +1,7 @@
 appId: com.ostomate.app
 name: "Journey 1: Cold-start QR log"
+# Same title as the iOS flow on purpose: testpulse keys a flow by its title, so the
+# two platforms are one test with one history. Keep the titles identical, and stable.
 ---
 # Get past onboarding first: a fresh install shows it, and it would swallow the deep link.
 - launchApp:

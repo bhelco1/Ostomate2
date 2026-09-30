@@ -1,5 +1,7 @@
 appId: com.ostomate.app
-name: "iOS Journey 2: Log + undo"
+name: "Journey 2: Log + undo"
+# Same title as the Android flow on purpose: testpulse keys a flow by its title, so the
+# two platforms are one test with one history. Keep the titles identical, and stable.
 # iOS variant of 02_log_and_undo.yaml. Same journey; the assertions differ because
 # Maestro full-string-matches `text:` on iOS — the Android flow's `text: "logged"`
 # does not match the snackbar "Bag logged · 0 left" here.
