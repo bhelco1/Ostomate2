@@ -96,6 +96,11 @@ jobs:
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --stacktrace
       - name: Run JVM host tests with coverage
+        # !cancelled(): run even when ktlint, detekt or the APK build above failed. Without a
+        # status function the step is implicitly success(), so a lint failure skipped every
+        # test and testpulse got a report with no results (reporting standard v1, rule 2.4).
+        # The job still fails on the lint step.
+        if: ${{ !cancelled() }}
         # jacocoCoverageVerification fails the build if line coverage drops below the
         # floors in shared/build.gradle.kts (domain + data) and composeApp/build.gradle.kts
         # (ViewModel + UiState). :composeApp:testAndroidHostTest also verifies the Roborazzi
@@ -324,6 +329,8 @@ jobs:
       - name: SwiftLint
         run: swiftlint lint --config iosApp/.swiftlint.yml --strict iosApp/
       - name: Shared + ViewModel tests on iOS simulator (arm64)
+        # !cancelled(): run even when SwiftLint above failed, as in the android job.
+        if: ${{ !cancelled() }}
         # --continue: a failing shared test must not stop composeApp's tests from running,
         # or composeApp's testpulse report goes missing on exactly the red runs. Gradle still
         # fails the build once the remaining tasks finish.

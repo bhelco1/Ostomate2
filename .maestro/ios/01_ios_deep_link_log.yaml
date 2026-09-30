@@ -1,5 +1,7 @@
 appId: com.ostomate.app
-name: "iOS Journey 1: Cold-start QR deep link"
+name: "Journey 1: Cold-start QR log"
+# Same title as the Android flow on purpose: testpulse keys a flow by its title, so the
+# two platforms are one test with one history. Keep the titles identical, and stable.
 # iOS variant of 01_cold_start_qr_log.yaml.
 #
 # The Android flow passes the deep link as `launchApp.arguments.url`. On iOS that is
