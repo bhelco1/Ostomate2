@@ -71,11 +71,14 @@ jobs:
         # floors in shared/build.gradle.kts (domain + data) and composeApp/build.gradle.kts
         # (ViewModel + UiState). :composeApp:testAndroidHostTest also verifies the Roborazzi
         # screenshot baselines in composeApp/screenshots/ (2.5.7) — a layout change fails here.
+        # --continue so a shared failure still runs composeApp's tests (and its testpulse
+        # report); the build still fails at the end, and a task whose test task failed is
+        # skipped, not passed.
         run: >
           ./gradlew
           :shared:testAndroidHostTest :shared:jacocoHostTestReport :shared:jacocoCoverageVerification
           :composeApp:testAndroidHostTest :composeApp:jacocoHostTestReport :composeApp:jacocoCoverageVerification
-          --stacktrace
+          --continue --stacktrace
       - name: Upload screenshot diffs
         # Only produced when a baseline mismatched: <name>_compare.png is a
         # reference | diff | new triptych, <name>_actual.png is the new render. Download this
@@ -242,6 +245,15 @@ jobs:
           TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
           TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
         run: scripts/testpulse-report.sh android-e2e e2e android-emulator junit "e2e-results/*.xml"
+      - name: Upload E2E JUnit results
+        # Kept for the testpulse parser's fixtures (captured files only, never hand-written).
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-junit-android
+          path: e2e-results/*.xml
+          if-no-files-found: warn
+          retention-days: 30
       - name: Upload E2E failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
@@ -280,7 +292,10 @@ jobs:
       - name: SwiftLint
         run: swiftlint lint --config iosApp/.swiftlint.yml --strict iosApp/
       - name: Shared + ViewModel tests on iOS simulator (arm64)
-        run: ./gradlew :shared:iosSimulatorArm64Test :composeApp:iosSimulatorArm64Test --stacktrace
+        # --continue: a failing shared test must not stop composeApp's tests from running,
+        # or composeApp's testpulse report goes missing on exactly the red runs. Gradle still
+        # fails the build once the remaining tasks finish.
+        run: ./gradlew :shared:iosSimulatorArm64Test :composeApp:iosSimulatorArm64Test --continue --stacktrace
       - name: Report to testpulse
         # Same reporter as the `android` job; no coverage arguments because JaCoCo is
         # JVM-only and the simulator run produces none. Cannot fail the build.
@@ -397,6 +412,15 @@ jobs:
           TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
           TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
         run: scripts/testpulse-report.sh ios-e2e e2e ios-sim junit "e2e-results/*.xml"
+      - name: Upload E2E JUnit results
+        # Kept for the testpulse parser's fixtures (captured files only, never hand-written).
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-junit-ios
+          path: e2e-results/*.xml
+          if-no-files-found: warn
+          retention-days: 30
       - name: Collect Maestro debug output
         # Maestro writes logs + screenshots under $HOME; upload-artifact does not expand
         # `~`/`$HOME` in `path`, so stage them inside the workspace first.
