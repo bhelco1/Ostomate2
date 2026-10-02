@@ -235,7 +235,7 @@ jobs:
         # properties into hard errors, which is how `timeout:` on assertVisible silently
         # rotted every flow. Bump deliberately, not by drift.
         env:
-          MAESTRO_VERSION: 2.6.1
+          MAESTRO_VERSION: 2.11.0
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
@@ -380,7 +380,7 @@ jobs:
       - name: Install Maestro
         # Pinned for the same reason as android-e2e — keep the two in lockstep.
         env:
-          MAESTRO_VERSION: 2.6.1
+          MAESTRO_VERSION: 2.11.0
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
           echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
