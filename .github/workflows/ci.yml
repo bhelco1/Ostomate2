@@ -207,6 +207,69 @@ jobs:
           name: androidApp-debug
           path: androidApp/build/outputs/apk/debug/*.apk
 
+  build-release:
+    name: Android release AAB (signed)
+    runs-on: ubuntu-latest
+    # Merges and manual dispatch only: the AAB is what gets uploaded to Play, and a PR build
+    # of it would put the signing secrets within reach of PR code for no gain.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && needs.detect-changes.outputs.code == 'true'
+    needs: [detect-changes, android]
+    env:
+      # Job-level for the same reason as CODECOV_TOKEN: step `if`s cannot read `secrets`.
+      KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+    steps:
+      - name: Check signing secrets
+        id: secrets
+        # Until the upload key is added (planning/05-dev-plan.md 3.1) there is nothing to sign
+        # with. Say so in the run summary rather than fail main or upload an unsigned AAB
+        # that looks like a release.
+        run: |
+          if [ -n "$KEYSTORE_FILE" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Release AAB not built: KEYSTORE_FILE secret is not set."
+            echo "**Release AAB not built** — signing secrets are not set (dev plan 3.1)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.present == 'true'
+      - uses: actions/setup-java@v4
+        if: steps.secrets.outputs.present == 'true'
+        with:
+          distribution: 'zulu'
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.secrets.outputs.present == 'true'
+      - name: Build signed release AAB
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        # An empty DSN builds fine and ships an app whose opt-in crash reporting silently
+        # does nothing, so refuse to build a release without one.
+        run: |
+          [ -n "$SENTRY_DSN" ] || { echo "::error::SENTRY_DSN secret is empty"; exit 1; }
+          export KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
+          echo "$KEYSTORE_FILE" | base64 --decode > "$KEYSTORE_PATH"
+          ./gradlew :androidApp:bundleRelease -PSENTRY_DSN="$SENTRY_DSN" --stacktrace
+          rm -f "$KEYSTORE_PATH"
+      - name: Verify AAB signature
+        if: steps.secrets.outputs.present == 'true'
+        # jarsigner exits 0 on an unsigned file ("jar is unsigned"), so check what it says.
+        run: |
+          out=$(jarsigner -verify androidApp/build/outputs/bundle/release/androidApp-release.aab)
+          echo "$out"
+          echo "$out" | grep -q "^jar verified" || { echo "::error::AAB is not signed"; exit 1; }
+      - name: Upload release AAB
+        if: steps.secrets.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: androidApp-release
+          path: androidApp/build/outputs/bundle/release/androidApp-release.aab
+          if-no-files-found: error
+
   android-e2e:
     name: Android E2E (Maestro)
     runs-on: ubuntu-latest
