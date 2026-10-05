@@ -347,10 +347,20 @@ Recorded so the plan matches what is on main; neither was a checklist item.
 keytool -genkey -v -keystore ostomate-release.jks -alias ostomate \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
-Store `.jks` in password manager. Never commit it.
-Add GitHub Secrets: `KEYSTORE_FILE` (base64), `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
+Store `.jks` in password manager. Never commit it. It is the Play *upload* key: enroll in
+Play App Signing so Google holds the app signing key and a lost upload key can be reset.
+Add GitHub Secrets: `KEYSTORE_FILE` (`base64 -i ostomate-release.jks | pbcopy`),
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`. (`SENTRY_DSN` is already set.)
 
-**Code:** Add `signingConfigs.release` to `androidApp/build.gradle.kts`. Wire to CI `build-release` job.
+**Code ✅ (2026-10-05):** `androidApp/build.gradle.kts` signs release builds when
+`KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD` are all set (env vars, or
+`local.properties` locally); with none set it builds unsigned, and a partial set fails the
+build. CI job `build-release` (main pushes + dispatch) builds the AAB with the Sentry DSN,
+checks the signature, and uploads artifact `androidApp-release`. Until the secrets exist it
+skips with a notice in the run summary. **3.1 is done when a main run uploads a signed AAB.**
+
+`versionCode` is a static 1, so Play rejects every upload after the first. Make it
+increase per upload before 4.1's second upload.
 
 ### 3.2 — iOS Release Signing ⬜
 
@@ -394,14 +404,22 @@ still matches what the app actually does.
 ### 4.1 — Google Play Internal Testing ⬜
 
 1. Create app in Play Console → package `com.ostomate.app`
-2. Complete Data Safety form (no data collected, no data shared)
+2. Complete Data Safety form. The answer is **not** "no data collected": opt-in Sentry sends
+   crash events (stack trace, device model, OS and app version). Declare *App info and
+   performance → Crash logs* and *Diagnostics*: collected, **optional** (off by default),
+   not shared (Sentry acts as a service provider), encrypted in transit, purpose Analytics
+   (Play's definition covers diagnosing crashes). Nothing else is collected. No data
+   deletion request flow is needed beyond uninstall, since there is no account.
+   Also answer the Health apps declaration: it is a personal supply tracker, not a medical device.
 3. Upload signed AAB from CI `build-release` artifact
 4. Publish to Internal Testing track
 5. Install on device via Play Store
 
 ### 4.2 — App Store TestFlight ⬜
 
-1. Create app in App Store Connect → bundle ID `com.ostomate.app`
+1. Create app in App Store Connect → bundle ID `com.ostomate.app`. App Privacy label:
+   *Diagnostics → Crash Data* only, **not linked** to identity, **not used for tracking**,
+   purpose App Functionality. Same reason as Play's form: opt-in Sentry.
 2. Upload IPA via Fastlane or Xcode Organizer
 3. Submit for TestFlight review
 4. Install on device via TestFlight
