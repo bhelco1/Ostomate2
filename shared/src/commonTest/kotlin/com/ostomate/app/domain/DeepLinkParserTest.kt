@@ -79,4 +79,19 @@ class DeepLinkParserTest {
     fun rejectsEmptyCustomId() {
         assertNull(DeepLinkParser.parse("ostomate://log?item=id:"))
     }
+
+    @Test
+    fun parseCustomIdExtractsTheNumber() {
+        assertEquals(42L, DeepLinkParser.parseCustomId("id:42"))
+    }
+
+    @Test
+    fun parseCustomIdRejectsNamedSupplies() {
+        assertNull(DeepLinkParser.parseCustomId("bag"))
+    }
+
+    @Test
+    fun parseCustomIdRejectsNonNumericIds() {
+        assertNull(DeepLinkParser.parseCustomId("id:abc"))
+    }
 }

@@ -107,11 +107,13 @@ jobs:
         # screenshot baselines in composeApp/screenshots/ (2.5.7) — a layout change fails here.
         # --continue so a shared failure still runs composeApp's tests (and its testpulse
         # report); the build still fails at the end, and a task whose test task failed is
-        # skipped, not passed.
+        # skipped, not passed. :shared:pitestDomain fails below 95% mutation score on the
+        # domain layer (2.5.9); it reuses this invocation's test run, so it costs seconds.
         run: >
           ./gradlew
           :shared:testAndroidHostTest :shared:jacocoHostTestReport :shared:jacocoCoverageVerification
           :composeApp:testAndroidHostTest :composeApp:jacocoHostTestReport :composeApp:jacocoCoverageVerification
+          :shared:pitestDomain
           --continue --stacktrace
       - name: Upload screenshot diffs
         # Only produced when a baseline mismatched: <name>_compare.png is a
@@ -163,6 +165,15 @@ jobs:
           path: |
             shared/build/reports/jacoco/jacocoHostTestReport/
             composeApp/build/reports/jacoco/jacocoHostTestReport/
+          if-no-files-found: ignore
+      - name: Upload mutation report
+        # mutations.xml / index.html list every surviving mutant: the starting point when
+        # :shared:pitestDomain fails the threshold.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: shared/build/reports/pitest/
           if-no-files-found: ignore
       - name: Upload coverage to Codecov
         # Approved in 08-test-strategy §6 (free — public repo). Inert until the

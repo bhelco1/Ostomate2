@@ -105,6 +105,18 @@ class NotificationSchedulerTest {
     }
 
     @Test
+    fun stockExactlyAtThresholdSchedulesRatherThanWarns() {
+        // 7 on hand × 1 day/change = 7 days remaining, equal to the threshold: not yet "low".
+        scheduler.reschedule(
+            listOf(supply(id = 1, onHand = 7, warnThresholdDays = 7)),
+            mapOf(1L to dailyEvents(1, count = 3)),
+        )
+        val call = notifier.scheduled.single()
+        assertEquals(0, call.delaySeconds)
+        assertTrue(call.title.startsWith("Time to reorder"))
+    }
+
+    @Test
     fun eachSupplyGetsItsOwnTaggedReminder() {
         scheduler.reschedule(
             listOf(supply(id = 1, onHand = 0), supply(id = 2, onHand = 0, name = "Flange")),

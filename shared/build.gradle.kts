@@ -128,3 +128,44 @@ val jacocoCoverageVerification by tasks.registering(JacocoCoverageVerification::
         }
     }
 }
+
+// Mutation testing (2.5.9) on the pure domain layer. The info.solidsoft Gradle plugin needs
+// the java plugin and cannot see com.android.kotlin.multiplatform.library classes, so this
+// runs Pitest's own command-line entry point against the JVM host-test classpath.
+val pitest by configurations.creating
+
+dependencies {
+    pitest(libs.pitest.command.line)
+}
+
+val pitestDomain by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Mutation testing of com.ostomate.app.domain against its host tests."
+    // The host-test run compiles main + tests, and Pitest refuses to start on a red suite.
+    dependsOn("testAndroidHostTest")
+    val reportDir = layout.buildDirectory.dir("reports/pitest")
+    val sourceDir = file("src/commonMain/kotlin")
+    // The host-test classpath carries main code as a jar, which Pitest treats as a library;
+    // naming the classes dir makes it mutable. Tests share the package but live elsewhere,
+    // so the domain.* glob below never mutates them.
+    val mainClasses = layout.buildDirectory.dir("classes/kotlin/android/main")
+    mainClass.set("org.pitest.mutationtest.commandline.MutationCoverageReport")
+    classpath(mainClasses, pitest, provider { tasks.getByName<Test>("testAndroidHostTest").classpath })
+    argumentProviders.add(
+        CommandLineArgumentProvider {
+            listOf(
+                "--targetClasses=com.ostomate.app.domain.*",
+                "--mutableCodePaths=${mainClasses.get().asFile}",
+                "--targetTests=com.ostomate.app.domain.*",
+                "--sourceDirs=$sourceDir",
+                "--reportDir=${reportDir.get().asFile}",
+                "--outputFormats=HTML,XML",
+                "--timestampedReports=false",
+                "--threads=4",
+                // 98% measured 2026-10-05 (53/54). The one survivor is an equivalent mutant: a
+                // removed compiler-inserted null check in DeepLinkParser.parse. Never lower it.
+                "--mutationThreshold=95",
+            )
+        },
+    )
+}
