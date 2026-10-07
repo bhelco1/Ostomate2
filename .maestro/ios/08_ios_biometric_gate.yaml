@@ -1,0 +1,68 @@
+appId: com.ostomate.app
+name: "Journey 8: Biometric gate on Settings"
+# Same title as the Android flow on purpose: testpulse keys a flow by its title, so the
+# two platforms are one test with one history.
+#
+# iOS variant of 08_biometric_gate.yaml. The Android flow makes the locked edits with
+# nothing enrolled (NotEnrolled → unlock). That path cannot run here: the simulator's
+# canEvaluatePolicy(DeviceOwnerAuthentication) returns YES with no passcode set, and the
+# system passcode sheet then either times out ("UI activation timed out after 5 seconds")
+# or arrives late, so the evaluation cannot be completed. So on iOS this checks the gate's
+# other half: with the lock on an edit does not go through unauthenticated, and with it
+# off the same tap does.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+
+# Lock on: tapping the count must not open the set-count dialog.
+- tapOn:
+    id: "nav_settings"
+- extendedWaitUntil:
+    visible:
+      text: "Biometric Lock"
+    timeout: 5000
+- tapOn:
+    id: "biometricLockSwitch"
+- tapOn:
+    text: "Manage Supplies"
+- tapOn:
+    id: "supplyCount_.*"
+    index: 0
+# Outlast the simulator's 5 s prompt timeout, so a dialog opened after it would be seen.
+- extendedWaitUntil:
+    visible:
+      text: ".*Set.*count.*"
+    timeout: 8000
+    optional: true
+- assertNotVisible:
+    text: ".*Set.*count.*"
+
+# Lock off: the same tap opens the dialog. Relaunch with cleared state instead of toggling
+# the switch: the system passcode sheet can still arrive late and cover the app.
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 20000
+- tapOn:
+    id: "nav_settings"
+- tapOn:
+    text: "Manage Supplies"
+- tapOn:
+    id: "supplyCount_.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: ".*Set.*count.*"
+    timeout: 5000

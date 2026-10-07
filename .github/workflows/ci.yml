@@ -487,12 +487,14 @@ jobs:
       - name: Run Maestro E2E flows (iOS)
         # Covers the clusters where real device bugs appeared: onboarding, log a change,
         # deep link, backup/share. `.maestro/ios/` holds the iOS variants — the Android
-        # flows they mirror stay untouched. 08 is platform-neutral and is reused as-is.
+        # flows they mirror stay untouched.
         #
         # Why variants at all: on iOS Maestro full-string-matches `text:` against the
         # accessibility tree, so the Android flows' `text: "logged"` never matches the
         # "Bag logged · 0 left" snackbar; and their Android-only bits (`pressKey: BACK`,
-        # `launchApp.arguments.url`) are no-ops here.
+        # `launchApp.arguments.url`) are no-ops here. 08 has an iOS variant because the
+        # simulator claims it can authenticate with no passcode, so its NotEnrolled path
+        # cannot run (see .maestro/ios/08_ios_biometric_gate.yaml).
         env:
           # The XCUITest driver never came up on the runner and the job died before a single
           # step ran ("iOS driver not ready in time" / IOSDriverTimeoutException). The default
@@ -508,7 +510,7 @@ jobs:
             .maestro/ios/01_ios_deep_link_log.yaml \
             .maestro/ios/02_ios_log_and_undo.yaml \
             .maestro/ios/05_ios_backup_share.yaml \
-            .maestro/08_biometric_gate.yaml; do
+            .maestro/ios/08_ios_biometric_gate.yaml; do
             echo "::group::maestro (iOS) $flow"
             if maestro test --device "$SIM_UDID" \
               --format junit --output "e2e-results/$(basename "$flow" .yaml).xml" "$flow"; then

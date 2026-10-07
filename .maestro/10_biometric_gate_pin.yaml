@@ -40,7 +40,9 @@ name: "Journey 10: Biometric gate prompts, blocks and unlocks (PIN set)"
       text: "Authenticate to edit supply count"
     timeout: 5000
 
-# 2. Cancelling blocks the edit: no dialog opens.
+# 2. Cancelling blocks the edit: no dialog opens. The PIN screen opens with the keyboard up,
+# and a lone Back only closes the keyboard (CI run 37690615695), so hide it first.
+- hideKeyboard
 - pressKey: back
 - extendedWaitUntil:
     notVisible:
@@ -97,7 +99,12 @@ name: "Journey 10: Biometric gate prompts, blocks and unlocks (PIN set)"
     visible:
       text: "Authenticate to edit supply count"
     timeout: 5000
+- hideKeyboard
 - pressKey: back
+- extendedWaitUntil:
+    notVisible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
 - extendedWaitUntil:
     visible:
       text: ".*42 on hand.*"

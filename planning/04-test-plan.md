@@ -101,7 +101,7 @@ app for `iphonesimulator`, installs it, and runs:
 | `ios/01_ios_deep_link_log.yaml` | `ostomate://log?item=bag` cold start → snackbar → event in History |
 | `ios/02_ios_log_and_undo.yaml` | Log a change, undo it |
 | `ios/05_ios_backup_share.yaml` | Export backup → iOS share sheet offers the JSON file |
-| `08_biometric_gate.yaml` | Reused as-is — platform-neutral (nothing enrolled on the simulator). Journey 10 is Android-only: it needs a PIN set over adb |
+| `ios/08_ios_biometric_gate.yaml` | Lock on → the set-count tap does not go through; lock off → it does. Not the Android flow: the simulator reports it can authenticate with no passcode, then the passcode sheet times out or arrives late, so the nothing-enrolled path cannot run. Journey 10 is Android-only (PIN set over adb) |
 
 **Why iOS needs variants rather than reusing every Android flow.** Three real
 platform differences, each of which silently no-ops or fails otherwise:
