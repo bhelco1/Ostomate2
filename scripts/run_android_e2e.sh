@@ -24,7 +24,13 @@ FLOWS=(
   .maestro/05_backup_round_trip.yaml
   .maestro/08_biometric_gate.yaml
   .maestro/09_store_screenshots.yaml
+  .maestro/10_biometric_gate_pin.yaml
 )
+
+# Journey 10 needs a credential for the biometric gate to ask for. Set only around that
+# flow and always cleared after: a PIN left set would put a lock screen in front of every
+# later flow.
+GATE_PIN_FLOW=10_biometric_gate_pin
 
 DIAG="$PWD/e2e-diagnostics"
 RESULTS="$PWD/e2e-results"
@@ -39,6 +45,9 @@ for flow in "${FLOWS[@]}"; do
   echo "::group::maestro $flow"
 
   adb logcat -c || true
+  if [ "$name" = "$GATE_PIN_FLOW" ]; then
+    adb shell locksettings set-pin 1234 || echo "::warning::could not set the screen-lock PIN"
+  fi
 
   # --debug-output must come AFTER `test` (2.6.1 rejects it as a global flag). Absolute
   # path: a relative one has not been landing anywhere the upload step can find.
@@ -70,6 +79,9 @@ for flow in "${FLOWS[@]}"; do
       "$DIAG/$name/logcat.txt" | head -20 || echo "(no crash signature in logcat)"
   fi
 
+  if [ "$name" = "$GATE_PIN_FLOW" ]; then
+    adb shell locksettings clear --old 1234 || echo "::warning::could not clear the screen-lock PIN"
+  fi
   echo "::endgroup::"
 done
 

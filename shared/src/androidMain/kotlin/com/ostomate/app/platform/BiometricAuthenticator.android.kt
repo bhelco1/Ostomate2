@@ -1,7 +1,9 @@
 package com.ostomate.app.platform
 
+import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
@@ -21,8 +23,21 @@ object CurrentActivityHolder {
         }
 }
 
+/**
+ * androidx.biometric rejects BIOMETRIC_STRONG | DEVICE_CREDENTIAL on API 28-29 as
+ * BIOMETRIC_ERROR_UNSUPPORTED, before it looks at enrollment, so the lock silently blocked
+ * every count edit on Android 9-10. WEAK | DEVICE_CREDENTIAL is the only combination with a
+ * PIN fallback there; every other version keeps STRONG.
+ */
+internal fun authenticatorsFor(sdkInt: Int): Int =
+    if (sdkInt == Build.VERSION_CODES.P || sdkInt == Build.VERSION_CODES.Q) {
+        BIOMETRIC_WEAK or DEVICE_CREDENTIAL
+    } else {
+        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+    }
+
 actual class BiometricAuthenticator : BiometricAuth {
-    private val authenticators = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+    private val authenticators = authenticatorsFor(Build.VERSION.SDK_INT)
 
     override fun authenticate(
         reason: String,
