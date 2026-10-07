@@ -33,10 +33,17 @@ name: "Journey 1: Cold-start QR log"
 - tapOn:
     text: "Open"
     optional: true
+# Wait on an in-app element, not the text "Ostomate": after stopApp the home screen's app
+# icon is labelled "Ostomate", so that wait passed before the deep-link launch had even
+# begun, and pass 2's launchApp then raced it ("App did not stop in time", run 37686246183).
+# Optional because this pass only grants the scheme trust: on a fresh simulator the link
+# occasionally never brings the app up (1 in 4 local runs), and then nothing is mid-launch
+# for pass 2 to race. Pass 2 is the strict check that a cold-start link really logs.
 - extendedWaitUntil:
     visible:
-      text: "Ostomate"
+      id: "logButton"
     timeout: 25000
+    optional: true
 
 # ---- Pass 2: the real cold-start deep link. ----
 # clearState wipes the event logged above; the scheme trust granted above persists.
