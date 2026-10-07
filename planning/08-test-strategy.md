@@ -227,10 +227,11 @@ it supports `com.android.kotlin.multiplatform.library`.
 - **Badge:** README status + coverage badges updated by CI.
 - **External publication (added 2026-09-22):** the `android` and `ios` jobs also POST
   their JUnit XML (and, on the JVM, the JaCoCo XML) to **testpulse**, Bobby's public
-  test dashboard, via `scripts/testpulse-report.sh` — a verbatim copy of that project's
-  canonical reporter, configured by the `TESTPULSE_URL` variable and `TESTPULSE_TOKEN`
-  secret. The step runs `if: always()` and the script exits 0 on every failure path, so
-  it can never fail a build. A weekly `schedule:` trigger keeps reports flowing while the
+  test dashboard, via testpulse's shared action `bhelco1/testpulse/.github/actions/report@v1`
+  (one step per job/module/platform; the copied `scripts/testpulse-report.sh` was removed
+  2026-10-07), configured by the `TESTPULSE_URL` variable and `TESTPULSE_TOKEN` secret.
+  Each step runs `if: always()` and the action never fails a build; a report not sent or
+  not accepted adds a job-summary line. A weekly `schedule:` trigger keeps reports flowing while the
   repo is quiet, because testpulse treats 8 days of silence as a stale project; that
   scheduled run deliberately excludes the Maestro E2E jobs and the dashboard publish, so
   it costs one ubuntu run plus one macOS simulator run, not a full weekly E2E sweep.
