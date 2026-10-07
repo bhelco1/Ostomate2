@@ -355,7 +355,15 @@ jobs:
           emulator-options: >-
             -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
             -camera-back none -camera-front none
-          boot-timeout: 900
+          # The input is emulator-boot-timeout: the old `boot-timeout: 900` was an unknown input
+          # the action ignored (with a warning), so boots got its 600 s default.
+          emulator-boot-timeout: 900
+          # Pinned (the build the last green run used, 37.2.12.0): unpinned, a new emulator
+          # release changes the test environment with no commit of ours. Bump deliberately.
+          # The action still runs `sdkmanager --install emulator` (latest) before swapping
+          # this build in, so a failed latest download (run 37686246183 attempt 1, "Error on
+          # ZipFile unknown archive") can still break setup; this pins what runs, not that.
+          emulator-build: 16428233
           script: |
             adb start-server
             adb wait-for-device
