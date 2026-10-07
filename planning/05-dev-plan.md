@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.7 ✅, 2.5.8 🚧, 2.5.9 ⬜) |
+| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.7 ✅, 2.5.8 🚧, 2.5.9 🚧) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -310,11 +310,18 @@ either platform yet, and is not in the iOS job.
   when the emulator's NotEnrolled path auto-unlocks.
 - **Done when:** all 7 flows run in CI with meaningful assertions.
 
-### 2.5.9 — Comprehensive extras ⬜
-- Mutation testing on the pure domain layer (small + pure → high ROI).
-- Automated accessibility semantics checks (Home + Settings); keep manual
+### 2.5.9 — Comprehensive extras 🚧
+- [x] Mutation testing on the pure domain layer (2026-10-05). `:shared:pitestDomain` runs
+  Pitest 1.30.0 against `com.ostomate.app.domain` in the CI `android` test step and fails
+  below a 95% mutation score; report artifact `mutation-report`. Not the Gradle plugin: it
+  cannot see AGP-KMP classes, so the task calls Pitest's CLI on the host-test classpath.
+  First real run: 50/54 killed (93%). The survivors were two real gaps: nothing tested the
+  supply sitting *exactly* at its warning threshold, and `DeepLinkParser.parseCustomId` had
+  no domain test. Four tests added → 53/54 (98%). The one survivor is equivalent (a removed
+  compiler-inserted null check).
+- [ ] Automated accessibility semantics checks (Home + Settings); keep manual
   VoiceOver/TalkBack for screen-reader feel.
-- Flakiness tracking / E2E quarantine lane.
+- [ ] Flakiness tracking / E2E quarantine lane.
 - **Done when:** the full target-state pyramid in `08` §3 is in place.
 
 ### Shipped outside the plan (2026-09-29)

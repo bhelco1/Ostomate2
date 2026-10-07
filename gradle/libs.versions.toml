@@ -6,6 +6,7 @@ detekt = "1.23.8"
 kotest = "5.9.1"
 kover = "0.8.3"
 jacoco = "0.8.13"
+pitest = "1.30.0"
 ktlint-gradle = "12.1.2"
 kotlinx-datetime = "0.7.1"
 kotlinx-serialization = "1.8.1"
@@ -76,6 +77,7 @@ sqlite-framework = { module = "androidx.sqlite:sqlite-framework", version.ref = 
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+pitest-command-line = { module = "org.pitest:pitest-command-line", version.ref = "pitest" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 
 [plugins]
