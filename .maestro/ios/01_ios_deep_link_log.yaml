@@ -33,9 +33,12 @@ name: "Journey 1: Cold-start QR log"
 - tapOn:
     text: "Open"
     optional: true
+# Wait on an in-app element, not the text "Ostomate": after stopApp the home screen's app
+# icon is labelled "Ostomate", so that wait passed before the deep-link launch had even
+# begun, and pass 2's launchApp then raced it ("App did not stop in time", run 37686246183).
 - extendedWaitUntil:
     visible:
-      text: "Ostomate"
+      id: "logButton"
     timeout: 25000
 
 # ---- Pass 2: the real cold-start deep link. ----
