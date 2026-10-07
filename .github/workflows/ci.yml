@@ -195,23 +195,37 @@ jobs:
             shared/build/test-results/testAndroidHostTest/TEST-*.xml
             composeApp/build/test-results/testAndroidHostTest/TEST-*.xml
           if-no-files-found: ignore
-      - name: Report to testpulse
-        # Publishes the same JUnit XML + JaCoCo XML to the public testpulse dashboard.
-        # The script exits 0 on every failure path (missing secret on a fork PR, HTTP
-        # error, no matching files) and only emits a ::warning::, so it cannot redden a
-        # build whose tests passed. `always()` so a failing suite still gets reported —
-        # a red run is exactly the data the dashboard exists to show.
+      - name: Report android/shared/jvm to testpulse
+        # Publishes the JUnit XML + JaCoCo XML to the public testpulse dashboard. The action never
+        # fails the build: a missing secret (fork PR), an HTTP error or no matching files is a
+        # warning plus a job-summary line. `always()` so a failing suite still gets reported — a red
+        # run is exactly the data the dashboard exists to show. job/module/platform are test
+        # identity and history in testpulse (standard section 4): never rename them casually.
         if: always()
-        env:
-          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
-          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
-        run: |
-          scripts/testpulse-report.sh android shared jvm junit \
-            "shared/build/test-results/testAndroidHostTest/TEST-*.xml" \
-            jacoco shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
-          scripts/testpulse-report.sh android composeApp jvm junit \
-            "composeApp/build/test-results/testAndroidHostTest/TEST-*.xml" \
-            jacoco composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: android
+          module: shared
+          platform: jvm
+          format: junit
+          results: "shared/build/test-results/testAndroidHostTest/TEST-*.xml"
+          coverage-format: jacoco
+          coverage-file: shared/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
+      - name: Report android/composeApp/jvm to testpulse
+        if: always()
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: android
+          module: composeApp
+          platform: jvm
+          format: junit
+          results: "composeApp/build/test-results/testAndroidHostTest/TEST-*.xml"
+          coverage-format: jacoco
+          coverage-file: composeApp/build/reports/jacoco/jacocoHostTestReport/jacocoHostTestReport.xml
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -348,14 +362,19 @@ jobs:
             until adb shell getprop sys.boot_completed 2>/dev/null | grep -q '1'; do sleep 3; done
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
             bash scripts/run_android_e2e.sh
-      - name: Report to testpulse
+      - name: Report android-e2e/e2e/android-emulator to testpulse
         # One JUnit file per flow, written by scripts/run_android_e2e.sh. `always()` so a red
         # E2E run is reported too — it used to reach no dashboard at all.
         if: always()
-        env:
-          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
-          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
-        run: scripts/testpulse-report.sh android-e2e e2e android-emulator junit "e2e-results/*.xml"
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: android-e2e
+          module: e2e
+          platform: android-emulator
+          format: junit
+          results: "e2e-results/*.xml"
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
       - name: Upload E2E JUnit results
         # Kept for the testpulse parser's fixtures (captured files only, never hand-written).
         if: always()
@@ -409,18 +428,30 @@ jobs:
         # or composeApp's testpulse report goes missing on exactly the red runs. Gradle still
         # fails the build once the remaining tasks finish.
         run: ./gradlew :shared:iosSimulatorArm64Test :composeApp:iosSimulatorArm64Test --continue --stacktrace
-      - name: Report to testpulse
-        # Same reporter as the `android` job; no coverage arguments because JaCoCo is
-        # JVM-only and the simulator run produces none. Cannot fail the build.
+      - name: Report ios/shared/ios-sim to testpulse
+        # Same action as the `android` job; no coverage because JaCoCo is JVM-only and the
+        # simulator run produces none. Cannot fail the build.
         if: always()
-        env:
-          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
-          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
-        run: |
-          scripts/testpulse-report.sh ios shared ios-sim junit \
-            "shared/build/test-results/iosSimulatorArm64Test/TEST-*.xml"
-          scripts/testpulse-report.sh ios composeApp ios-sim junit \
-            "composeApp/build/test-results/iosSimulatorArm64Test/TEST-*.xml"
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: ios
+          module: shared
+          platform: ios-sim
+          format: junit
+          results: "shared/build/test-results/iosSimulatorArm64Test/TEST-*.xml"
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
+      - name: Report ios/composeApp/ios-sim to testpulse
+        if: always()
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: ios
+          module: composeApp
+          platform: ios-sim
+          format: junit
+          results: "composeApp/build/test-results/iosSimulatorArm64Test/TEST-*.xml"
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
       - name: Build iOS app (simulator, unsigned)
         # ARCHS=arm64 because composeApp publishes no x86_64 slice (CMP 1.11+ dropped it);
         # an unconstrained simulator build tries both archs and fails.
@@ -523,12 +554,17 @@ jobs:
           cat /tmp/ios_e2e_summary
           echo "=========================="
           exit $fail
-      - name: Report to testpulse
+      - name: Report ios-e2e/e2e/ios-sim to testpulse
         if: always()
-        env:
-          TESTPULSE_URL: ${{ vars.TESTPULSE_URL }}
-          TESTPULSE_TOKEN: ${{ secrets.TESTPULSE_TOKEN }}
-        run: scripts/testpulse-report.sh ios-e2e e2e ios-sim junit "e2e-results/*.xml"
+        uses: bhelco1/testpulse/.github/actions/report@v1
+        with:
+          job: ios-e2e
+          module: e2e
+          platform: ios-sim
+          format: junit
+          results: "e2e-results/*.xml"
+          url: ${{ vars.TESTPULSE_URL }}
+          token: ${{ secrets.TESTPULSE_TOKEN }}
       - name: Upload E2E JUnit results
         # Kept for the testpulse parser's fixtures (captured files only, never hand-written).
         if: always()
