@@ -16,11 +16,16 @@
 
 ## Biometric Authentication
 
-Settings editing is protected by `BiometricAuthenticator`:
-- Android: `BIOMETRIC_STRONG or DEVICE_CREDENTIAL` — Face, fingerprint, or PIN fallback
+Supply-count editing (Manage Supplies: the set-count dialog and the +/− box buttons) is
+protected by `BiometricAuthenticator`, once per visit to that screen:
+- Android: `BIOMETRIC_STRONG or DEVICE_CREDENTIAL` — Face, fingerprint, or PIN fallback.
+  **Android 9–10 (API 28–29) use `BIOMETRIC_WEAK or DEVICE_CREDENTIAL`**: androidx.biometric
+  rejects STRONG | DEVICE_CREDENTIAL there as unsupported (before checking enrollment), which
+  silently blocked every locked edit until 2026-10-07. WEAK is the only combination with a
+  PIN fallback on those versions (Bobby's decision, 2026-10-07).
 - iOS: `LAContext` with `LAPolicyDeviceOwnerAuthentication` — Face ID, Touch ID, or passcode fallback
 - If no biometric or credential enrolled: auto-unlock (graceful fallback, matches v1 behavior)
-- Re-locks on navigate-away from Settings
+- Re-locks on navigate-away from Manage Supplies
 
 ## Data Export
 

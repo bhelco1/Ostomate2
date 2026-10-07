@@ -1,0 +1,111 @@
+appId: com.ostomate.app
+name: "Journey 10: Biometric gate prompts, blocks and unlocks (PIN set)"
+---
+# Android only. scripts/run_android_e2e.sh sets screen-lock PIN 1234 before this flow and
+# clears it after, so the gate has a credential to ask for: this is the gate's own logic,
+# not the nothing-enrolled auto-unlock that Journey 8 covers.
+- launchApp:
+    clearState: true
+
+- tapOn:
+    text: "Skip"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Ostomate"
+    timeout: 5000
+
+- tapOn:
+    id: "nav_settings"
+- extendedWaitUntil:
+    visible:
+      text: "Biometric Lock"
+    timeout: 3000
+- tapOn:
+    id: "biometricLockSwitch"
+- tapOn:
+    text: "Manage Supplies"
+- extendedWaitUntil:
+    visible:
+      text: ".*on hand.*"
+    timeout: 3000
+
+# 1. A locked edit asks for the credential (the prompt title is the app's reason string).
+- tapOn:
+    id: "supplyCount_.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
+
+# 2. Cancelling blocks the edit: no dialog opens. The PIN screen opens with the keyboard up,
+# and a lone Back only closes the keyboard (CI run 37690615695), so hide it first.
+- hideKeyboard
+- pressKey: back
+- extendedWaitUntil:
+    notVisible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
+- assertNotVisible:
+    text: ".*Set.*count.*"
+
+# 3. The right PIN unlocks it.
+- tapOn:
+    id: "supplyCount_.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
+- inputText: "1234"
+- pressKey: enter
+- extendedWaitUntil:
+    visible:
+      text: ".*Set.*count.*"
+    timeout: 5000
+- tapOn:
+    id: "editCountField"
+- eraseText
+- inputText: "12"
+- tapOn:
+    text: "Save"
+- extendedWaitUntil:
+    visible:
+      text: ".*12 on hand.*"
+    timeout: 3000
+
+# 4. Still unlocked for the rest of this visit: + applies with no prompt.
+- tapOn:
+    id: "incrementBox_.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: ".*42 on hand.*"
+    timeout: 3000
+- assertNotVisible:
+    text: "Authenticate to edit supply count"
+
+# 5. Leaving the screen locks it again: + prompts, and cancelling leaves the count alone.
+- tapOn:
+    id: "nav_settings"
+- tapOn:
+    text: "Manage Supplies"
+- tapOn:
+    id: "incrementBox_.*"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
+- hideKeyboard
+- pressKey: back
+- extendedWaitUntil:
+    notVisible:
+      text: "Authenticate to edit supply count"
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      text: ".*42 on hand.*"
+    timeout: 5000

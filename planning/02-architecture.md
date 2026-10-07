@@ -47,7 +47,7 @@ shared/domain/
 | File | Android actual | iOS actual |
 |---|---|---|
 | `Notifier` | WorkManager + NotificationManager | UNUserNotificationCenter |
-| `BiometricAuthenticator` | BiometricPrompt (BIOMETRIC_STRONG or DEVICE_CREDENTIAL) | LAContext (Face ID / Touch ID + passcode) |
+| `BiometricAuthenticator` | BiometricPrompt (BIOMETRIC_STRONG or DEVICE_CREDENTIAL; WEAK on API 28–29) | LAContext (Face ID / Touch ID + passcode) |
 | `CrashReporter` | Firebase Crashlytics (release only) | Firebase Crashlytics (release only) |
 | `FeedbackHelper` | Google Play In-App Review | SKStoreReviewController |
 | `FileSharer` | Intent.ACTION_SEND | UIActivityViewController |

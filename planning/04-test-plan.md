@@ -85,10 +85,9 @@ Both E2E jobs trigger on `main` merges and `workflow_dispatch` only — never on
 | `03_edit_delete_event.yaml` | ✅ | Edit history entry, delete it |
 | `04_set_inventory.yaml` | ✅ | Set inventory counts in Settings |
 | `05_backup_round_trip.yaml` | ✅ | Export JSON backup via the share sheet |
-| `08_biometric_gate.yaml` | ✅ | Settings locked before auth |
-| `09_store_screenshots.yaml` | ❌ not wired | Capture Play Store screenshots |
-
-Wiring the two orphans is 2.5.8.
+| `08_biometric_gate.yaml` | ✅ | Lock on, nothing enrolled: both locked edits (set-count, +box) go through |
+| `09_store_screenshots.yaml` | ✅ | Capture Play Store screenshots |
+| `10_biometric_gate_pin.yaml` | ✅ | Lock on, PIN set by the runner: prompt shows, Back blocks, PIN unlocks for the visit, leaving re-locks |
 
 ### iOS (`ios-e2e` job — macOS runner, freshly created iPhone simulator)
 
@@ -102,7 +101,7 @@ app for `iphonesimulator`, installs it, and runs:
 | `ios/01_ios_deep_link_log.yaml` | `ostomate://log?item=bag` cold start → snackbar → event in History |
 | `ios/02_ios_log_and_undo.yaml` | Log a change, undo it |
 | `ios/05_ios_backup_share.yaml` | Export backup → iOS share sheet offers the JSON file |
-| `08_biometric_gate.yaml` | Reused as-is — platform-neutral |
+| `ios/08_ios_biometric_gate.yaml` | Lock on → the set-count tap does not go through; lock off → it does. Not the Android flow: the simulator reports it can authenticate with no passcode, then the passcode sheet times out or arrives late, so the nothing-enrolled path cannot run. Journey 10 is Android-only (PIN set over adb) |
 
 **Why iOS needs variants rather than reusing every Android flow.** Three real
 platform differences, each of which silently no-ops or fails otherwise:

@@ -1,6 +1,10 @@
 appId: com.ostomate.app
 name: "Journey 8: Biometric gate on Settings"
 ---
+# Nothing enrolled (no PIN, no biometrics: the CI emulator and simulator). The gate must
+# then let locked edits through (NotEnrolled → unlock). Before 2026-10-07 it dropped them
+# silently on Android 9-10, and the old version of this flow never made an edit, so it
+# could not see that. The prompt path itself is Journey 10 (Android, PIN set).
 - launchApp:
     clearState: true
 
@@ -9,13 +13,12 @@ name: "Journey 8: Biometric gate on Settings"
     text: "Skip"
     optional: true
 
-# Wait for home screen
 - extendedWaitUntil:
     visible:
       text: "Ostomate"
     timeout: 5000
 
-# Enable biometric lock in Settings
+# Turn the lock on
 - tapOn:
     id: "nav_settings"
 - extendedWaitUntil:
@@ -25,15 +28,38 @@ name: "Journey 8: Biometric gate on Settings"
 - tapOn:
     id: "biometricLockSwitch"
 
-# Navigate away then back to trigger the re-lock on ON_RESUME
+# Locked entry point 1: the set-count dialog
 - tapOn:
-    id: "nav_home"
+    text: "Manage Supplies"
 - tapOn:
-    id: "nav_settings"
-
-# On emulator without enrolled biometrics: NotEnrolled → auto-unlock.
-# Settings content becomes visible once auto-unlock completes.
+    id: "supplyCount_.*"
+    index: 0
 - extendedWaitUntil:
     visible:
-      text: "Manage Supplies"
+      text: ".*Set.*count.*"
+    timeout: 4000
+- tapOn:
+    id: "editCountField"
+- eraseText
+- inputText: "12"
+- tapOn:
+    text: "Save"
+- extendedWaitUntil:
+    visible:
+      text: ".*12 on hand.*"
+    timeout: 3000
+
+# Locked entry point 2: the + box button. Re-enter the screen first so the session unlock
+# from the dialog is gone and this tap goes through the gate on its own.
+- tapOn:
+    id: "nav_settings"
+- tapOn:
+    text: "Manage Supplies"
+- tapOn:
+    id: "incrementBox_.*"
+    index: 0
+# Bag box size is 30: 12 + 30
+- extendedWaitUntil:
+    visible:
+      text: ".*42 on hand.*"
     timeout: 4000

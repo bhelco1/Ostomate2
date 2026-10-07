@@ -305,9 +305,15 @@ either platform yet, and is not in the iOS job.
 ### 2.5.8 — Wire orphan Maestro flows 🚧
 - [x] Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
   `android-e2e` job — done in PR #20; all 7 run and pass (run 36666728008).
-- [ ] Strengthen flow `08` so it asserts the biometric **gate logic**, not emulator
-  auto-unlock behavior. Still open: it enables the lock, re-enters Settings, and passes
-  when the emulator's NotEnrolled path auto-unlocks.
+- [x] Flow `08` asserts the biometric **gate logic** (2026-10-07). The lock never guarded
+  the Settings screen: it guards count edits in Manage Supplies, and the old flow made no
+  edit, so it passed whatever the gate did. Doing an edit found a **real bug**: on Android
+  9–10 androidx.biometric rejects STRONG | DEVICE_CREDENTIAL as unsupported, the app mapped
+  that to Failed, and every locked edit was silently dropped (fixed: WEAK on API 28–29;
+  `BiometricAuthenticatorTest` asks the real library on API 29 and 34). Flow 08 (both
+  platforms) now makes both locked edits with nothing enrolled; new Android flow 10 sets a
+  PIN over adb and checks prompt, Back-blocks, PIN-unlocks, unlocked-for-the-visit and
+  re-lock on leaving.
 - **Done when:** all 7 flows run in CI with meaningful assertions.
 
 ### 2.5.9 — Comprehensive extras 🚧
