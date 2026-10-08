@@ -131,6 +131,25 @@ maestro test --device "$UDID" .maestro/ios/02_ios_log_and_undo.yaml
 maestro test .maestro/02_log_and_undo.yaml
 ```
 
+## Flaky tests: track, then root-cause — no quarantine (decided 2026-10-08)
+
+Flakiness is **tracked on testpulse**, which measures it from results across attempts on one
+commit (reporting standard §4); there is no separate tracker here. There is deliberately **no
+quarantine lane**: a quarantined flow is a failure CI is told to ignore, and every E2E "flake"
+so far was a real defect found only because the failure could not be ignored — iOS flow 01's
+wait matching the home-screen icon label (PR #41), flow 10's Back closing only the keyboard,
+the Maestro 2.6.1 driver's false "App crashed" (PR #37), the snackbar race (PR #27).
+
+When a flow fails intermittently:
+1. Read the evidence **before** rerunning — `e2e-diagnostics` (Android: logcat, focus,
+   hierarchy, screen) or `maestro-ios-debug` (`crash-reports/`, `simulator-app.log`, per-flow
+   `maestro.log`). A rerun that goes green explains nothing.
+2. Reproduce locally when CI alone is ambiguous (fresh simulator / emulator, same Maestro pin).
+3. Fix the cause in the flow, the app or the tooling pin, and say in the commit which run it was.
+4. If the cause is outside our control and cannot be fixed yet, open an issue and make *that
+   step* `optional` with a comment naming the issue — never the whole flow.
+5. Rerun with "Re-run all jobs" (standard §4), not "Re-run failed jobs".
+
 ## Manual Device Testing Checklist
 
 Run before any release candidate.
