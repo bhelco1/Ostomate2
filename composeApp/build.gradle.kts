@@ -77,6 +77,10 @@ kotlin {
             implementation(libs.androidx.test.core)
             implementation(libs.roborazzi)
             implementation(libs.roborazzi.compose)
+            // Accessibility checks (2.5.9): Compose semantics read on the JVM host. Not Google's
+            // ATF: ui-test's enableAccessibilityChecks() is a logged no-op under Robolectric.
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.compose.ui.test.manifest)
         }
     }
 }

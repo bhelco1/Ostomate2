@@ -325,8 +325,15 @@ either platform yet, and is not in the iOS job.
   supply sitting *exactly* at its warning threshold, and `DeepLinkParser.parseCustomId` had
   no domain test. Four tests added → 53/54 (98%). The one survivor is equivalent (a removed
   compiler-inserted null check).
-- [ ] Automated accessibility semantics checks (Home + Settings); keep manual
-  VoiceOver/TalkBack for screen-reader feel.
+- [x] Automated accessibility semantics checks (Home + Settings) (2026-10-08).
+  `AccessibilityTest` (composeApp JVM host, every PR) asserts every clickable gives a
+  screen reader something to announce. It found a **real bug**: the Biometric Lock and
+  Crash reporting switches had no accessible name (TalkBack: "Switch, off"); each Settings
+  row is now the toggle. Test deps: `androidx.compose.ui:ui-test-junit4` + `ui-test-manifest`
+  1.11.1. Two things tried and dropped, both caught by self-tests: Google's ATF
+  (`enableAccessibilityChecks()` is a logged no-op under Robolectric) and a 48dp touch-target
+  rule (Compose expands every pointer target to 48dp at hit time, so a layout-size rule only
+  flagged Material 3's standard 40dp buttons). Manual VoiceOver/TalkBack stays for feel.
 - [ ] Flakiness tracking / E2E quarantine lane.
 - **Done when:** the full target-state pyramid in `08` §3 is in place.
 
