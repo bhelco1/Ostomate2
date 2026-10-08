@@ -9,7 +9,7 @@
 | 0 | KMP spike — prove the stack | ✅ Complete |
 | 1 | Wire platform features + stabilize | ✅ Complete |
 | 2 | Physical device validation | ✅ Complete |
-| 2.5 | Test hardening & QA infrastructure | 🚧 (2.5.1–2.5.7 ✅, 2.5.8 🚧, 2.5.9 🚧) |
+| 2.5 | Test hardening & QA infrastructure | ✅ Complete (2026-10-08) |
 | 3 | Release prep (signing, store listings) | ⬜ |
 | 4 | App Store + Play Store submission | ⬜ |
 | 5 | Production release | ⬜ |
@@ -302,7 +302,7 @@ either platform yet, and is not in the iOS job.
   `./gradlew :composeApp:testAndroidHostTest -Pscreenshot.record`, then commit the PNGs.
 - **Done when** ✅: baseline images committed; diffs fail CI on layout change.
 
-### 2.5.8 — Wire orphan Maestro flows 🚧
+### 2.5.8 — Wire orphan Maestro flows ✅
 - [x] Add `01_cold_start_qr_log.yaml` and `09_store_screenshots.yaml` to the CI
   `android-e2e` job — done in PR #20; all 7 run and pass (run 36666728008).
 - [x] Flow `08` asserts the biometric **gate logic** (2026-10-07). The lock never guarded
@@ -316,7 +316,7 @@ either platform yet, and is not in the iOS job.
   re-lock on leaving.
 - **Done when:** all 7 flows run in CI with meaningful assertions.
 
-### 2.5.9 — Comprehensive extras 🚧
+### 2.5.9 — Comprehensive extras ✅
 - [x] Mutation testing on the pure domain layer (2026-10-05). `:shared:pitestDomain` runs
   Pitest 1.30.0 against `com.ostomate.app.domain` in the CI `android` test step and fails
   below a 95% mutation score; report artifact `mutation-report`. Not the Gradle plugin: it
@@ -334,8 +334,10 @@ either platform yet, and is not in the iOS job.
   (`enableAccessibilityChecks()` is a logged no-op under Robolectric) and a 48dp touch-target
   rule (Compose expands every pointer target to 48dp at hit time, so a layout-size rule only
   flagged Material 3's standard 40dp buttons). Manual VoiceOver/TalkBack stays for feel.
-- [ ] Flakiness tracking / E2E quarantine lane.
-- **Done when:** the full target-state pyramid in `08` §3 is in place.
+- [x] Flakiness tracking / E2E quarantine lane (2026-10-08): tracking is testpulse's
+  attempts-per-commit measure; **no quarantine lane, by decision** — every E2E flake so far was
+  a real defect. The root-cause procedure is in `04-test-plan.md` ("Flaky tests").
+- **Done when:** the full target-state pyramid in `08` §3 is in place. ✅ 2026-10-08.
 
 ### Shipped outside the plan (2026-09-29)
 Recorded so the plan matches what is on main; neither was a checklist item.
