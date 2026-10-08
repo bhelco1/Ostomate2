@@ -34,6 +34,8 @@ room = "2.8.4"
 sqlite = "2.6.2"
 robolectric = "4.14.1"
 roborazzi = "1.68.0"
+# Test-only. Matches the androidx compose ui that CMP 1.11.0 resolves to on Android (1.11.1).
+compose-ui-test = "1.11.1"
 androidx-test-core = "1.6.1"
 
 [libraries]
@@ -78,6 +80,8 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
 pitest-command-line = { module = "org.pitest:pitest-command-line", version.ref = "pitest" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose-ui-test" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose-ui-test" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
 
 [plugins]
