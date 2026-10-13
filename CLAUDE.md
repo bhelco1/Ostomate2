@@ -19,22 +19,31 @@ Store assets: `docs/privacy.html` (**the** privacy policy — it is what GitHub 
 serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redirect), and
 `docs/store-listing.md`.
 
-## Current status (2026-09-29)
+## Current status (2026-10-08)
 
-**Phases 0–2 complete; Phase 2.5 (test hardening) — 2.5.1–2.5.7 done, 2.5.8 half done
-(orphan flows 01/09 wired in PR #20; flow 08 still asserts emulator auto-unlock, not the
-gate logic), 2.5.9 remaining.**
-JVM host gate: 82 shared tests + 61 composeApp tests (51 ViewModel/UiState + 10 Roborazzi
-screenshot tests; counts from CI run 36666728008). Shared also runs on the iOS sim. JaCoCo
-coverage floors gate every PR (shared domain+data 91%, composeApp ViewModel+UiState 93%).
-ktlint + detekt green.
-Maestro E2E: all 7 Android flows + 5 iOS flows green (run 36666728008); both jobs report
-JUnit to testpulse and keep it as `e2e-junit-android` / `e2e-junit-ios`. See `planning/05-dev-plan.md`.
+**Phases 0–2.5 complete; Phase 3 (release prep) next** — it starts with steps only Bobby can do
+(Apple Developer + Google Play accounts, the upload keystore and its GitHub secrets).
+Release signing + the CI `build-release` job are already in (PR #38), skipping until the
+keystore secrets exist. See `planning/05-dev-plan.md`.
+JVM host gate: 88 shared tests + 64 composeApp tests (51 ViewModel/UiState + 10 Roborazzi
+screenshot + 3 accessibility); the iOS sim runs 86 shared + 51 composeApp (counts from CI run
+37857036492, 950b796; testpulse shows 163 distinct tests). JaCoCo floors gate every PR
+(shared domain+data 91%, composeApp ViewModel+UiState 93%), and so does a Pitest mutation
+score on the domain layer (95% floor, 98% measured). ktlint + detekt green.
+Maestro E2E: 8 Android flows + 5 iOS flows green; both jobs report JUnit to testpulse via the
+shared action `bhelco1/testpulse/.github/actions/report@v1`. The Android emulator build is
+pinned (`emulator-build`), like `MAESTRO_VERSION`.
 
-**Open: iOS E2E "App crashed or stopped"** right after launch, CI only, a different flow
-each time (4 of 6 runs on 2026-09-29/30). Cause unknown. On the next one, read
-`crash-reports/` and `simulator-app.log` in that run's `maestro-ios-debug` artifact
-before rerunning — a rerun that goes green explains nothing.
+**Flaky E2E flows are root-caused, never quarantined** (decision 2026-10-08; procedure in
+`planning/04-test-plan.md` "Flaky tests"). Every flake so far was a real defect: Maestro
+2.6.1's false "App crashed or stopped" (fixed by 2.11.0), the iOS flow 01 wait that matched
+the home-screen icon label "Ostomate" (never wait on the app name as text), flow 10's Back
+closing only the keyboard. Read `e2e-diagnostics` / `maestro-ios-debug` before any rerun —
+a rerun that goes green explains nothing.
+
+**The biometric lock guards supply-count edits in Manage Supplies**, not the Settings screen.
+Android 9–10 use `BIOMETRIC_WEAK | DEVICE_CREDENTIAL` because androidx.biometric rejects
+STRONG | DEVICE_CREDENTIAL there (it silently dropped every locked edit until PR #43).
 
 (Shared went 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression —
 then 79 → 82 with the negative-inventory regression tests.)
