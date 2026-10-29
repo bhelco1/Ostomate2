@@ -29,17 +29,23 @@ protected by `BiometricAuthenticator`, once per visit to that screen:
 
 ## Data Export
 
-CSV export via `CsvExporter` + `FileSharer`:
-- Format: `id,type,timestamp_iso8601` — no PII
-- Delivered via platform share sheet (no third-party service)
-- File written to app cache directory and cleaned up after sharing
+Full-state JSON backup via `BackupRepository.exportBackup()` + `FileSharer` (FEAT-00; the
+old CSV `CsvExporter` was deleted):
+- Contents: supply types, every change event (ids and foreign keys preserved) and all
+  `AppSettings` — enough to restore a new phone to the same state. Health data, so treat the
+  file as sensitive; it is only created when the user taps Backup.
+- Delivered via the platform share sheet (no third-party service); restore reads it back
+  through Room (`BackupRepository.restoreBackup`), never by copying database files.
 
 ## Android-Specific
 
-- `android:usesCleartextTraffic="false"` — enforced in `AndroidManifest.xml`
+- Cleartext HTTP is blocked by the platform default (targetSdk 36; no
+  `usesCleartextTraffic` attribute or network security config overrides it)
 - Camera permission absent — app generates QR codes but never reads the camera
-- `android:allowBackup="true"` — intentional; preserves usage history on device replacement (Google Auto Backup, encrypted)
-- `FLAG_SECURE` on Settings window (prevents screenshots of biometric-protected screen)
+- `android:allowBackup="false"` — Android Auto Backup is **off**; device replacement relies on
+  the user's own JSON backup (Data Export above). Earlier text here said `true`; the manifest
+  has said `false` (checked 2026-10-29).
+- No `FLAG_SECURE`: screenshots of the app are not blocked (an earlier draft claimed it)
 
 ## iOS-Specific
 
@@ -51,11 +57,11 @@ CSV export via `CsvExporter` + `FileSharer`:
 
 | Threat | Mitigation |
 |---|---|
-| Unauthorized settings access | Biometric lock on every Settings visit |
+| Unauthorized change of supply counts | Biometric lock on count edits in Manage Supplies (once per visit) |
 | Data exfiltration | No network except opt-in crash reporting (off by default); share sheet is user-initiated |
 | Supply data in crash reports | Sentry captures stack traces only; no custom logging of health data |
-| Screenshot of sensitive screen | FLAG_SECURE on Android Settings window |
-| Lost/replaced device | Android Auto Backup (encrypted); iOS: no iCloud backup (future work) |
+| Screenshot of sensitive screen | Not mitigated (no `FLAG_SECURE`); the screens show supply counts, not identity |
+| Lost/replaced device | User's JSON backup (Settings → Backup); Android Auto Backup is off; iOS: no iCloud backup |
 
 ## Cost Rule for New Dependencies
 
