@@ -9,6 +9,7 @@ import com.ostomate.app.data.db.databaseBuilder
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.diagnosticLogStore
 import com.ostomate.app.data.drive.DriveBackupRunner
+import com.ostomate.app.data.drive.DriveBackupUploader
 import com.ostomate.app.data.drive.DriveClient
 import com.ostomate.app.data.drive.HttpTransport
 import com.ostomate.app.data.drive.UrlConnectionTransport
@@ -44,5 +45,5 @@ actual val platformModule: Module =
         single {
             val backups = get<BackupRepository>()
             DriveBackupRunner(get(), get(), get(), exportBackup = backups::exportBackup)
-        }
+        } bind DriveBackupUploader::class
     }

@@ -26,6 +26,19 @@ sealed interface DriveBackupRunResult {
 }
 
 /**
+ * Settings → Backup while the daily Drive backup is on: upload now, from the foreground,
+ * where Google may show its consent screen. Bound to an unsupported stub where there is no
+ * Drive backup (iOS); Settings never calls it there.
+ */
+fun interface DriveBackupUploader {
+    suspend fun uploadNow(): DriveBackupRunResult
+}
+
+object UnsupportedDriveBackupUploader : DriveBackupUploader {
+    override suspend fun uploadNow(): DriveBackupRunResult = DriveBackupRunResult.Failed(DriveBackupFailure.OTHER)
+}
+
+/**
  * One daily run: get a token without UI, upload the same JSON a manual export produces into
  * the "Ostomate backups" folder, prune to the newest 14, and record the outcome for the
  * Settings status line. Never throws for an expected failure, so the job cannot crash.
@@ -37,10 +50,20 @@ class DriveBackupRunner(
     private val exportBackup: suspend () -> String,
     private val clock: () -> Long = ::currentTimeMillis,
     private val timeZone: () -> TimeZone = { TimeZone.currentSystemDefault() },
-) {
+) : DriveBackupUploader {
+    /**
+     * A manual upload: same folder, file name, pruning and recorded outcome as a daily run,
+     * but authorized interactively. The caller decides that the feature is on.
+     */
+    override suspend fun uploadNow(): DriveBackupRunResult = runAndRecord { platform.authorizeInteractively() }
+
     suspend fun run(): DriveBackupRunResult {
         if (!settingsRepository.driveBackup.first().enabled) return DriveBackupRunResult.Skipped
-        val failure = attempt()
+        return runAndRecord { platform.authorizeSilently() }
+    }
+
+    private suspend fun runAndRecord(authorize: suspend () -> DriveAuthorization): DriveBackupRunResult {
+        val failure = attempt(authorize)
         settingsRepository.recordDriveBackupRun(atMillis = clock(), failure = failure)
         return if (failure == null) DriveBackupRunResult.Succeeded else DriveBackupRunResult.Failed(failure)
     }
@@ -51,9 +74,9 @@ class DriveBackupRunner(
      * still stop the run.
      */
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun attempt(): DriveBackupFailure? =
+    private suspend fun attempt(authorize: suspend () -> DriveAuthorization): DriveBackupFailure? =
         try {
-            when (val auth = platform.authorizeSilently()) {
+            when (val auth = authorize()) {
                 is DriveAuthorization.Authorized -> {
                     upload(auth.accessToken)
                     null

@@ -263,6 +263,73 @@ class DriveBackupRunnerTest {
             p.cancelDaily()
         }
 
+    @Test
+    fun aManualUploadAuthorizesInteractivelyAndRecordsLikeADailyRun() =
+        runTest {
+            settings.setDriveBackupEnabled(true)
+            platform.silent = DriveAuthorization.NeedsUserInteraction
+            transport.enqueue(
+                HttpResponse(200, """{"files":[{"id":"folder1","name":"Ostomate backups"}]}"""),
+                HttpResponse(200, """{"id":"new"}"""),
+                HttpResponse(200, """{"files":[]}"""),
+            )
+
+            assertEquals(DriveBackupRunResult.Succeeded, runner.uploadNow())
+
+            assertEquals(1, platform.interactiveCalls)
+            val upload = transport.requests[1]
+            assertTrue(upload.body.orEmpty().contains(""""name":"ostomate_backup_2026-03-15_12-00-05.json""""))
+            assertTrue(upload.body.orEmpty().contains(BACKUP_JSON))
+            assertEquals(DriveBackupState(enabled = true, lastRunAtMillis = NOW), settings.driveBackup.first())
+        }
+
+    @Test
+    fun aManualUploadCountsTowardTheNewestFourteen() =
+        runTest {
+            settings.setDriveBackupEnabled(true)
+            val listed =
+                (1..15).joinToString(",") { day ->
+                    val dd = day.toString().padStart(2, '0')
+                    """{"id":"f$day","name":"ostomate_backup_2026-03-${dd}_00-00-00.json",""" +
+                        """"createdTime":"2026-03-${dd}T00:00:00Z"}"""
+                }
+            transport.enqueue(
+                HttpResponse(200, """{"files":[{"id":"folder1","name":"Ostomate backups"}]}"""),
+                HttpResponse(200, """{"id":"f15"}"""),
+                HttpResponse(200, """{"files":[$listed]}"""),
+                HttpResponse(204, ""),
+            )
+
+            assertEquals(DriveBackupRunResult.Succeeded, runner.uploadNow())
+
+            assertEquals(
+                listOf("f1"),
+                transport.requests.filter { it.method == "DELETE" }.map { it.url.substringAfterLast('/') },
+            )
+        }
+
+    @Test
+    fun aManualUploadWhoseConsentIsCancelledFailsAndIsRecorded() =
+        runTest {
+            settings.setDriveBackupEnabled(true)
+            platform.interactive = DriveAuthorization.Cancelled
+
+            assertEquals(DriveBackupRunResult.Failed(DriveBackupFailure.NEEDS_SIGN_IN), runner.uploadNow())
+
+            assertTrue(transport.requests.isEmpty())
+            assertEquals(DriveBackupFailure.NEEDS_SIGN_IN, settings.driveBackup.first().lastFailure)
+            assertEquals(NOW, settings.driveBackup.first().lastRunAtMillis)
+        }
+
+    @Test
+    fun theUnsupportedUploaderNeverUploads() =
+        runTest {
+            assertEquals(
+                DriveBackupRunResult.Failed(DriveBackupFailure.OTHER),
+                UnsupportedDriveBackupUploader.uploadNow(),
+            )
+        }
+
     private companion object {
         // 2026-03-15T12:00:05Z
         const val NOW = 1_773_576_005_000L

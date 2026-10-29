@@ -7,6 +7,8 @@ import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.databaseBuilder
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.diagnosticLogStore
+import com.ostomate.app.data.drive.DriveBackupUploader
+import com.ostomate.app.data.drive.UnsupportedDriveBackupUploader
 import com.ostomate.app.data.settings.settingsDataStore
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricAuthenticator
@@ -34,4 +36,5 @@ actual val platformModule: Module =
         single { CrashReporter() } bind CrashReporting::class
         // The daily Google Drive backup is Android only; Settings hides its controls here.
         single<DriveBackupPlatform> { UnsupportedDriveBackupPlatform }
+        single<DriveBackupUploader> { UnsupportedDriveBackupUploader }
     }
