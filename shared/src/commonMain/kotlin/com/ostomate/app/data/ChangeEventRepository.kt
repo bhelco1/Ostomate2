@@ -136,6 +136,9 @@ class ChangeEventRepository(
         entryPoint: DeepLinkEntryPoint = DeepLinkEntryPoint.ANDROID_ON_CREATE,
         savedInstanceStateWasNull: Boolean? = null,
     ): DeepLinkOutcome {
+        // Before resolving: resolving opens the database, which is slow on a cold start, and a
+        // scan lost in that window (2026-10-18..20 on Bobby's phone) otherwise left no trace.
+        diagnosticLog.recordArrival(uri, entryPoint, savedInstanceStateWasNull)
         var loggedEventId: Long? = null
         val outcome = resolveDeepLink(uri) { loggedEventId = it }
         val decision =

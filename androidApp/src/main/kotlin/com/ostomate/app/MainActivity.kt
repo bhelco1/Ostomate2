@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
 import com.ostomate.app.platform.CurrentActivityHolder
@@ -80,7 +79,8 @@ class MainActivity : FragmentActivity() {
         val uri = intent?.data?.toString() ?: return
         // Consume the link so a later Activity recreation cannot replay the same scan.
         intent.data = null
-        lifecycleScope.launch {
+        // App scope, not lifecycleScope: destroying this Activity mid-save must not cancel the save.
+        (application as OstomateApp).appScope.launch {
             val outcome = repository.handleDeepLink(uri, entryPoint, savedInstanceStateWasNull)
             DeepLinkBus.post(outcome)
         }

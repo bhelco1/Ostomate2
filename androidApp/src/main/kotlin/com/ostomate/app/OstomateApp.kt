@@ -11,6 +11,12 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 
 class OstomateApp : Application() {
+    /**
+     * Work that must outlive any one Activity, such as saving a scanned change: an Activity's
+     * lifecycleScope is cancelled when it is destroyed (rotation, a recreate) mid-save.
+     */
+    val appScope = MainScope()
+
 
     private val settings: SettingsRepository by inject()
     private val crashReporter: CrashReporter by inject()
