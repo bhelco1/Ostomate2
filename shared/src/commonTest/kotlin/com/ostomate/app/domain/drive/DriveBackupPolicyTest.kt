@@ -92,6 +92,9 @@ class DriveBackupPolicyTest {
             DriveBackupStatus.Failed(42L, DriveBackupFailure.NEEDS_SIGN_IN),
             driveBackupStatus(enabled = true, lastRunAtMillis = 42L, lastFailure = DriveBackupFailure.NEEDS_SIGN_IN),
         )
+        // The screen reads the time through the accessor, not through equals().
+        assertEquals(7L, DriveBackupStatus.Succeeded(7L).atMillis)
+        assertEquals(9L, DriveBackupStatus.Failed(9L, DriveBackupFailure.NETWORK).atMillis)
     }
 
     @Test
