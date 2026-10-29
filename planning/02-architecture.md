@@ -48,7 +48,7 @@ shared/domain/
 |---|---|---|
 | `Notifier` | WorkManager + NotificationManager | UNUserNotificationCenter |
 | `BiometricAuthenticator` | BiometricPrompt (BIOMETRIC_STRONG or DEVICE_CREDENTIAL; WEAK on API 28–29) | LAContext (Face ID / Touch ID + passcode) |
-| `CrashReporter` | Firebase Crashlytics (release only) | Firebase Crashlytics (release only) |
+| `CrashReporter` | Sentry (`sentry-android`), opt-in, off by default | Sentry (sentry-cocoa via `iOSApp.swift`), opt-in, off by default |
 | `FeedbackHelper` | Google Play In-App Review | SKStoreReviewController |
 | `FileSharer` | Intent.ACTION_SEND | UIActivityViewController |
 | `Time` | System.currentTimeMillis() | NSDate |
