@@ -9,11 +9,16 @@ import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeDao
 import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.drive.DriveBackupRunResult
+import com.ostomate.app.data.drive.DriveBackupUploader
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricResult
 import com.ostomate.app.platform.CrashReporting
+import com.ostomate.app.platform.DriveAuthorization
+import com.ostomate.app.platform.DriveBackupPlatform
 import com.ostomate.app.platform.ReminderNotifier
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -208,5 +213,42 @@ class InMemoryDataStore : DataStore<Preferences> {
         val updated = transform(state.value).toPreferences()
         state.value = updated
         return updated
+    }
+}
+
+/**
+ * Stands in for Google authorization + WorkManager. The interactive answer is a deferred, so
+ * a test can look at the screen state while the consent screen is "up".
+ */
+class FakeDriveBackupPlatform(override val isSupported: Boolean = true) : DriveBackupPlatform {
+    var interactiveAnswer = CompletableDeferred<DriveAuthorization>(DriveAuthorization.Authorized("tok"))
+    var interactiveCalls = 0
+    var scheduled = 0
+    var cancelled = 0
+
+    override suspend fun authorizeInteractively(): DriveAuthorization {
+        interactiveCalls++
+        return interactiveAnswer.await()
+    }
+
+    override suspend fun authorizeSilently(): DriveAuthorization = DriveAuthorization.NeedsUserInteraction
+
+    override fun scheduleDaily() {
+        scheduled++
+    }
+
+    override fun cancelDaily() {
+        cancelled++
+    }
+}
+
+class FakeDriveBackupUploader(
+    var result: DriveBackupRunResult = DriveBackupRunResult.Succeeded,
+) : DriveBackupUploader {
+    var calls = 0
+
+    override suspend fun uploadNow(): DriveBackupRunResult {
+        calls++
+        return result
     }
 }

@@ -358,6 +358,29 @@ Recorded so the plan matches what is on main; neither was a checklist item.
 
 ---
 
+## Outside the phase plan
+
+### FEAT-03 — Daily Google Drive backup (Android, toggled from developer mode) 🟡 PR open
+Requested by Bobby 2026-10-29, outside the phase plan. Once a day, upload the same JSON as
+Settings → Export backup to an "Ostomate backups" folder in his own Google Drive, keeping the
+newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google Drive backup").
+- [x] Switch in a dev-mode-only Developer section; consent via Play services
+  `AuthorizationClient`, scope `drive.file`; enabled + scheduled only on success.
+- [x] Daily WorkManager job (unique periodic, 1 day, network, KEEP), re-enqueued at app start.
+- [x] Status line in regular Settings while on (last run time / not run yet / failed + why).
+- [x] Settings → Backup while the daily backup is on (Bobby, 2026-10-29): uploads the same
+  JSON to the same folder instead of opening the share sheet (consent screen if Google needs
+  it), confirms "Saved to Google Drive" or says why not (no fallback to sharing), records the
+  run for the status line, and counts toward the newest 14. With the feature off (and on
+  iOS) Backup is unchanged: the share sheet.
+- [x] iOS: no feature; switch and status are hidden.
+- [ ] Google Cloud Console: Drive API enabled, OAuth consent screen with the `drive.file`
+  scope, Android OAuth client for `com.ostomate.app` with the debug SHA-1 (and later the
+  upload/Play signing SHA-1s for release builds).
+- [ ] Verified on Bobby's phone: a backup file appears in Drive; status line shows the run.
+
+---
+
 ## Phase 3 — Release Preparation
 
 **Goal:** Signed release builds. Store listings ready. Fastlane configured for iOS.
@@ -433,6 +456,11 @@ still matches what the app actually does.
    (Play's definition covers diagnosing crashes). Nothing else is collected. No data
    deletion request flow is needed beyond uninstall, since there is no account.
    Also answer the Health apps declaration: it is a personal supply tracker, not a medical device.
+   **FEAT-03 changes this form:** the optional daily Google Drive backup (Android) transfers
+   the user's supply/history data off the device to the user's own Google Drive. Re-answer
+   the Data Safety questions with that in mind (whether a user-initiated transfer to the
+   user's own cloud storage counts as "collected"/"shared" under Play's current definitions,
+   and the Health info category) before submitting — do not reuse the crash-only answer.
 3. Upload signed AAB from CI `build-release` artifact
 4. Publish to Internal Testing track
 5. Install on device via Play Store
@@ -442,6 +470,8 @@ still matches what the app actually does.
 1. Create app in App Store Connect → bundle ID `com.ostomate.app`. App Privacy label:
    *Diagnostics → Crash Data* only, **not linked** to identity, **not used for tracking**,
    purpose App Functionality. Same reason as Play's form: opt-in Sentry.
+   FEAT-03 (Drive backup) is Android-only and not in the iOS build, so it does not change
+   the iOS label today; if it is ever ported to iOS, the label must be revisited.
 2. Upload IPA via Fastlane or Xcode Organizer
 3. Submit for TestFlight review
 4. Install on device via TestFlight

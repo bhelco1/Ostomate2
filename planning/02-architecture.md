@@ -52,6 +52,13 @@ shared/domain/
 | `FeedbackHelper` | Google Play In-App Review | SKStoreReviewController |
 | `FileSharer` | Intent.ACTION_SEND | UIActivityViewController |
 | `Time` | System.currentTimeMillis() | NSDate |
+| `DriveBackupPlatform` (interface, bound per platform in Koin) | `AndroidDriveBackupPlatform`: Play services Identity `AuthorizationClient` (scope `drive.file`, play-services-auth) + WorkManager `DriveBackupWorker` (unique periodic, 1 day, network required, KEEP) | `UnsupportedDriveBackupPlatform` (`isSupported = false`; Settings hides the feature) |
+
+The daily Drive backup (FEAT-03) keeps its decisions in common code: `domain/drive/`
+(filename, newest-14 retention, status, retry policy, multipart body; Pitest-gated) and
+`data/drive/` (`DriveClient` = the four Drive REST v3 calls over an `HttpTransport` seam,
+`DriveBackupRunner` = one run). The only Android HTTP code is `UrlConnectionTransport`
+(HttpURLConnection; no HTTP or Google API client library).
 
 ## UI Layer (`composeApp/`)
 
