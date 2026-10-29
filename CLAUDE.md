@@ -125,10 +125,13 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 - Room schema export stays ON (`shared/schemas/`); every version bump ships a migration + migration test
 - No `!!`; all user-facing strings externalized; code lands with tests (see 04-test-plan.md)
 - Parity before new features — check the current phase in 05-dev-plan.md before building anything new
-- Privacy: local-first, no analytics SDKs. **No network calls except opt-in crash reporting
-  (Sentry), which is OFF by default** — the app is not "zero outbound requests", and saying
-  so on a store form would be false. Everything else stays on-device (06-security-privacy.md);
-  new recurring costs need a written case in 07-business-plan.md
+- Privacy: local-first, no analytics SDKs. **No network calls except two opt-in paths, both
+  OFF by default: crash reporting (Sentry), and the Android-only daily Google Drive backup
+  (FEAT-03; switch hidden in dev mode), which uploads the user's own backup file to the
+  user's own Drive (drive.file scope) and sends nothing to the developer** — the app is not
+  "zero outbound requests", and saying so on a store form would be false. Everything else
+  stays on-device (06-security-privacy.md); new recurring costs need a written case in
+  07-business-plan.md
 - A skipped/disabled test task looks like success — after touching test config, verify
   execution counts in `shared/build/test-results/*/TEST-*.xml`, not just BUILD SUCCESSFUL
 
