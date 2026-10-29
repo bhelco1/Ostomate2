@@ -8,6 +8,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.runComposeUiTest
@@ -20,6 +21,7 @@ import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeDriveBackupPlatform
+import com.ostomate.app.ui.FakeDriveBackupUploader
 import com.ostomate.app.ui.InMemoryDataStore
 import com.ostomate.app.ui.RecordingCrashReporter
 import com.ostomate.app.ui.screenshot.ScreenshotTest
@@ -56,6 +58,8 @@ class SettingsDriveBackupUiTest : ScreenshotTest() {
     @After
     fun stopKoinAfter() = stopKoin()
 
+    private val uploader = FakeDriveBackupUploader()
+
     private fun viewModel(platform: FakeDriveBackupPlatform) =
         SettingsViewModel(
             settingsRepository = settingsRepository,
@@ -64,6 +68,7 @@ class SettingsDriveBackupUiTest : ScreenshotTest() {
             crashReporter = RecordingCrashReporter(),
             diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
             driveBackupPlatform = platform,
+            driveBackupUploader = uploader,
         )
 
     @Test
@@ -122,6 +127,23 @@ class SettingsDriveBackupUiTest : ScreenshotTest() {
             setContent { OstomateTheme { SettingsScreen(viewModel = vm) } }
             onNodeWithTag("driveBackupSwitch").assertDoesNotExist()
             onNodeWithTag("driveBackupStatus").assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun backupWhileDriveBackupIsOnConfirmsTheUploadInsteadOfSharing() {
+        seed { settingsRepository.setDriveBackupEnabled(true) }
+        val vm = viewModel(FakeDriveBackupPlatform())
+        runComposeUiTest {
+            setContent { OstomateTheme { SettingsScreen(viewModel = vm) } }
+            // With no Activity, a share would throw here ("FileSharer requires a FragmentActivity").
+            onNodeWithTag("exportBackupButton").performScrollTo().performClick()
+            waitForIdle()
+
+            onNodeWithText("Saved to Google Drive").assertExists()
+            assertEquals(1, uploader.calls)
+            onNodeWithText("OK").performClick()
+            onNodeWithText("Saved to Google Drive").assertDoesNotExist()
         }
     }
 }

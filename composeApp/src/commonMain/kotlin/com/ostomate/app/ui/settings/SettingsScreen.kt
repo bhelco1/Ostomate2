@@ -72,6 +72,10 @@ import com.ostomate.app.resources.settings_drive_failure_sign_in
 import com.ostomate.app.resources.settings_drive_status_failed
 import com.ostomate.app.resources.settings_drive_status_not_run
 import com.ostomate.app.resources.settings_drive_status_ok
+import com.ostomate.app.resources.settings_drive_upload_failed_body
+import com.ostomate.app.resources.settings_drive_upload_failed_title
+import com.ostomate.app.resources.settings_drive_upload_saved_body
+import com.ostomate.app.resources.settings_drive_upload_saved_title
 import com.ostomate.app.resources.settings_export_backup
 import com.ostomate.app.resources.settings_feedback
 import com.ostomate.app.resources.settings_feedback_sub
@@ -207,6 +211,36 @@ fun SettingsScreen(
         )
     }
 
+    val driveUpload = backupState.driveUpload
+    if (driveUpload != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::clearDriveUploadResult,
+            title = {
+                Text(
+                    when (driveUpload) {
+                        DriveUploadResult.Saved -> stringResource(Res.string.settings_drive_upload_saved_title)
+                        is DriveUploadResult.Failed -> stringResource(Res.string.settings_drive_upload_failed_title)
+                    },
+                )
+            },
+            text = {
+                Text(
+                    when (driveUpload) {
+                        DriveUploadResult.Saved -> stringResource(Res.string.settings_drive_upload_saved_body)
+                        is DriveUploadResult.Failed ->
+                            stringResource(
+                                Res.string.settings_drive_upload_failed_body,
+                                driveFailureText(driveUpload.reason),
+                            )
+                    },
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearDriveUploadResult) { Text(stringResource(Res.string.action_ok)) }
+            },
+        )
+    }
+
     if (showDevModeToast) {
         AlertDialog(
             onDismissRequest = { showDevModeToast = false },
@@ -317,8 +351,9 @@ fun SettingsScreen(
                 supportingContent = { Text(stringResource(Res.string.settings_backup_sub)) },
                 trailingContent = {
                     TextButton(
+                        // Uploads to Drive instead when the daily Drive backup is on; otherwise shares.
                         onClick = {
-                            viewModel.exportBackup { json, fileName ->
+                            viewModel.backUp { json, fileName ->
                                 fileSharer.shareText(
                                     content = json,
                                     fileName = fileName,
@@ -502,16 +537,20 @@ private fun driveBackupStatusText(status: DriveBackupStatus): String =
             stringResource(
                 Res.string.settings_drive_status_failed,
                 formatTimestamp(status.atMillis),
-                stringResource(
-                    when (status.reason) {
-                        DriveBackupFailure.NEEDS_SIGN_IN -> Res.string.settings_drive_failure_sign_in
-                        DriveBackupFailure.NETWORK -> Res.string.settings_drive_failure_network
-                        DriveBackupFailure.DRIVE_ERROR -> Res.string.settings_drive_failure_drive
-                        DriveBackupFailure.OTHER -> Res.string.settings_drive_failure_other
-                    },
-                ),
+                driveFailureText(status.reason),
             )
     }
+
+@Composable
+private fun driveFailureText(reason: DriveBackupFailure): String =
+    stringResource(
+        when (reason) {
+            DriveBackupFailure.NEEDS_SIGN_IN -> Res.string.settings_drive_failure_sign_in
+            DriveBackupFailure.NETWORK -> Res.string.settings_drive_failure_network
+            DriveBackupFailure.DRIVE_ERROR -> Res.string.settings_drive_failure_drive
+            DriveBackupFailure.OTHER -> Res.string.settings_drive_failure_other
+        },
+    )
 
 @Composable
 private fun SettingsSectionHeader(

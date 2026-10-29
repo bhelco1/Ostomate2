@@ -133,6 +133,10 @@
     <string name="settings_drive_failure_network">no connection</string>
     <string name="settings_drive_failure_drive">Google Drive error</string>
     <string name="settings_drive_failure_other">unexpected error</string>
+    <string name="settings_drive_upload_saved_title">Saved to Google Drive</string>
+    <string name="settings_drive_upload_saved_body">The backup is in the “Ostomate backups” folder in your Google Drive.</string>
+    <string name="settings_drive_upload_failed_title">Not saved to Google Drive</string>
+    <string name="settings_drive_upload_failed_body">The backup could not be saved (%1$s). Try again later.</string>
     <string name="settings_locked_prompt">Unlock settings with biometrics</string>
     <string name="settings_unlock">Unlock</string>
     <string name="settings_biometric_failed">Authentication failed. Tap Unlock to try again.</string>

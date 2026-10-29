@@ -25,6 +25,7 @@ import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeDriveBackupPlatform
+import com.ostomate.app.ui.FakeDriveBackupUploader
 import com.ostomate.app.ui.InMemoryDataStore
 import com.ostomate.app.ui.RecordingCrashReporter
 import com.ostomate.app.ui.RecordingNotifier
@@ -112,6 +113,7 @@ class AccessibilityTest : ScreenshotTest() {
                 crashReporter = RecordingCrashReporter(),
                 diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
                 driveBackupPlatform = FakeDriveBackupPlatform(),
+                driveBackupUploader = FakeDriveBackupUploader(),
             )
 
         runComposeUiTest {
@@ -143,6 +145,7 @@ class AccessibilityTest : ScreenshotTest() {
                 crashReporter = RecordingCrashReporter(),
                 diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
                 driveBackupPlatform = FakeDriveBackupPlatform(),
+                driveBackupUploader = FakeDriveBackupUploader(),
             )
 
         runComposeUiTest {
