@@ -9,6 +9,8 @@ import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeDao
 import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.drive.DriveBackupRunResult
+import com.ostomate.app.data.drive.DriveBackupUploader
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricResult
@@ -237,5 +239,16 @@ class FakeDriveBackupPlatform(override val isSupported: Boolean = true) : DriveB
 
     override fun cancelDaily() {
         cancelled++
+    }
+}
+
+class FakeDriveBackupUploader(
+    var result: DriveBackupRunResult = DriveBackupRunResult.Succeeded,
+) : DriveBackupUploader {
+    var calls = 0
+
+    override suspend fun uploadNow(): DriveBackupRunResult {
+        calls++
+        return result
     }
 }

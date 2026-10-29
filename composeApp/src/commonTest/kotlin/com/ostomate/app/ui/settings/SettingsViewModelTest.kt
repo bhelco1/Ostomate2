@@ -8,6 +8,8 @@ import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
 import com.ostomate.app.data.diagnostics.ScanDecision
+import com.ostomate.app.data.drive.DriveBackupRunResult
+import com.ostomate.app.data.drive.DriveBackupUploader
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.domain.drive.DriveBackupFailure
 import com.ostomate.app.domain.drive.DriveBackupStatus
@@ -15,6 +17,7 @@ import com.ostomate.app.platform.DriveAuthorization
 import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeChangeEventDao
 import com.ostomate.app.ui.FakeDriveBackupPlatform
+import com.ostomate.app.ui.FakeDriveBackupUploader
 import com.ostomate.app.ui.FakeSupplyTypeDao
 import com.ostomate.app.ui.InMemoryDataStore
 import com.ostomate.app.ui.MainDispatcherTest
@@ -42,6 +45,7 @@ class SettingsViewModelTest : MainDispatcherTest() {
     private val backupDao = FakeBackupDao(supplyDao, eventDao)
     private val diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore())
     private val drive = FakeDriveBackupPlatform()
+    private val uploader = FakeDriveBackupUploader()
 
     private fun viewModel(platform: FakeDriveBackupPlatform = drive) =
         SettingsViewModel(
@@ -50,6 +54,7 @@ class SettingsViewModelTest : MainDispatcherTest() {
             crashReporter,
             diagnosticLog,
             platform,
+            uploader,
         )
 
     @Test
@@ -299,5 +304,101 @@ class SettingsViewModelTest : MainDispatcherTest() {
 
             assertEquals(0, unsupported.interactiveCalls)
             assertFalse(vm.driveBackup.value.enabled)
+        }
+
+    @Test
+    fun backupWithDriveBackupOffSharesExactlyAsBefore() =
+        runTest {
+            val (bagId) = supplyDao.seed(testSupply(name = "Bag"))
+            ChangeEventRepository(eventDao, supplyDao).logChangeAt(bagId, 1_700_000_000_000L)
+            val vm = viewModel()
+
+            var shared: Pair<String, String>? = null
+            vm.backUp { content, fileName -> shared = content to fileName }
+            advanceUntilIdle()
+
+            val (content, fileName) = assertNotNull(shared)
+            assertTrue(content.contains("\"formatVersion\""))
+            assertTrue(content.contains("1700000000000"))
+            assertTrue(fileName.startsWith("ostomate_backup_"))
+            assertTrue(fileName.endsWith(".json"))
+            assertEquals(0, uploader.calls)
+            assertEquals(BackupUiState(), vm.backupState.value)
+        }
+
+    @Test
+    fun backupWithoutPlatformSupportSharesEvenIfTheSwitchIsStoredOn() =
+        runTest {
+            settingsRepository.setDriveBackupEnabled(true)
+            val vm = viewModel(FakeDriveBackupPlatform(isSupported = false))
+
+            var shares = 0
+            vm.backUp { _, _ -> shares++ }
+            advanceUntilIdle()
+
+            assertEquals(1, shares)
+            assertEquals(0, uploader.calls)
+            assertNull(vm.backupState.value.driveUpload)
+        }
+
+    @Test
+    fun backupWithDriveBackupOnUploadsAndConfirmsWithoutSharing() =
+        runTest {
+            settingsRepository.setDriveBackupEnabled(true)
+            val vm = viewModel()
+
+            var shares = 0
+            vm.backUp { _, _ -> shares++ }
+            advanceUntilIdle()
+
+            assertEquals(0, shares)
+            assertEquals(1, uploader.calls)
+            assertEquals(DriveUploadResult.Saved, vm.backupState.value.driveUpload)
+            assertFalse(vm.backupState.value.isBusy)
+
+            vm.clearDriveUploadResult()
+            assertNull(vm.backupState.value.driveUpload)
+        }
+
+    @Test
+    fun aFailedDriveUploadReportsWhyAndDoesNotFallBackToSharing() =
+        runTest {
+            settingsRepository.setDriveBackupEnabled(true)
+            uploader.result = DriveBackupRunResult.Failed(DriveBackupFailure.NETWORK)
+            val vm = viewModel()
+
+            var shares = 0
+            vm.backUp { _, _ -> shares++ }
+            advanceUntilIdle()
+
+            assertEquals(0, shares)
+            assertEquals(DriveUploadResult.Failed(DriveBackupFailure.NETWORK), vm.backupState.value.driveUpload)
+            assertFalse(vm.backupState.value.isBusy)
+        }
+
+    @Test
+    fun theButtonIsBusyWhileTheUploadRuns() =
+        runTest {
+            settingsRepository.setDriveBackupEnabled(true)
+            val gate = CompletableDeferred<DriveBackupRunResult>()
+            val slow = DriveBackupUploader { gate.await() }
+            val vm =
+                SettingsViewModel(
+                    settingsRepository,
+                    BackupRepository(backupDao, eventDao, supplyDao, settingsRepository),
+                    crashReporter,
+                    diagnosticLog,
+                    drive,
+                    slow,
+                )
+
+            vm.backUp { _, _ -> }
+            advanceUntilIdle()
+            assertTrue(vm.backupState.value.isBusy)
+
+            gate.complete(DriveBackupRunResult.Skipped)
+            advanceUntilIdle()
+            assertFalse(vm.backupState.value.isBusy)
+            assertEquals(DriveUploadResult.Failed(DriveBackupFailure.OTHER), vm.backupState.value.driveUpload)
         }
 }

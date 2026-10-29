@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.RestoreResult
 import com.ostomate.app.data.diagnostics.DiagnosticLog
+import com.ostomate.app.data.drive.DriveBackupRunResult
+import com.ostomate.app.data.drive.DriveBackupUploader
 import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
+import com.ostomate.app.domain.drive.DriveBackupFailure
 import com.ostomate.app.domain.drive.DriveBackupStatus
 import com.ostomate.app.domain.drive.driveBackupStatus
 import com.ostomate.app.platform.CrashReporting
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
@@ -40,9 +44,17 @@ data class DriveBackupUiState(
     val enableError: DriveBackupEnableError? = null,
 )
 
+/** Outcome of Settings → Backup when it uploaded to Drive instead of sharing. */
+sealed interface DriveUploadResult {
+    data object Saved : DriveUploadResult
+
+    data class Failed(val reason: DriveBackupFailure) : DriveUploadResult
+}
+
 data class BackupUiState(
     val lastRestore: RestoreResult? = null,
     val isBusy: Boolean = false,
+    val driveUpload: DriveUploadResult? = null,
 )
 
 class SettingsViewModel(
@@ -51,6 +63,7 @@ class SettingsViewModel(
     private val crashReporter: CrashReporting,
     private val diagnosticLog: DiagnosticLog,
     private val driveBackupPlatform: DriveBackupPlatform,
+    private val driveBackupUploader: DriveBackupUploader,
 ) : ViewModel() {
     val settings: StateFlow<AppSettings> =
         settingsRepository.settings.stateIn(
@@ -125,13 +138,44 @@ class SettingsViewModel(
         }
     }
 
-    fun exportBackup(onReady: (content: String, fileName: String) -> Unit) {
+    /**
+     * Settings → Backup. With the daily Drive backup on, uploads to the Drive folder and
+     * reports the outcome; [onShare] is not called, even on failure. Otherwise (feature off,
+     * or no Drive backup on this platform) it is exactly [exportBackup].
+     */
+    fun backUp(onShare: (content: String, fileName: String) -> Unit) {
         viewModelScope.launch {
-            _backupState.value = _backupState.value.copy(isBusy = true)
-            val json = backupRepository.exportBackup()
-            _backupState.value = _backupState.value.copy(isBusy = false)
-            onReady(json, "ostomate_backup_${fileTimestamp()}.json")
+            val uploadToDrive =
+                driveBackupPlatform.isSupported && settingsRepository.driveBackup.first().enabled
+            if (uploadToDrive) uploadToDrive() else exportAndShare(onShare)
         }
+    }
+
+    fun clearDriveUploadResult() {
+        _backupState.value = _backupState.value.copy(driveUpload = null)
+    }
+
+    fun exportBackup(onReady: (content: String, fileName: String) -> Unit) {
+        viewModelScope.launch { exportAndShare(onReady) }
+    }
+
+    private suspend fun exportAndShare(onReady: (content: String, fileName: String) -> Unit) {
+        _backupState.value = _backupState.value.copy(isBusy = true)
+        val json = backupRepository.exportBackup()
+        _backupState.value = _backupState.value.copy(isBusy = false)
+        onReady(json, "ostomate_backup_${fileTimestamp()}.json")
+    }
+
+    private suspend fun uploadToDrive() {
+        _backupState.value = _backupState.value.copy(isBusy = true, driveUpload = null)
+        val outcome =
+            when (val result = driveBackupUploader.uploadNow()) {
+                DriveBackupRunResult.Succeeded -> DriveUploadResult.Saved
+                is DriveBackupRunResult.Failed -> DriveUploadResult.Failed(result.reason)
+                // uploadNow never skips; if it ever did, nothing was saved, so say so.
+                DriveBackupRunResult.Skipped -> DriveUploadResult.Failed(DriveBackupFailure.OTHER)
+            }
+        _backupState.value = _backupState.value.copy(isBusy = false, driveUpload = outcome)
     }
 
     /** Exports the rolling on-device diagnostic log (local-first; user-initiated share only). */
