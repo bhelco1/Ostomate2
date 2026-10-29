@@ -27,6 +27,9 @@
   produces (supplies, full change history, AppSettings), uploaded over HTTPS straight from
   the device to the Drive REST v3 API, into an "Ostomate backups" folder in the **user's own**
   Google Drive. Nothing goes to the developer or any other server.
+- **Manual Backup while on:** Settings → Backup uploads the same file to the same folder
+  (interactive authorization) instead of sharing it, and counts toward the 14. With the
+  feature off, Backup shares the file as before.
 - **Scope:** `https://www.googleapis.com/auth/drive.file` only — the app can see and change
   only files and folders it created. It keeps the newest 14 backups and deletes its own older
   ones; it never deletes a file it cannot date or that is not named like its backups.

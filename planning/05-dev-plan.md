@@ -368,6 +368,11 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
   `AuthorizationClient`, scope `drive.file`; enabled + scheduled only on success.
 - [x] Daily WorkManager job (unique periodic, 1 day, network, KEEP), re-enqueued at app start.
 - [x] Status line in regular Settings while on (last run time / not run yet / failed + why).
+- [x] Settings → Backup while the daily backup is on (Bobby, 2026-10-29): uploads the same
+  JSON to the same folder instead of opening the share sheet (consent screen if Google needs
+  it), confirms "Saved to Google Drive" or says why not (no fallback to sharing), records the
+  run for the status line, and counts toward the newest 14. With the feature off (and on
+  iOS) Backup is unchanged: the share sheet.
 - [x] iOS: no feature; switch and status are hidden.
 - [ ] Google Cloud Console: Drive API enabled, OAuth consent screen with the `drive.file`
   scope, Android OAuth client for `com.ostomate.app` with the debug SHA-1 (and later the
