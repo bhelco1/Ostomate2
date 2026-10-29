@@ -212,20 +212,22 @@
     <!-- Privacy Policy screen -->
     <string name="privacy_title">Política de privacidad</string>
     <string name="privacy_section_local_title">Tus datos permanecen en tu dispositivo</string>
-    <string name="privacy_section_local_body">Ostomate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Tus datos de salud nunca se envían a ningún servidor, servicio en la nube ni tercero. Lo único que puede salir de tu dispositivo es un informe de fallos opcional; consulta más abajo.</string>
+    <string name="privacy_section_local_body">Ostomate almacena todos tus datos de suministros y cambios localmente en este dispositivo en una base de datos privada. Tus datos nunca se envían al desarrollador ni a ningún servicio de análisis o publicidad. Solo dos funciones opcionales, ambas desactivadas de forma predeterminada, pueden enviar algo fuera de tu dispositivo: los informes de fallos y (en Android) una copia diaria en tu propio Google Drive; consulta más abajo.</string>
     <string name="privacy_section_analytics_title">Sin análisis ni seguimiento</string>
     <string name="privacy_section_analytics_body">Ostomate no contiene SDKs de análisis, redes publicitarias ni telemetría de ningún tipo. No sabemos cómo usas la app.</string>
     <string name="privacy_section_account_title">Sin cuenta requerida</string>
-    <string name="privacy_section_account_body">Ostomate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan.</string>
+    <string name="privacy_section_account_body">Ostomate funciona sin crear una cuenta ni proporcionar información personal. Tu nombre, correo electrónico e identidad nunca se recopilan. Si activas la copia opcional en Google Drive, inicias sesión en la pantalla de Google; Ostomate nunca ve tu contraseña ni pide a Google tu nombre o correo electrónico.</string>
     <string name="privacy_section_backups_title">Copias de seguridad</string>
-    <string name="privacy_section_backups_body">La función Exportar crea un archivo de copia de seguridad en tu dispositivo que puedes guardar donde prefieras. Ostomate no sube copias de seguridad automáticamente.</string>
+    <string name="privacy_section_backups_body">La función Exportar crea un archivo de copia de seguridad en tu dispositivo que puedes guardar donde prefieras. Si has activado la copia diaria opcional en Google Drive (más abajo), el botón de copia de seguridad guarda ese archivo directamente en la misma carpeta “Ostomate backups” de tu propio Google Drive.</string>
+    <string name="privacy_section_drive_title">Copia diaria en Google Drive (opcional, Android)</string>
+    <string name="privacy_section_drive_body">La app de Android tiene una copia de seguridad diaria opcional en Google Drive. Está desactivada de forma predeterminada y no aparece en los ajustes habituales de la app. Si la activas, Google te pide que permitas a Ostomate acceder solo a los archivos que la propia Ostomate crea en tu Drive (el permiso “drive.file” de Google); Ostomate no puede ver ni cambiar ningún otro archivo tuyo. A partir de entonces, una vez al día, Ostomate sube el mismo archivo que crea la función Exportar —tus suministros, tu historial de cambios y los ajustes de la app— a una carpeta llamada “Ostomate backups” en tu propio Google Drive, mediante una conexión cifrada directamente desde tu dispositivo a Google. Las copias que hagas con el botón de copia de seguridad mientras esté activada van a la misma carpeta. Se conservan las 14 copias más recientes y Ostomate borra sus propias copias más antiguas. Nunca se envía nada al desarrollador ni a nadie más; el almacenamiento en tu Drive se rige por la política de privacidad de Google. Puedes desactivar la copia diaria cuando quieras. Las copias que ya estén en tu Drive se quedan allí hasta que las borres.</string>
     <string name="privacy_section_crash_title">Informes de fallos (opcional)</string>
     <string name="privacy_section_crash_body">Ostomate incluye informes de fallos opcionales mediante Sentry, desactivados de forma predeterminada. Si los activas en Ajustes, solo se envían los registros técnicos del fallo, nunca tus datos de suministros, notas ni información personal. Puedes desactivarlos cuando quieras.</string>
     <string name="privacy_section_deletion_title">Eliminación de datos</string>
-    <string name="privacy_section_deletion_body">Desinstalar Ostomate elimina todos los datos de la app de tu dispositivo. No hay datos almacenados en ningún otro lugar.</string>
+    <string name="privacy_section_deletion_body">Desinstalar Ostomate elimina todos los datos de la app de tu dispositivo. Si usaste la copia opcional en Google Drive, sus archivos siguen en tu propio Google Drive; borra allí la carpeta “Ostomate backups” para eliminarlos. No se guarda nada en ningún otro lugar.</string>
     <string name="privacy_section_contact_title">Contacto</string>
     <string name="privacy_section_contact_body">¿Preguntas sobre esta política? Escribe a ostomate26@gmail.com.</string>
-    <string name="privacy_last_updated">Última actualización: junio de 2026</string>
+    <string name="privacy_last_updated">Última actualización: octubre de 2026</string>
 
     <!-- Widget -->
     <string name="widget_no_data">Sin datos</string>
