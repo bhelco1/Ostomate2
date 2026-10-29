@@ -68,4 +68,8 @@ class ChangeEventDaoTest {
     @Test
     fun repositoryWritesScanAuditForEveryOutcome() =
         runTest { ChangeEventDaoScenarios.repositoryWritesScanAuditForEveryOutcome(db) }
+
+    @Test
+    fun scanThatFailsToSaveStillLeavesItsArrival() =
+        runTest { ChangeEventDaoScenarios.scanThatFailsToSaveStillLeavesItsArrival(db) }
 }

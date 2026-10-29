@@ -16,6 +16,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -251,11 +252,17 @@ object ChangeEventDaoScenarios {
             ),
         )
 
-        val entries =
+        val lines =
             store.read()
                 .split('\n')
                 .filter { it.isNotBlank() }
                 .map { Json.decodeFromString<ScanAuditEntry>(it) }
+        // Each scan writes RECEIVED first, then its decision.
+        assertEquals(8, lines.size)
+        val (received, entries) = lines.partition { it.decision == ScanDecision.RECEIVED }
+        assertEquals(lines.filterIndexed { i, _ -> i % 2 == 0 }, received)
+        assertEquals(entries.map { it.uri }, received.map { it.uri })
+        assertEquals(entries.map { it.entryPoint }, received.map { it.entryPoint })
         assertEquals(4, entries.size)
 
         assertEquals(ScanDecision.LOGGED, entries[0].decision)
@@ -277,6 +284,30 @@ object ChangeEventDaoScenarios {
         assertNull(entries[3].eventId)
 
         assertEquals(1, db.changeEventDao().count())
+    }
+
+    /**
+     * A scan whose save dies after it arrives (the database fails, or the process is killed
+     * while Room is still opening) must still leave its RECEIVED line: Bobby's Oct 18-20 scans
+     * left no trace at all, so whether they ever reached the app could not be told.
+     */
+    suspend fun scanThatFailsToSaveStillLeavesItsArrival(db: OstomateDatabase) {
+        val store = InMemoryDiagnosticLogStore()
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao(), DiagnosticLog(store))
+        db.close()
+
+        assertFails {
+            repository.handleDeepLink(
+                "ostomate://log?item=bag",
+                DeepLinkEntryPoint.ANDROID_ON_CREATE,
+                savedInstanceStateWasNull = true,
+            )
+        }
+
+        val entry = Json.decodeFromString<ScanAuditEntry>(store.read().trim())
+        assertEquals(ScanDecision.RECEIVED, entry.decision)
+        assertEquals("ostomate://log?item=bag", entry.uri)
+        assertNull(entry.eventId)
     }
 
     /** wasLoggedWithinWindow flips exactly at the 10-min boundary. */

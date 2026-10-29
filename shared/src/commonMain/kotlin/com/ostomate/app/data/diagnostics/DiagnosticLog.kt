@@ -13,8 +13,13 @@ enum class DeepLinkEntryPoint {
     IOS_ON_OPEN_URL,
 }
 
-/** The debounce decision handleDeepLink reached for a scan; mirrors [DeepLinkOutcome]. */
+/**
+ * The debounce decision handleDeepLink reached for a scan; mirrors [DeepLinkOutcome].
+ * [RECEIVED] is written first, the moment a link arrives and before any slow work (opening
+ * the database), so a scan that never gets a decision line was received but never saved.
+ */
 enum class ScanDecision {
+    RECEIVED,
     LOGGED,
     SUPPRESSED,
     NEEDS_CONFIRMATION,
@@ -65,7 +70,7 @@ class InMemoryDiagnosticLogStore(
  *
  * Storage is JSON-lines in a single app-private file. It is bounded: only the most recent
  * [maxEntries] lines are retained; older lines are dropped on each append. With a ~200-byte
- * ceiling per line this caps the file near 100 KB, so it never grows without limit.
+ * ceiling per line this caps the file near 200 KB, so it never grows without limit.
  *
  * Appends serialize a read-modify-write behind a [Mutex] so concurrent scans (the BUG-09
  * intent-replay race) cannot interleave and corrupt or lose lines.
@@ -97,6 +102,13 @@ class DiagnosticLog(
         append(json.encodeToString(entry))
     }
 
+    /** Records that a deep link arrived, before it is resolved (see [ScanDecision.RECEIVED]). */
+    suspend fun recordArrival(
+        uri: String,
+        entryPoint: DeepLinkEntryPoint,
+        savedInstanceStateWasNull: Boolean?,
+    ) = recordScanAudit(uri, entryPoint, savedInstanceStateWasNull, ScanDecision.RECEIVED, eventId = null)
+
     /** Current log contents (JSON-lines). Empty string when nothing has been recorded. */
     fun export(): String = store.read()
 
@@ -117,8 +129,11 @@ class DiagnosticLog(
     }
 
     companion object {
-        /** Rolling cap: the most recent 500 entries are kept; older ones are dropped. */
-        const val MAX_ENTRIES = 500
+        /**
+         * Rolling cap: the most recent 1000 entries are kept; older ones are dropped. Each scan
+         * writes two (RECEIVED, then its decision), so this keeps ~500 scans, as before.
+         */
+        const val MAX_ENTRIES = 1000
 
         private val json = Json { encodeDefaults = true }
     }
