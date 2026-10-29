@@ -4,8 +4,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.ostomate.app.domain.ApplianceType
+import com.ostomate.app.domain.drive.DriveBackupFailure
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -24,6 +26,19 @@ data class AppSettings(
     val applianceType: ApplianceType = ApplianceType.TWO_PIECE,
 )
 
+/**
+ * The daily Google Drive backup's switch and its last run. Kept out of [AppSettings] on
+ * purpose: AppSettings is exactly what a backup file carries and a restore writes back, and
+ * this is per-device state (a Google authorization is granted to one install), so adding it
+ * there would change the backup format and what a restore does.
+ */
+data class DriveBackupState(
+    val enabled: Boolean = false,
+    val lastRunAtMillis: Long? = null,
+    /** Null after a successful run (or before any run). */
+    val lastFailure: DriveBackupFailure? = null,
+)
+
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
     val settings: Flow<AppSettings> =
         dataStore.data.map { prefs ->
@@ -39,6 +54,39 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
                     } ?: ApplianceType.TWO_PIECE,
             )
         }
+
+    val driveBackup: Flow<DriveBackupState> =
+        dataStore.data.map { prefs ->
+            DriveBackupState(
+                enabled = prefs[DRIVE_BACKUP_ENABLED] ?: false,
+                lastRunAtMillis = prefs[DRIVE_BACKUP_LAST_RUN_AT],
+                lastFailure =
+                    prefs[DRIVE_BACKUP_LAST_FAILURE]?.let { name ->
+                        DriveBackupFailure.entries.firstOrNull { it.name == name } ?: DriveBackupFailure.OTHER
+                    },
+            )
+        }
+
+    suspend fun setDriveBackupEnabled(enabled: Boolean) {
+        dataStore.edit { it[DRIVE_BACKUP_ENABLED] = enabled }
+    }
+
+    /** Records a finished run: [failure] null means it uploaded. */
+    suspend fun recordDriveBackupRun(
+        atMillis: Long,
+        failure: DriveBackupFailure?,
+    ) {
+        dataStore.edit { prefs ->
+            prefs[DRIVE_BACKUP_LAST_RUN_AT] = atMillis
+            if (failure == null) {
+                prefs.remove(
+                    DRIVE_BACKUP_LAST_FAILURE,
+                )
+            } else {
+                prefs[DRIVE_BACKUP_LAST_FAILURE] = failure.name
+            }
+        }
+    }
 
     suspend fun setDevMode(enabled: Boolean) {
         dataStore.edit { it[DEV_MODE] = enabled }
@@ -86,5 +134,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val LOCALE_OVERRIDE = stringPreferencesKey("localeOverride")
         val CRASH_REPORTING = booleanPreferencesKey("crashReportingEnabled")
         val APPLIANCE_TYPE = stringPreferencesKey("applianceType")
+        val DRIVE_BACKUP_ENABLED = booleanPreferencesKey("driveBackupEnabled")
+        val DRIVE_BACKUP_LAST_RUN_AT = longPreferencesKey("driveBackupLastRunAt")
+        val DRIVE_BACKUP_LAST_FAILURE = stringPreferencesKey("driveBackupLastFailure")
     }
 }

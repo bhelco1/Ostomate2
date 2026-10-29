@@ -1,9 +1,11 @@
 package com.ostomate.app
 
 import android.app.Application
+import com.ostomate.app.data.drive.ensureDriveBackupScheduled
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.di.initKoin
 import com.ostomate.app.platform.CrashReporter
+import com.ostomate.app.platform.DriveBackupPlatform
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -20,6 +22,7 @@ class OstomateApp : Application() {
 
     private val settings: SettingsRepository by inject()
     private val crashReporter: CrashReporter by inject()
+    private val driveBackupPlatform: DriveBackupPlatform by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -27,6 +30,8 @@ class OstomateApp : Application() {
             androidContext(this@OstomateApp)
         }
         initCrashReporter()
+        // KEEP policy: re-enqueuing an existing daily job leaves its schedule alone.
+        appScope.launch { ensureDriveBackupScheduled(settings, driveBackupPlatform) }
     }
 
     private fun initCrashReporter() {

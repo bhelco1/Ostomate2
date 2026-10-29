@@ -7,15 +7,19 @@ import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.databaseBuilder
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.diagnosticLogStore
+import com.ostomate.app.data.drive.DriveBackupUploader
+import com.ostomate.app.data.drive.UnsupportedDriveBackupUploader
 import com.ostomate.app.data.settings.settingsDataStore
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricAuthenticator
 import com.ostomate.app.platform.CrashReporter
 import com.ostomate.app.platform.CrashReporting
+import com.ostomate.app.platform.DriveBackupPlatform
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.platform.Notifier
 import com.ostomate.app.platform.ReminderNotifier
+import com.ostomate.app.platform.UnsupportedDriveBackupPlatform
 import org.koin.core.module.Module
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -30,4 +34,7 @@ actual val platformModule: Module =
         single { FileSharer() }
         single { FeedbackHelper() }
         single { CrashReporter() } bind CrashReporting::class
+        // The daily Google Drive backup is Android only; Settings hides its controls here.
+        single<DriveBackupPlatform> { UnsupportedDriveBackupPlatform }
+        single<DriveBackupUploader> { UnsupportedDriveBackupUploader }
     }

@@ -28,6 +28,7 @@ kotlin {
             api(libs.androidx.biometric)
             implementation(libs.sentry.android)
             implementation(libs.zxing.core)
+            implementation(libs.play.services.auth)
         }
         commonMain.dependencies {
             implementation(libs.koin.core)
