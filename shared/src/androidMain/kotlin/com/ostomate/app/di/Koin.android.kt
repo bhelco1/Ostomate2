@@ -3,15 +3,22 @@ package com.ostomate.app.di
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.room.RoomDatabase
+import com.ostomate.app.data.BackupRepository
 import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.databaseBuilder
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.diagnosticLogStore
+import com.ostomate.app.data.drive.DriveBackupRunner
+import com.ostomate.app.data.drive.DriveClient
+import com.ostomate.app.data.drive.HttpTransport
+import com.ostomate.app.data.drive.UrlConnectionTransport
 import com.ostomate.app.data.settings.settingsDataStore
+import com.ostomate.app.platform.AndroidDriveBackupPlatform
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricAuthenticator
 import com.ostomate.app.platform.CrashReporter
 import com.ostomate.app.platform.CrashReporting
+import com.ostomate.app.platform.DriveBackupPlatform
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.platform.Notifier
@@ -31,4 +38,11 @@ actual val platformModule: Module =
         single { FileSharer() }
         single { FeedbackHelper(androidContext()) }
         single { CrashReporter(androidContext()) } bind CrashReporting::class
+        single<DriveBackupPlatform> { AndroidDriveBackupPlatform(androidContext()) }
+        single<HttpTransport> { UrlConnectionTransport() }
+        single { DriveClient(get()) }
+        single {
+            val backups = get<BackupRepository>()
+            DriveBackupRunner(get(), get(), get(), exportBackup = backups::exportBackup)
+        }
     }
