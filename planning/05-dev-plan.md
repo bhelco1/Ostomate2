@@ -360,7 +360,7 @@ Recorded so the plan matches what is on main; neither was a checklist item.
 
 ## Outside the phase plan
 
-### FEAT-03 — Daily Google Drive backup (Android, toggled from developer mode) 🟡 PR open
+### FEAT-03 — Daily Google Drive backup (Android, toggled from developer mode) ✅ PR #47
 Requested by Bobby 2026-10-29, outside the phase plan. Once a day, upload the same JSON as
 Settings → Export backup to an "Ostomate backups" folder in his own Google Drive, keeping the
 newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google Drive backup").
@@ -374,10 +374,12 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
   run for the status line, and counts toward the newest 14. With the feature off (and on
   iOS) Backup is unchanged: the share sheet.
 - [x] iOS: no feature; switch and status are hidden.
-- [ ] Google Cloud Console: Drive API enabled, OAuth consent screen with the `drive.file`
-  scope, Android OAuth client for `com.ostomate.app` with the debug SHA-1 (and later the
-  upload/Play signing SHA-1s for release builds).
-- [ ] Verified on Bobby's phone: a backup file appears in Drive; status line shows the run.
+- [x] Google Cloud Console: Drive API enabled, OAuth consent screen with the `drive.file`
+  scope, Android OAuth client for `com.ostomate.app` with the debug SHA-1.
+- [x] Verified on Bobby's phone (2026-10-29): a backup file appears in Drive; status line
+  shows the run.
+- [ ] Release builds: another Android OAuth client with the upload/Play signing SHA-1s
+  (after the Phase 3 keystore exists).
 
 ---
 

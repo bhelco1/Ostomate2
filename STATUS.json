@@ -1,0 +1,55 @@
+{
+  "name": "Ostomate 2",
+  "tagline": "Cross-platform (Android + iOS) ostomy supply tracker — Kotlin Multiplatform rewrite of Ostomate v1",
+  "updated": "2026-10-29",
+  "state": "waiting",
+  "planDoc": "planning/05-dev-plan.md",
+  "phases": [
+    {
+      "id": "0",
+      "name": "KMP spike",
+      "status": "done"
+    },
+    {
+      "id": "1",
+      "name": "Wire platform features",
+      "status": "done"
+    },
+    {
+      "id": "2",
+      "name": "Physical device validation",
+      "status": "done"
+    },
+    {
+      "id": "2.5",
+      "name": "Test hardening & QA infrastructure",
+      "status": "done"
+    },
+    {
+      "id": "3",
+      "name": "Release preparation",
+      "status": "active"
+    },
+    {
+      "id": "4",
+      "name": "Store submission",
+      "status": "todo"
+    },
+    {
+      "id": "5",
+      "name": "Production release",
+      "status": "todo"
+    }
+  ],
+  "now": "Phases 0–2.5 done and main is green (8 Android + 5 iOS E2E flows). Since then: lost Oct 18–20 scans traced and fixed (scans are now logged on arrival), and a daily Google Drive backup for Bobby (hidden in developer mode) is working on his Pixel. Phase 3 is blocked on accounts and the signing key.",
+  "next": [
+    "3.1 Confirm CI builds a signed release AAB once the keystore secrets exist",
+    "3.4 Store listings: capture iOS screenshots (6.7\" and 5.5\")",
+    "3.2 iOS release signing + TestFlight lane, after the Apple team exists"
+  ],
+  "waitingOnBobby": [
+    "Create the Android upload keystore and add its 4 GitHub secrets",
+    "Register com.ostomate.app and its keys in Play Console (developer verification)",
+    "Finish Apple Developer enrollment (Xcode still shows only the free team)"
+  ]
+}
