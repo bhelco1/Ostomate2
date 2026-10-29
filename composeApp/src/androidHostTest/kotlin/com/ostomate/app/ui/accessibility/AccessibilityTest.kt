@@ -11,6 +11,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -23,6 +24,7 @@ import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.ui.FakeBackupDao
+import com.ostomate.app.ui.FakeDriveBackupPlatform
 import com.ostomate.app.ui.InMemoryDataStore
 import com.ostomate.app.ui.RecordingCrashReporter
 import com.ostomate.app.ui.RecordingNotifier
@@ -109,10 +111,43 @@ class AccessibilityTest : ScreenshotTest() {
                     BackupRepository(FakeBackupDao(supplyDao, eventDao), eventDao, supplyDao, settingsRepository),
                 crashReporter = RecordingCrashReporter(),
                 diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
+                driveBackupPlatform = FakeDriveBackupPlatform(),
             )
 
         runComposeUiTest {
             setContent { OstomateTheme { SettingsScreen(viewModel = vm) } }
+            assertNoViolations()
+        }
+    }
+
+    @Test
+    fun settingsWithDevModeAndDriveBackupIsAccessible() {
+        startKoin {
+            modules(
+                module {
+                    single { FileSharer() }
+                    single { FeedbackHelper(ApplicationProvider.getApplicationContext()) }
+                },
+            )
+        }
+        val settingsRepository = SettingsRepository(InMemoryDataStore())
+        seed {
+            settingsRepository.setDevMode(true)
+            settingsRepository.setDriveBackupEnabled(true)
+        }
+        val vm =
+            SettingsViewModel(
+                settingsRepository = settingsRepository,
+                backupRepository =
+                    BackupRepository(FakeBackupDao(supplyDao, eventDao), eventDao, supplyDao, settingsRepository),
+                crashReporter = RecordingCrashReporter(),
+                diagnosticLog = DiagnosticLog(InMemoryDiagnosticLogStore()),
+                driveBackupPlatform = FakeDriveBackupPlatform(),
+            )
+
+        runComposeUiTest {
+            setContent { OstomateTheme { SettingsScreen(viewModel = vm) } }
+            onNodeWithTag("driveBackupSwitch").assertExists()
             assertNoViolations()
         }
     }

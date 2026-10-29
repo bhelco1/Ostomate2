@@ -119,6 +119,19 @@
     <string name="settings_dev_off_title">Modo dev DESACTIVADO</string>
     <string name="settings_dev_on_body">El modo desarrollador está activo. Los datos se comparten con producción.</string>
     <string name="settings_dev_off_body">Modo desarrollador desactivado.</string>
+    <string name="settings_section_developer">Desarrollador</string>
+    <string name="settings_drive_backup">Copia diaria en Google Drive</string>
+    <string name="settings_drive_backup_sub">Una vez al día, sube el mismo archivo que Exportar copia a una carpeta “Ostomate backups” de tu propio Google Drive. Conserva las 14 más recientes. Nada se envía al desarrollador.</string>
+    <string name="settings_drive_backup_authorizing">Esperando el inicio de sesión de Google…</string>
+    <string name="settings_drive_backup_error_cancelled">Se canceló el inicio de sesión de Google. La copia diaria sigue desactivada.</string>
+    <string name="settings_drive_backup_error_failed">No se pudo acceder a Google Drive. La copia diaria sigue desactivada.</string>
+    <string name="settings_drive_status_not_run">Copia diaria en Drive: activada · aún no se ha ejecutado</string>
+    <string name="settings_drive_status_ok">Copia diaria en Drive: activada · última ejecución %1$s</string>
+    <string name="settings_drive_status_failed">Copia diaria en Drive: activada · la última ejecución falló %1$s (%2$s)</string>
+    <string name="settings_drive_failure_sign_in">hay que iniciar sesión en Google</string>
+    <string name="settings_drive_failure_network">sin conexión</string>
+    <string name="settings_drive_failure_drive">error de Google Drive</string>
+    <string name="settings_drive_failure_other">error inesperado</string>
 
     <!-- Manage Supplies screen -->
     <string name="manage_supplies_title">Gestionar suministros</string>

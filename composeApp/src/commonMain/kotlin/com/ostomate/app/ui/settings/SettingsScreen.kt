@@ -37,8 +37,11 @@ import androidx.compose.ui.unit.dp
 import com.ostomate.app.BuildInfo
 import com.ostomate.app.data.RestoreError
 import com.ostomate.app.data.RestoreResult
+import com.ostomate.app.domain.drive.DriveBackupFailure
+import com.ostomate.app.domain.drive.DriveBackupStatus
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.formatTimestamp
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.action_cancel
 import com.ostomate.app.resources.action_ok
@@ -57,6 +60,18 @@ import com.ostomate.app.resources.settings_dev_on_title
 import com.ostomate.app.resources.settings_diagnostics
 import com.ostomate.app.resources.settings_diagnostics_export
 import com.ostomate.app.resources.settings_diagnostics_sub
+import com.ostomate.app.resources.settings_drive_backup
+import com.ostomate.app.resources.settings_drive_backup_authorizing
+import com.ostomate.app.resources.settings_drive_backup_error_cancelled
+import com.ostomate.app.resources.settings_drive_backup_error_failed
+import com.ostomate.app.resources.settings_drive_backup_sub
+import com.ostomate.app.resources.settings_drive_failure_drive
+import com.ostomate.app.resources.settings_drive_failure_network
+import com.ostomate.app.resources.settings_drive_failure_other
+import com.ostomate.app.resources.settings_drive_failure_sign_in
+import com.ostomate.app.resources.settings_drive_status_failed
+import com.ostomate.app.resources.settings_drive_status_not_run
+import com.ostomate.app.resources.settings_drive_status_ok
 import com.ostomate.app.resources.settings_export_backup
 import com.ostomate.app.resources.settings_feedback
 import com.ostomate.app.resources.settings_feedback_sub
@@ -82,6 +97,7 @@ import com.ostomate.app.resources.settings_restore_success
 import com.ostomate.app.resources.settings_section_about
 import com.ostomate.app.resources.settings_section_about_dev
 import com.ostomate.app.resources.settings_section_data
+import com.ostomate.app.resources.settings_section_developer
 import com.ostomate.app.resources.settings_section_inventory
 import com.ostomate.app.resources.settings_section_security
 import com.ostomate.app.resources.settings_section_support
@@ -103,6 +119,7 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val backupState by viewModel.backupState.collectAsState()
+    val driveBackup by viewModel.driveBackup.collectAsState()
     val fileSharer = koinInject<FileSharer>()
     val feedbackHelper = koinInject<FeedbackHelper>()
 
@@ -330,6 +347,15 @@ fun SettingsScreen(
                 },
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
+            // Shown whenever the daily backup is on, dev mode or not: it keeps running either way.
+            val driveStatus = driveBackup.status
+            if (driveBackup.supported && driveStatus != null) {
+                ListItem(
+                    headlineContent = { Text(driveBackupStatusText(driveStatus)) },
+                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.testTag("driveBackupStatus"),
+                )
+            }
             ListItem(
                 headlineContent = { Text(stringResource(Res.string.settings_diagnostics)) },
                 supportingContent = { Text(stringResource(Res.string.settings_diagnostics_sub)) },
@@ -414,10 +440,78 @@ fun SettingsScreen(
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
 
+            // Dev mode only decides whether the switch is visible; turning dev mode off leaves
+            // the daily backup running. Android only (supported is false on iOS).
+            if (settings.devMode && driveBackup.supported) {
+                HorizontalDivider()
+                SettingsSectionHeader(stringResource(Res.string.settings_section_developer))
+                DriveBackupSwitch(state = driveBackup, onToggle = viewModel::setDriveBackupEnabled)
+            }
+
             Spacer(Modifier.height(16.dp))
         }
     }
 }
+
+@Composable
+private fun DriveBackupSwitch(
+    state: DriveBackupUiState,
+    onToggle: (Boolean) -> Unit,
+) {
+    val error = state.enableError
+    ListItem(
+        headlineContent = { Text(stringResource(Res.string.settings_drive_backup)) },
+        supportingContent = {
+            when {
+                state.authorizing -> Text(stringResource(Res.string.settings_drive_backup_authorizing))
+                error != null ->
+                    Text(
+                        stringResource(
+                            when (error) {
+                                DriveBackupEnableError.CANCELLED -> Res.string.settings_drive_backup_error_cancelled
+                                DriveBackupEnableError.FAILED -> Res.string.settings_drive_backup_error_failed
+                            },
+                        ),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                else -> Text(stringResource(Res.string.settings_drive_backup_sub))
+            }
+        },
+        trailingContent = { Switch(checked = state.enabled, onCheckedChange = null, enabled = !state.authorizing) },
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
+        // Whole row toggles, as with Biometric Lock: it names the switch for screen readers.
+        modifier =
+            Modifier
+                .toggleable(
+                    value = state.enabled,
+                    enabled = !state.authorizing,
+                    role = Role.Switch,
+                    onValueChange = onToggle,
+                )
+                .testTag("driveBackupSwitch"),
+    )
+}
+
+@Composable
+private fun driveBackupStatusText(status: DriveBackupStatus): String =
+    when (status) {
+        DriveBackupStatus.NotRunYet -> stringResource(Res.string.settings_drive_status_not_run)
+        is DriveBackupStatus.Succeeded ->
+            stringResource(Res.string.settings_drive_status_ok, formatTimestamp(status.atMillis))
+        is DriveBackupStatus.Failed ->
+            stringResource(
+                Res.string.settings_drive_status_failed,
+                formatTimestamp(status.atMillis),
+                stringResource(
+                    when (status.reason) {
+                        DriveBackupFailure.NEEDS_SIGN_IN -> Res.string.settings_drive_failure_sign_in
+                        DriveBackupFailure.NETWORK -> Res.string.settings_drive_failure_network
+                        DriveBackupFailure.DRIVE_ERROR -> Res.string.settings_drive_failure_drive
+                        DriveBackupFailure.OTHER -> Res.string.settings_drive_failure_other
+                    },
+                ),
+            )
+    }
 
 @Composable
 private fun SettingsSectionHeader(
