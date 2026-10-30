@@ -26,7 +26,17 @@ This means iOS tests run on `main` merges and manual dispatch only — not on ev
 
 ## App Pricing
 
-**Free.** No in-app purchases. No subscription. This is a personal health utility.
+**Free at launch.** No in-app purchases. No subscription. This is a personal health utility.
+
+**Later, maybe: an optional tip** ("support the developer" in-app purchase); it unlocks nothing
+(Bobby, 2026-10-30). Not in v1.0. Before building it:
+- It needs Play Billing / StoreKit, a third network path: update `06-security-privacy.md`,
+  the privacy policy and the Data Safety / App Privacy answers in the same change.
+- Apple's Paid Apps agreement and a Google payments profile (tax + bank) come first.
+
+**Never switch the Play listing to paid-upfront.** Google Play does not allow an app published
+free to become paid; it would need a new listing. Price changes, paid → free and adding
+in-app purchases stay possible on both stores.
 
 ## Store Presence
 
@@ -49,6 +59,7 @@ None. This app is built for personal use and published as a free utility.
 | Question | Decision | Date |
 |---|---|---|
 | Pricing model | Free — no monetization | 2026-06 |
+| Pricing model (revisited) | Free at launch; optional tip purchase may come later. No subscription, no paid download | 2026-10-30 |
 | Analytics | None — privacy-first | 2026-06 |
 | Cloud sync | Deferred — local-only for v1.0 | 2026-06 |
 | macOS CI gate | Non-PR only — 10× cost mitigation | 2026-06 |
