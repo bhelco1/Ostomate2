@@ -32,15 +32,15 @@ Every answer has three parts: the answer, why (one line), and the source it rest
    90 days.
 3. ~~**Add Play's required health disclaimer to the Play description.**~~ **Done
    2026-11-01** in `docs/store-listing.md` ("Not a medical device"). See H-2. The fastlane
-   description files (`fastlane/metadata/*/en-US/*description.txt`) are a separate, older text
-   and do not have it yet.
+   description files (`fastlane/metadata/*/en-US/*description.txt`) are now copied from it and
+   carry it too.
 
-### Judgment calls (recommendation first)
+### Judgment calls
 
-| # | Question | Recommended | Alternative |
+| # | Question | Answer (decided, resolved, or recommended) | Alternative |
 |---|---|---|---|
-| J1 | Does the Android Drive backup count as Play "collection"? | **No.** Play's FAQ exempts a user's own upload to their own Drive. | Declare *Health info*: collected, optional, App functionality. Safer from review, but the listing then says the app collects health info. |
-| J2 | Health apps declaration category | **Medical → Diseases and Conditions Management.** | "No health features". Smaller footprint, but it is an ostomy app and Google reviews the declaration. |
+| J1 | Does the Android Drive backup count as Play "collection"? | **Decided 2026-11-01 (Bobby): not collected.** Play's FAQ exempts a user's own upload to their own Drive. | Not chosen: declare *Health info*: collected, optional, App functionality. Safer from review, but the listing then says the app collects health info. |
+| J2 | Health apps declaration category | **Decided 2026-11-01 (Bobby): Medical → Diseases and Conditions Management.** | Not chosen: "No health features". Smaller footprint, but it is an ostomy app and Google reviews the declaration. |
 | J3 | Sentry's random install ID on Play | **Resolved: do not declare** *Device or other IDs*. The install ID is no longer sent: `beforeSend` drops `user` and `device.id` (fixed 2026-11-01). Before the fix the answer was to declare it. | — |
 | J4 | Sentry's random install ID on Apple | **Resolved: do not declare** a Device ID. `beforeSend` drops `user` and `app.device_app_hash` (fixed 2026-11-01), so no install or device identifier is sent. | — |
 | J5 | Feedback email (Settings → Support) | **Not collected** on either store. The user's own mail app sends it, each time on purpose. | Play: *Personal info → Email address* + *Crash logs*, optional, Developer communications. |
@@ -174,7 +174,7 @@ Sources:
 
 ### J1 in detail: the Drive backup
 
-**Recommended: not collected, not shared.**
+**Decided 2026-11-01 (Bobby): not collected, not shared.**
 - Play's FAQ asks exactly this: "My app enables users to upload their data directly to Google
   Drive or Dropbox for backup or storage. My app does not access any of this data. Should that
   still be disclosed as 'collection'?"
@@ -189,7 +189,7 @@ Sources:
 - Where it is weaker: the app itself sends the file, and it lists and deletes its own old
   backups in Drive (`drive.file`). A strict reader could say the app "accesses" the data.
 
-**Alternative: declare it.** *Health and fitness → Health info*: Collected, not shared, not
+**Alternative (not chosen): declare it.** *Health and fitness → Health info*: Collected, not shared, not
 ephemeral, Optional, purpose App functionality. A change log of ostomy supplies reveals a
 medical condition, so it is health info. Cost: the listing shows "health info" collected.
 
@@ -202,7 +202,8 @@ Either way, the privacy policy already describes the backup in full. Keep it tha
 Source: [Provide information for the Health apps declaration form](https://support.google.com/googleplay/android-developer/answer/14738291)
 and the [Health Content and Services policy](https://support.google.com/googleplay/android-developer/answer/16679511).
 
-**H-1. Health features** → tick **Medical → Diseases and Conditions Management** only (J2).
+**H-1. Health features** → tick **Medical → Diseases and Conditions Management** only (J2,
+decided 2026-11-01).
 Do **not** tick *Medical Device Apps*.
 - Why: the app helps manage supplies for a chronic condition (an ostomy). It does not
   diagnose or treat, and it is not regulated as a medical device.
