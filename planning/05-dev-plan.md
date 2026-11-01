@@ -387,7 +387,7 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
 
 **Goal:** Signed release builds. Store listings ready. Fastlane configured for iOS.
 
-### 3.1 — Android Release Signing ⬜
+### 3.1 — Android Release Signing ✅ (2026-11-01)
 
 **Human step:** Generate keystore:
 ```bash
@@ -405,6 +405,11 @@ Add GitHub Secrets: `KEYSTORE_FILE` (`base64 -i ostomate-release.jks | pbcopy`),
 build. CI job `build-release` (main pushes + dispatch) builds the AAB with the Sentry DSN,
 checks the signature, and uploads artifact `androidApp-release`. Until the secrets exist it
 skips with a notice in the run summary. **3.1 is done when a main run uploads a signed AAB.**
+
+**Done 2026-11-01:** keystore created (kept outside every repo, backed up in Bobby's password
+manager) and the 4 secrets added. Main run 41359746379 (PR #52's merge) uploaded
+`androidApp-release`: `jarsigner` says "jar verified", signed by CN=Robert Helco, versionCode 173
+(its run number).
 
 **versionCode ✅ (2026-11-01):** `build-release` passes `-PversionCode=<GitHub run number>`,
 so each uploaded AAB has a higher versionCode than the last; builds without the property
