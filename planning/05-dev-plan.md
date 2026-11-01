@@ -406,8 +406,9 @@ build. CI job `build-release` (main pushes + dispatch) builds the AAB with the S
 checks the signature, and uploads artifact `androidApp-release`. Until the secrets exist it
 skips with a notice in the run summary. **3.1 is done when a main run uploads a signed AAB.**
 
-`versionCode` is a static 1, so Play rejects every upload after the first. Make it
-increase per upload before 4.1's second upload.
+**versionCode ✅ (2026-11-01):** `build-release` passes `-PversionCode=<GitHub run number>`,
+so each uploaded AAB has a higher versionCode than the last; builds without the property
+(local, debug) stay at 1, and a value that is not an integer from 1 to 2100000000 fails the build.
 
 ### 3.2 — iOS Release Signing ⬜
 

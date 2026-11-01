@@ -274,11 +274,14 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         # An empty DSN builds fine and ships an app whose opt-in crash reporting silently
         # does nothing, so refuse to build a release without one.
+        # versionCode is the run number, so each upload to Play is higher than the last
+        # (git rev-list --count would be 1: the checkout is shallow).
         run: |
           [ -n "$SENTRY_DSN" ] || { echo "::error::SENTRY_DSN secret is empty"; exit 1; }
           export KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
           echo "$KEYSTORE_FILE" | base64 --decode > "$KEYSTORE_PATH"
-          ./gradlew :androidApp:bundleRelease -PSENTRY_DSN="$SENTRY_DSN" --stacktrace
+          ./gradlew :androidApp:bundleRelease -PSENTRY_DSN="$SENTRY_DSN" \
+            -PversionCode="$GITHUB_RUN_NUMBER" --stacktrace
           rm -f "$KEYSTORE_PATH"
       - name: Verify AAB signature
         if: steps.secrets.outputs.present == 'true'
