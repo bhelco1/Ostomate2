@@ -19,7 +19,16 @@ android {
     }
     defaultConfig {
         applicationId = "com.ostomate.app"
-        versionCode = 1
+        // CI release builds pass -PversionCode=<run number> so each Play upload is higher than
+        // the last; local and debug builds stay 1. A bad value fails rather than ship as 1.
+        versionCode =
+            project.findProperty("versionCode")?.toString()?.let { raw ->
+                val code = raw.toIntOrNull()
+                check(code != null && code in 1..2_100_000_000) {
+                    "-PversionCode must be an integer from 1 to 2100000000 (Play's maximum); got \"$raw\""
+                }
+                code
+            } ?: 1
         versionName = "1.0"
         // local.properties: SENTRY_DSN=https://...  CI: -PSENTRY_DSN=https://...
         val dsn = localProps["SENTRY_DSN"] as String? ?: project.findProperty("SENTRY_DSN") as String? ?: ""
