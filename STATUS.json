@@ -43,13 +43,14 @@
   ],
   "now": "Phases 0–2.5 done, main green. Phase 3 under way: CI now builds a signed Android release with its own version number; store screenshots and privacy fixes in progress. Nov 2026: a month-long check that no scans are lost (Pixel, iPhone and paper, compared weekly).",
   "next": [
-    "3.4 Store listings: screenshots for Play and the App Store",
+    "3.4 Store listings: Android screenshots (needs an emulator image); iPhone shots + feature graphic in PR #55",
     "Privacy fix: strip the install ID from crash reports, align the privacy policy",
     "3.2 iOS release signing + TestFlight lane, after the Apple team exists"
   ],
   "waitingOnBobby": [
     "Register com.ostomate.app in Play Console (developer verification)",
     "Finish Apple Developer enrollment (Xcode still shows only the free team)",
-    "Decide the Drive backup and health category answers in docs/data-safety.md"
+    "Decide the Drive backup and health category answers in docs/data-safety.md",
+    "Decide: iPad support (needs 13\" screenshots) or iPhone-only"
   ]
 }
