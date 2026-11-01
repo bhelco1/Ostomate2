@@ -1,5 +1,6 @@
 package com.ostomate.app
 
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -214,10 +215,12 @@ private fun MainApp() {
             }
         },
     ) { innerPadding ->
+        // Consuming what the padding already applied stops a screen's own TopAppBar from adding
+        // the status bar a second time (a blank band above History, Manage Supplies, QR Labels…).
         NavHost(
             navController = navController,
             startDestination = HomeDestination,
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier.fillMaxSize().padding(innerPadding).consumeWindowInsets(innerPadding),
         ) {
             composable<HomeDestination> {
                 HomeScreen(
