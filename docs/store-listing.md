@@ -47,20 +47,44 @@ change instantly — no app-opening required.
 
 ## Screenshot Capture Checklist
 
-Capture on:
-- iPhone 16 Pro Max (6.7") — required for App Store
-- iPhone 8 (4.7") — recommended second size
-- Pixel 6 (1080×2400) — for Google Play
+Regenerate with `scripts/store-screenshots.sh` (see the header of that script). Every shot
+uses fake demo data (`scripts/store_demo_backup.py`, loaded through Settings > Restore
+backup), light mode, and a clean status bar (9:41, full battery, no notifications).
+
+Requirements (checked 2026-11-01):
+- **App Store** ([screenshot specifications](https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications/)):
+  "At least one screenshot for iPhone with Dynamic Island (medium display)" is required;
+  1–10 per size, PNG/JPEG, no alpha. We also ship the 6.9" set, the largest accepted size.
+  - 6.9" — iPhone 17 Pro Max simulator, **1320 × 2868**
+  - 6.3" (Dynamic Island, medium) — iPhone 17 Pro simulator, **1206 × 2622**
+  - The old 6.7" + 5.5" pair is no longer required; smaller sizes are scaled by Apple.
+  - The app also targets iPad (`TARGETED_DEVICE_FAMILY = "1,2"`), which makes a 13" iPad
+    set (2064 × 2752) required too — not captured yet.
+- **Google Play** ([preview assets](https://support.google.com/googleplay/android-developer/answer/9866151)):
+  at least 2 phone screenshots, JPEG or 24-bit PNG (no alpha), 320–3840 px per side, long
+  side at most twice the short side. For promotion, at least 4 at 1080 px+, 9:16 portrait.
+  A Pixel 6 (1080 × 2400, 20:9) is too tall for the 2:1 limit — capture on a **1080 × 1920**
+  emulator profile (e.g. Pixel 2). Android capture is not scripted yet: no emulator system
+  image is installed on the Mac.
+
+Output (fastlane layout):
+- iOS: `fastlane/screenshots/en-US/<device>-NN_name.png`
+- Android: `fastlane/metadata/android/en-US/images/phoneScreenshots/`
+- Feature graphic: `fastlane/metadata/android/en-US/images/featureGraphic.png`
 
 ### Screens to capture:
-1. **Home — normal state** (inventory counts visible, days remaining, no warning)
-2. **Home — warning state** (set low inventory to trigger warning banner)
-3. **Calendar** — a month with several bag and flange events logged
-4. **Settings — locked** (biometric lock visible, fields greyed out)
-5. **QR Labels dialog** — both QR codes visible with supply type titles
-6. **History screen** — event log with multiple entries
+1. **Home** — inventory counts and days remaining, no low-stock warning
+2. **History** — the bag change log, with one note
+3. **Logged** — the "Bag logged · N left" confirmation with Undo
+4. **Calendar** — last month, full of bag and flange changes
+5. **Stats** — 30-day averages per supply
+6. **Settings** — overview
+7. **Manage Supplies** — on-hand counts and box sizes
+8. **QR Labels** — both QR codes with supply titles
 
-Light mode preferred. Ensure no personal data visible in screenshots.
+Ensure no personal data visible in screenshots — never use a real backup.
 
-**Feature graphic (Google Play):** 1024 × 500 px — app icon centered on brand color background.
+**Feature graphic (Google Play):** 1024 × 500 px, 24-bit PNG — the icon's glyph centered on
+brand blue #2563EB. Drawn by `scripts/feature_graphic.swift` from the adaptive icon vector
+(`scripts/store-screenshots.sh feature-graphic`).
 **App icon source:** 1024 × 1024 px — no rounded corners (stores add them).
