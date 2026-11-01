@@ -1,26 +1,31 @@
-Ostomate is a private, local-first ostomy supply tracker built for everyday use.
+Ostomate helps you keep track of your ostomy supplies, so you know when to reorder before you run out.
 
-STAYING STOCKED SHOULDN'T REQUIRE A SPREADSHEET
+LOG A CHANGE IN ONE TAP
+Tap once to record a bag or flange change. Logged one by mistake? Tap Undo. Or print a QR code label, stick it on your supply box, and scan it with your phone's camera: Ostomate opens and logs the change for you.
 
-Ostomate learns your change frequency and predicts when each supply is running low — so you get a reminder before you're caught short, not after.
+KNOW WHEN TO REORDER
+Ostomate works out how often you change each supply from your recent changes and estimates how many days of supply you have left. Your on-hand count goes down each time you log a change.
 
-WHAT IT DOES
+REORDER REMINDERS
+Set a warning for each supply, in days. When you get close, Ostomate sends you a notification and shows a warning on the home screen.
 
-• One-tap logging — record a change in under two seconds from the home screen, a home screen widget, or by scanning a QR sticker you print once and stick anywhere
-• Smart predictions — average change interval updates automatically with every log; days-remaining estimates improve over time as Ostomate learns your rhythm
-• Inventory tracking — on-hand counts update when you log; the home screen shows a warning banner when you're running low
-• Calendar view — see your full change history at a glance; tap any day for a detail sheet where you can edit or delete events
-• Stats — weekly, monthly, and yearly summaries; per-supply counts and average interval; trend sparkline
-• Custom supplies — add any ostomy product beyond the built-in bag and flange types; set your own box sizes, reorder thresholds, and color coding
-• Event notes and tags — optionally attach a note (leak, skin irritation, routine) to any logged change for richer history
-• Backup and restore — export your full history as a CSV and restore it on a new device; imports from Ostomate v1 too
+WHAT'S INCLUDED
+• One-tap bag and flange change logging, with Undo
+• Printable QR code labels: scan one to log a change
+• Days-of-supply estimate based on your own usage
+• Low-supply reminder notifications
+• Custom supply types with your own names, colors, box sizes and warning thresholds
+• Monthly calendar of your changes: tap a day to edit or delete an entry
+• History with optional notes and tags (Routine, Leak, Skin irritation)
+• Stats for the last 7 days, 30 days or year: changes per supply, average days between changes, and a chart
+• Backup and restore: export one backup file and restore it on a new phone with your supplies, history and settings intact
+• Optional lock: confirm with Face ID, Touch ID or your passcode before supply counts can be changed
 
-PRIVACY FIRST
+YOUR DATA STAYS YOURS
+No account, no ads, no analytics. Your supplies and change history are stored on your phone and are never sent to the developer. Crash reports are optional and stay off unless you turn them on. Privacy policy: https://bhelco1.github.io/Ostomate2/
 
-Everything stays on your device. No account required. No iCloud sync. No analytics or tracking of any kind. Your health data is yours alone.
+FREE
+No subscription, no ads, no in-app purchases.
 
-ACCESSIBLE
-
-Full VoiceOver support — every button, card, and control is labeled and reachable by screen reader. High-contrast color pairs, minimum 44 pt touch targets throughout.
-
-FREE — no subscriptions, no ads, no in-app purchases.
+NOT A MEDICAL DEVICE
+Ostomate is a supply-tracking tool, not a medical device. It does not diagnose, treat, cure or prevent any medical condition, and it does not give medical advice. Always consult your doctor, stoma nurse or another qualified healthcare professional about your ostomy care.
