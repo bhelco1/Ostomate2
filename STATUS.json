@@ -1,7 +1,7 @@
 {
   "name": "Ostomate 2",
   "tagline": "Cross-platform (Android + iOS) ostomy supply tracker — Kotlin Multiplatform rewrite of Ostomate v1",
-  "updated": "2026-10-29",
+  "updated": "2026-11-01",
   "state": "waiting",
   "planDoc": "planning/05-dev-plan.md",
   "phases": [
@@ -41,7 +41,7 @@
       "status": "todo"
     }
   ],
-  "now": "Phases 0–2.5 done and main is green (8 Android + 5 iOS E2E flows). Since then: lost Oct 18–20 scans traced and fixed (scans are now logged on arrival), and a daily Google Drive backup for Bobby (hidden in developer mode) is working on his Pixel. Phase 3 is blocked on accounts and the signing key.",
+  "now": "Phases 0–2.5 done, main green. Nov 2026: a month-long check that no scans are lost — every change logged on the Pixel, the iPhone and paper, compared weekly. Phase 3 is blocked on accounts and the signing key.",
   "next": [
     "3.1 Confirm CI builds a signed release AAB once the keystore secrets exist",
     "3.4 Store listings: capture iOS screenshots (6.7\" and 5.5\")",
