@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -156,6 +157,16 @@ private fun MainApp() {
         )
     }
 
+    val inHomeTab =
+        currentDestination?.hasRoute<HomeDestination>() == true ||
+            currentDestination?.hasRoute<HistoryDestination>() == true
+    val inSettingsTab =
+        currentDestination?.hasRoute<SettingsDestination>() == true ||
+            currentDestination?.hasRoute<ManageSuppliesDestination>() == true ||
+            currentDestination?.hasRoute<ReorderWarningsDestination>() == true ||
+            currentDestination?.hasRoute<PrivacyPolicyDestination>() == true ||
+            currentDestination?.hasRoute<QrLabelsDestination>() == true
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
@@ -165,13 +176,7 @@ private fun MainApp() {
                     icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_home)) },
                     selected = currentDestination?.hasRoute<HomeDestination>() == true,
-                    onClick = {
-                        navController.navigate(HomeDestination) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
+                    onClick = { navController.navigateToTab(HomeDestination, inTab = inHomeTab) },
                 )
                 NavigationBarItem(
                     modifier = Modifier.testTag("nav_calendar"),
@@ -179,11 +184,10 @@ private fun MainApp() {
                     label = { Text(stringResource(Res.string.nav_calendar)) },
                     selected = currentDestination?.hasRoute<CalendarDestination>() == true,
                     onClick = {
-                        navController.navigate(CalendarDestination) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.navigateToTab(
+                            CalendarDestination,
+                            inTab = currentDestination?.hasRoute<CalendarDestination>() == true,
+                        )
                     },
                 )
                 NavigationBarItem(
@@ -192,29 +196,19 @@ private fun MainApp() {
                     label = { Text(stringResource(Res.string.nav_stats)) },
                     selected = currentDestination?.hasRoute<StatsDestination>() == true,
                     onClick = {
-                        navController.navigate(StatsDestination) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.navigateToTab(
+                            StatsDestination,
+                            inTab = currentDestination?.hasRoute<StatsDestination>() == true,
+                        )
                     },
                 )
                 NavigationBarItem(
                     modifier = Modifier.testTag("nav_settings"),
                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_settings)) },
-                    selected =
-                        currentDestination?.hasRoute<SettingsDestination>() == true ||
-                            currentDestination?.hasRoute<ManageSuppliesDestination>() == true ||
-                            currentDestination?.hasRoute<ReorderWarningsDestination>() == true ||
-                            currentDestination?.hasRoute<PrivacyPolicyDestination>() == true ||
-                            currentDestination?.hasRoute<QrLabelsDestination>() == true,
+                    selected = inSettingsTab,
                     onClick = {
-                        navController.navigate(SettingsDestination) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = false
-                        }
+                        navController.navigateToTab(SettingsDestination, inTab = inSettingsTab, restoreState = false)
                     },
                 )
             }
@@ -270,5 +264,26 @@ private fun MainApp() {
                 )
             }
         }
+    }
+}
+
+/**
+ * Bottom-bar tab switch. From another tab it restores where [root]'s tab was left (its saved
+ * back stack); tapping the tab you are already in goes back to [root] itself. Restoring there
+ * would bring back the very stack being left, so tapping Home on History kept History open.
+ */
+private fun NavHostController.navigateToTab(
+    root: Any,
+    inTab: Boolean,
+    restoreState: Boolean = true,
+) {
+    if (inTab) {
+        popBackStack(root, inclusive = false)
+        return
+    }
+    navigate(root) {
+        popUpTo(graph.startDestinationId) { saveState = true }
+        launchSingleTop = true
+        this.restoreState = restoreState
     }
 }
