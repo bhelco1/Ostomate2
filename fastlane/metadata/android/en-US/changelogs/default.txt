@@ -1,3 +1,1 @@
-First release — Ostomate 2.0.
-
-Ground-up rewrite: faster logging, smart predictions, custom supply types, calendar view, stats, QR stickers, widgets, backup/restore, and full TalkBack support.
+First release of Ostomate. Log bag and flange changes with one tap or a QR label, see how many days of supplies you have left, get reorder reminders, and back up your data to move it to a new phone.
