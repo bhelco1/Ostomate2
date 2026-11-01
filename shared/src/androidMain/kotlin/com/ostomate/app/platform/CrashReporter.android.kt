@@ -36,14 +36,19 @@ actual class CrashReporter(private val context: Context) : CrashReporting {
             // libsentry.so crashes in sentry_add_breadcrumb on SentryExecutorS thread;
             // JVM-level crash reporting is sufficient for our opt-in reporter.
             options.isEnableNdk = false
-            options.beforeSend = SentryOptions.BeforeSendCallback { event, _ -> scrub(event) }
+            options.beforeSend = SentryOptions.BeforeSendCallback { event, _ -> scrubCrashEvent(event) }
         }
     }
+}
 
-    private fun scrub(event: SentryEvent): SentryEvent {
-        // Remove any extra data that might carry note or tag field contents.
-        event.removeExtra("note")
-        event.removeExtra("tags")
-        return event
-    }
+// Runs after Sentry's event processors, which set user.id and device.id to a random install
+// ID and user.ip_address to "{{auto}}" (asking Sentry to store the sender's IP). The privacy
+// policy promises reports carry neither.
+internal fun scrubCrashEvent(event: SentryEvent): SentryEvent {
+    event.user = null
+    event.contexts.device?.id = null
+    // Remove any extra data that might carry note or tag field contents.
+    event.removeExtra("note")
+    event.removeExtra("tags")
+    return event
 }
