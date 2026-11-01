@@ -40,8 +40,13 @@ change instantly — no app-opening required.
 • Monthly calendar usage view
 • Usage stats: weekly, monthly, yearly
 • Full backup and restore — move to a new phone with everything intact
-• Biometric-protected settings (Face ID / Touch ID / fingerprint)
+• Optional Face ID / Touch ID / fingerprint lock on changing your supply counts
 • Developer mode for safe testing
+
+**Not a medical device**
+Ostomate is a supply-tracking tool, not a medical device. It does not diagnose, treat, cure or
+prevent any medical condition, and it does not give medical advice. Always consult your doctor,
+stoma nurse or another qualified healthcare professional about your ostomy care.
 
 ---
 
