@@ -452,29 +452,22 @@ still matches what the app actually does.
 ### 4.1 — Google Play Internal Testing ⬜
 
 1. Create app in Play Console → package `com.ostomate.app`
-2. Complete Data Safety form. The answer is **not** "no data collected": opt-in Sentry sends
-   crash events (stack trace, device model, OS and app version). Declare *App info and
-   performance → Crash logs* and *Diagnostics*: collected, **optional** (off by default),
-   not shared (Sentry acts as a service provider), encrypted in transit, purpose Analytics
-   (Play's definition covers diagnosing crashes). Nothing else is collected. No data
-   deletion request flow is needed beyond uninstall, since there is no account.
-   Also answer the Health apps declaration: it is a personal supply tracker, not a medical device.
-   **FEAT-03 changes this form:** the optional daily Google Drive backup (Android) transfers
-   the user's supply/history data off the device to the user's own Google Drive. Re-answer
-   the Data Safety questions with that in mind (whether a user-initiated transfer to the
-   user's own cloud storage counts as "collected"/"shared" under Play's current definitions,
-   and the Health info category) before submitting — do not reuse the crash-only answer.
+2. Complete the Data Safety form and the Health apps declaration from the draft answers in
+   **`docs/data-safety.md`** (sources quoted there). It is **not** "no data collected": opt-in
+   Sentry sends crash data. The draft covers the FEAT-03 Drive backup question (recommended:
+   not collected, per Play's own-cloud-storage FAQ) and lists the steps due first: block IP
+   storage in Sentry, confirm Sentry retention, add Play's health disclaimer to the listing.
+   There is no app account, so no account-deletion flow is needed.
 3. Upload signed AAB from CI `build-release` artifact
 4. Publish to Internal Testing track
 5. Install on device via Play Store
 
 ### 4.2 — App Store TestFlight ⬜
 
-1. Create app in App Store Connect → bundle ID `com.ostomate.app`. App Privacy label:
-   *Diagnostics → Crash Data* only, **not linked** to identity, **not used for tracking**,
-   purpose App Functionality. Same reason as Play's form: opt-in Sentry.
-   FEAT-03 (Drive backup) is Android-only and not in the iOS build, so it does not change
-   the iOS label today; if it is ever ported to iOS, the label must be revisited.
+1. Create app in App Store Connect → bundle ID `com.ostomate.app`. Fill App Privacy from
+   **`docs/data-safety.md`** (opt-in Sentry: Diagnostics, not linked, not tracking, App
+   Functionality). FEAT-03 (Drive backup) is Android-only and not in the iOS build, so it does
+   not change the iOS label today; if it is ever ported to iOS, the label must be revisited.
 2. Upload IPA via Fastlane or Xcode Organizer
 3. Submit for TestFlight review
 4. Install on device via TestFlight
