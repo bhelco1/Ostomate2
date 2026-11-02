@@ -68,6 +68,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.ostomate.app.data.ChangeSource
 import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeEntity
@@ -420,13 +421,11 @@ private fun EventCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                val tags = row.event.tags
-                if (!tags.isNullOrBlank()) {
+                val tags = ChangeSource.userTags(row.event.tags)
+                if (tags.isNotEmpty()) {
                     Spacer(Modifier.height(4.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        tags.split(",").forEach { tag ->
-                            Pill(label = tag.trim(), kind = row.supplyKind)
-                        }
+                        tags.forEach { tag -> Pill(label = tag, kind = row.supplyKind) }
                     }
                 }
                 if (row.event.editedAtMillis != null) {
@@ -463,7 +462,7 @@ internal fun EditEventDialog(
     }
     var noteInput by rememberSaveable { mutableStateOf(event.note ?: "") }
     var selectedTags by rememberSaveable {
-        mutableStateOf(event.tags?.split(",")?.map { it.trim() }?.toSet() ?: emptySet())
+        mutableStateOf(ChangeSource.userTags(event.tags).toSet())
     }
     var parseError by remember { mutableStateOf(false) }
 
@@ -540,7 +539,7 @@ internal fun EditEventDialog(
                         parseError = true
                     } else {
                         val note = noteInput.trim().ifEmpty { null }
-                        val tags = selectedTags.joinToString(",").ifEmpty { null }
+                        val tags = ChangeSource.withUserTags(event.tags, selectedTags)
                         onSave(event.copy(timestampMillis = newMillis, note = note, tags = tags))
                     }
                 },
