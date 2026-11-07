@@ -52,6 +52,7 @@ import com.ostomate.app.resources.nav_home
 import com.ostomate.app.resources.nav_settings
 import com.ostomate.app.resources.nav_stats
 import com.ostomate.app.ui.calendar.CalendarScreen
+import com.ostomate.app.ui.components.ShellInsets
 import com.ostomate.app.ui.history.HistoryScreen
 import com.ostomate.app.ui.home.HomeScreen
 import com.ostomate.app.ui.onboarding.OnboardingScreen
@@ -170,6 +171,7 @@ private fun MainApp() {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
+        contentWindowInsets = ShellInsets,
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -215,8 +217,8 @@ private fun MainApp() {
             }
         },
     ) { innerPadding ->
-        // Consuming what the padding already applied stops a screen's own TopAppBar from adding
-        // the status bar a second time (a blank band above History, Manage Supplies, QR Labels…).
+        // The top inset is left to each screen (ShellInsets). Consuming what the padding did
+        // apply stops a screen's own Scaffold or TopAppBar from adding it a second time.
         NavHost(
             navController = navController,
             startDestination = HomeDestination,

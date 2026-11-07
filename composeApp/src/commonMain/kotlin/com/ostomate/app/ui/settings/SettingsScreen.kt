@@ -3,7 +3,6 @@ package com.ostomate.app.ui.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -105,6 +104,7 @@ import com.ostomate.app.resources.settings_section_developer
 import com.ostomate.app.resources.settings_section_inventory
 import com.ostomate.app.resources.settings_section_security
 import com.ostomate.app.resources.settings_section_support
+import com.ostomate.app.ui.components.TopBarlessScreenInsets
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -268,7 +268,7 @@ fun SettingsScreen(
         )
     }
 
-    Scaffold(contentWindowInsets = WindowInsets(0)) { innerPadding ->
+    Scaffold(contentWindowInsets = TopBarlessScreenInsets) { innerPadding ->
         Column(
             modifier =
                 Modifier

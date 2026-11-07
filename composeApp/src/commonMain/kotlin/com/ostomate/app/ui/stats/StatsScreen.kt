@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,6 +44,7 @@ import com.ostomate.app.resources.stats_period_month
 import com.ostomate.app.resources.stats_period_week
 import com.ostomate.app.resources.stats_period_year
 import com.ostomate.app.ui.components.Pill
+import com.ostomate.app.ui.components.TopBarlessScreenInsets
 import com.ostomate.app.ui.theme.supplyColor
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -54,7 +54,7 @@ import kotlin.math.roundToInt
 fun StatsScreen(viewModel: StatsViewModel = koinViewModel()) {
     val uiState by viewModel.uiState.collectAsState()
 
-    Scaffold(contentWindowInsets = WindowInsets(0)) { innerPadding ->
+    Scaffold(contentWindowInsets = TopBarlessScreenInsets) { innerPadding ->
         Column(
             modifier =
                 Modifier
