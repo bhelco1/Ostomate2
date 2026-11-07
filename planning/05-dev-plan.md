@@ -461,7 +461,8 @@ still matches what the app actually does.
    **`docs/data-safety.md`** (sources quoted there). It is **not** "no data collected": opt-in
    Sentry sends crash data. The draft covers the FEAT-03 Drive backup question (recommended:
    not collected, per Play's own-cloud-storage FAQ) and lists the steps due first: block IP
-   storage in Sentry, confirm Sentry retention, add Play's health disclaimer to the listing.
+   storage in Sentry, confirm Sentry retention. (Play's health disclaimer is in
+   `docs/store-listing.md`, and crash reports carry no install ID, since 2026-11-01.)
    There is no app account, so no account-deletion flow is needed.
 3. Upload signed AAB from CI `build-release` artifact
 4. Publish to Internal Testing track

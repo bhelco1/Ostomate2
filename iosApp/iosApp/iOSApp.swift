@@ -40,6 +40,17 @@ struct iOSApp: App {
             options.enableCrashHandler = true
             options.enableAutoSessionTracking = false
             options.tracesSampleRate = 0
+            // Sentry gives every event a user carrying a random install ID, and the app context
+            // a device_app_hash derived from identifierForVendor. The privacy policy promises
+            // reports carry no identifier, so strip both on the way out.
+            options.beforeSend = { event in
+                event.user = nil
+                if var app = event.context?["app"] {
+                    app.removeValue(forKey: "device_app_hash")
+                    event.context?["app"] = app
+                }
+                return event
+            }
         }
     }
 }

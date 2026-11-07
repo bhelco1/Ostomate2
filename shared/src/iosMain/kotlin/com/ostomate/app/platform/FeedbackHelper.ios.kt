@@ -53,7 +53,7 @@ actual class FeedbackHelper {
             "\n" +
             "─── CRASH / ERROR DATA ────────────\n" +
             "No crash data captured.\n" +
-            "(Automated crash reporting is planned for a future release.)\n" +
+            "(Optional automatic crash reports can be turned on in Settings → Security.)\n" +
             "\n" +
             "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
             "YOUR COMMENTS — please describe what happened:\n" +

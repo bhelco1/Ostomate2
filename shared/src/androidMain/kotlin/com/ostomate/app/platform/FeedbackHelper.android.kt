@@ -79,8 +79,8 @@ actual class FeedbackHelper(private val context: Context) {
         return if (lastCrash != null) {
             "Last recorded crash:\n$lastCrash"
         } else {
-            "No crash data captured.\n" +
-                "(Automated crash reporting is planned for a future release.)"
+            "No crash recorded on this device.\n" +
+                "(Optional automatic crash reports can be turned on in Settings → Security.)"
         }
     }
 
