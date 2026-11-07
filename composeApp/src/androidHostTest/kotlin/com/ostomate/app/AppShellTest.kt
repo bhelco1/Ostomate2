@@ -3,6 +3,8 @@ package com.ostomate.app
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -92,6 +94,16 @@ class AppShellTest : ScreenshotTest() {
 
             onNodeWithContentDescription(BACK).assertDoesNotExist()
             onNodeWithText(HOME_HEADER).assertExists()
+        }
+
+    @Test
+    fun homeTabStaysHighlightedOnHistory() =
+        runAndroidComposeUiTest<ComponentActivity> {
+            setContent { App() }
+            openHistoryFromHome()
+
+            onNodeWithTag("nav_home").assertIsSelected()
+            onNodeWithTag("nav_calendar").assertIsNotSelected()
         }
 
     @Test

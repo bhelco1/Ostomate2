@@ -176,7 +176,7 @@ private fun MainApp() {
                     modifier = Modifier.testTag("nav_home"),
                     icon = { Icon(Icons.Filled.Home, contentDescription = null) },
                     label = { Text(stringResource(Res.string.nav_home)) },
-                    selected = currentDestination?.hasRoute<HomeDestination>() == true,
+                    selected = inHomeTab,
                     onClick = { navController.navigateToTab(HomeDestination, inTab = inHomeTab) },
                 )
                 NavigationBarItem(
