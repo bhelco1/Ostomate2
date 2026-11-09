@@ -72,10 +72,8 @@ name: "iOS store screenshots — iPhone"
     text: "View history"
 - waitForAnimationToEnd
 - takeScreenshot: "02_history"
-# Back, not the Home tab: the Home tab restores its saved back stack, which still holds
-# History, so tapping it leaves History on screen.
 - tapOn:
-    text: "Back"
+    id: "nav_home"
 - extendedWaitUntil:
     visible:
       id: "logButton"
