@@ -1,0 +1,138 @@
+appId: com.ostomate.app
+name: "iOS store screenshots — iPhone"
+# App Store screenshots with fake demo data. Not part of the CI E2E suite: run it through
+# scripts/store-screenshots.sh, which creates a fresh simulator, cleans the status bar and
+# puts the demo backup (scripts/store_demo_backup.py) into Files > On My iPhone first.
+# The demo data goes in through the app's own Settings > Restore backup, so no app code
+# knows about it.
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Skip"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: "logButton"
+    timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# Load the demo backup through the document picker.
+- tapOn:
+    id: "nav_settings"
+- scrollUntilVisible:
+    element:
+      text: "Restore"
+- tapOn:
+    text: "Restore"
+- extendedWaitUntil:
+    visible:
+      text: "Restore backup\\?"
+    timeout: 5000
+- tapOn:
+    text: "Restore"
+# The notification permission alert can land on top of the picker.
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn:
+    text: "Browse"
+- tapOn:
+    text: "On My iPhone"
+    optional: true
+- tapOn:
+    text: "ostomate_demo_backup.json, json.*"
+- extendedWaitUntil:
+    visible:
+      text: "Restore complete"
+    timeout: 10000
+- tapOn:
+    text: "OK"
+- tapOn:
+    text: "Allow"
+    optional: true
+
+# 1 — Home: supply cards with days-remaining predictions, no low-stock warning
+- tapOn:
+    id: "nav_home"
+- extendedWaitUntil:
+    visible:
+      text: "Flange"
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: "01_home"
+
+# 2 — History of the bag changes
+- tapOn:
+    id: "overflowButton"
+    index: 0
+- tapOn:
+    text: "View history"
+- waitForAnimationToEnd
+- takeScreenshot: "02_history"
+- tapOn:
+    id: "nav_home"
+- extendedWaitUntil:
+    visible:
+      id: "logButton"
+    timeout: 5000
+
+# 3 — Logging a change: the confirmation snackbar
+- tapOn:
+    id: "logButton"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Bag logged.*"
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: "03_logged"
+- extendedWaitUntil:
+    notVisible:
+      text: "Bag logged.*"
+    timeout: 20000
+
+# 4 — Calendar: month grid with supply pills. Last month, because it is always full: the demo
+# data ends yesterday, so the current month can be nearly empty.
+- tapOn:
+    id: "nav_calendar"
+- tapOn:
+    text: "Previous month"
+- waitForAnimationToEnd
+- takeScreenshot: "04_calendar"
+
+# 5 — Stats: period selector + per-supply counts
+- tapOn:
+    id: "nav_stats"
+- waitForAnimationToEnd
+- takeScreenshot: "05_stats"
+
+# 6 — Settings overview
+- tapOn:
+    id: "nav_settings"
+- extendedWaitUntil:
+    visible:
+      text: "Manage Supplies"
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: "06_settings"
+
+# 7 — Manage Supplies: on-hand counts, box sizes, custom supply colors
+- tapOn:
+    text: "Manage Supplies"
+- waitForAnimationToEnd
+- takeScreenshot: "07_manage_supplies"
+
+# 8 — QR labels to stick on the supply boxes
+- tapOn:
+    id: "nav_settings"
+- tapOn:
+    text: "Print QR Labels"
+- extendedWaitUntil:
+    visible:
+      text: "QR Labels"
+    timeout: 5000
+- waitForAnimationToEnd
+- takeScreenshot: "08_qr_labels"

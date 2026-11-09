@@ -436,8 +436,14 @@ placeholder stoma illustration. Artwork fits the 66 dp adaptive-icon safe zone.
 
 See `planning/07-business-plan.md` and `docs/store-listing.md`.
 
-- Google Play: store listing content + screenshots (5 minimum)
-- App Store Connect: metadata + screenshots (6.7" + 5.5" required)
+- Google Play: store listing content + screenshots (2 minimum, 4+ at 1080 px for promotion;
+  long side ≤ 2× short side, so 1080 × 1920 — a Pixel 6 shot is too tall). Feature graphic ✅
+  (`scripts/feature_graphic.swift`). Phone screenshots ✅ (2026-11-09) — 8 at 1080 × 1920 on
+  the `store_pixel2_api35` emulator (`scripts/store-screenshots.sh android`, fake demo data).
+- App Store Connect: metadata + screenshots. Apple now requires the 6.1"/6.3" Dynamic Island
+  (medium) size; the 6.9" set is the largest. iPhone 6.9" + 6.3" screenshots ✅
+  (`scripts/store-screenshots.sh ios`, fake demo data; re-captured 2026-11-09 after #58).
+  iPhone-only since #58, so no iPad set.
 - Privacy policy URL: **https://bhelco1.github.io/Ostomate2/** (serves `docs/privacy.html`).
   There is no `/docs/privacy-policy.html` — that path never existed.
 
