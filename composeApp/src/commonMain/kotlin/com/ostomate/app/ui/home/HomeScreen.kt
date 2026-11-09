@@ -5,8 +5,8 @@ package com.ostomate.app.ui.home
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
@@ -37,6 +37,7 @@ import com.ostomate.app.resources.home_overflow_view_history
 import com.ostomate.app.resources.home_snackbar_logged
 import com.ostomate.app.resources.home_snackbar_logged_count
 import com.ostomate.app.ui.components.SupplyCard
+import com.ostomate.app.ui.components.TopBarlessScreenInsets
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -89,15 +90,16 @@ fun HomeScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = TopBarlessScreenInsets,
     ) { innerPadding ->
+        // The status bar is padding, not contentPadding: cards must not scroll up under it.
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(top = innerPadding.calculateTopPadding()),
             contentPadding =
                 PaddingValues(
                     start = 16.dp,
                     end = 16.dp,
-                    top = innerPadding.calculateTopPadding() + 16.dp,
+                    top = 16.dp,
                     bottom = innerPadding.calculateBottomPadding() + 16.dp,
                 ),
             verticalArrangement = Arrangement.spacedBy(12.dp),

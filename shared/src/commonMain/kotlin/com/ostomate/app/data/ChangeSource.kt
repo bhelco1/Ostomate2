@@ -26,5 +26,28 @@ enum class ChangeSource {
                 ?.firstOrNull { it.startsWith(TAG_PREFIX) }
                 ?.removePrefix(TAG_PREFIX)
                 ?.let { value -> entries.firstOrNull { it.name.equals(value, ignoreCase = true) } }
+
+        /** True for a source token ("source:qr"): an audit record, never shown as a user tag. */
+        fun isSourceTag(tag: String): Boolean = tag.trim().startsWith(TAG_PREFIX)
+
+        /** The user's own tags in a `tags` string, without source tokens or blanks. */
+        fun userTags(tags: String?): List<String> =
+            tags
+                ?.split(',')
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() && !isSourceTag(it) }
+                .orEmpty()
+
+        /**
+         * Rebuilds a `tags` string after the user edited their tags, keeping [original]'s
+         * source token: the user never sees it, so an edit must not be able to drop it.
+         */
+        fun withUserTags(
+            original: String?,
+            userTags: Collection<String>,
+        ): String? {
+            val sourceTokens = original?.split(',')?.map { it.trim() }?.filter { isSourceTag(it) }.orEmpty()
+            return (sourceTokens + userTags).joinToString(",").ifEmpty { null }
+        }
     }
 }
