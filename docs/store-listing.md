@@ -93,14 +93,13 @@ Requirements (checked 2026-11-01):
   - 6.9" — iPhone 17 Pro Max simulator, **1320 × 2868**
   - 6.3" (Dynamic Island, medium) — iPhone 17 Pro simulator, **1206 × 2622**
   - The old 6.7" + 5.5" pair is no longer required; smaller sizes are scaled by Apple.
-  - The app also targets iPad (`TARGETED_DEVICE_FAMILY = "1,2"`), which makes a 13" iPad
-    set (2064 × 2752) required too — not captured yet.
+  - iPhone only (`TARGETED_DEVICE_FAMILY = 1`), so no iPad set is needed.
 - **Google Play** ([preview assets](https://support.google.com/googleplay/android-developer/answer/9866151)):
   at least 2 phone screenshots, JPEG or 24-bit PNG (no alpha), 320–3840 px per side, long
   side at most twice the short side. For promotion, at least 4 at 1080 px+, 9:16 portrait.
   A Pixel 6 (1080 × 2400, 20:9) is too tall for the 2:1 limit — capture on a **1080 × 1920**
-  emulator profile (e.g. Pixel 2). Android capture is not scripted yet: no emulator system
-  image is installed on the Mac.
+  emulator profile: AVD `store_pixel2_api35` (Pixel 2, API 35), captured with
+  `scripts/store-screenshots.sh android` and status-bar demo mode.
 
 Output (fastlane layout):
 - iOS: `fastlane/screenshots/en-US/<device>-NN_name.png`

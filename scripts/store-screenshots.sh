@@ -2,6 +2,7 @@
 # Regenerates the store screenshots and the Play feature graphic.
 #
 #   scripts/store-screenshots.sh ios              # App Store screenshots (6.9" + 6.3")
+#   scripts/store-screenshots.sh android          # Play phone screenshots (1080 x 1920)
 #   scripts/store-screenshots.sh feature-graphic  # Play feature graphic
 #
 # iOS: builds the app for the simulator, then for each required display size creates a FRESH
@@ -11,6 +12,14 @@
 # Restore backup) and copies the shots to fastlane/screenshots/en-US/. The simulator is
 # deleted afterwards. Set APP=/path/to/Ostomate.app to skip the build, IOS_RUNTIME to pick
 # another simulator runtime.
+#
+# Android: needs the store emulator (AVD store_pixel2_api35, 1080 x 1920, so the shots meet
+# Play's "no more than twice as long" rule) already booted; set ANDROID_SERIAL if it is not
+# emulator-5554. It refuses anything that is not an emulator, because the flow runs
+# clearState and would wipe a real phone. It installs the debug APK (APK=... to skip the
+# build), turns on System UI demo mode for a clean status bar, pushes the demo backup to
+# Download/ and runs .maestro/store/android_store_screenshots.yaml, writing the shots to
+# fastlane/metadata/android/en-US/images/phoneScreenshots/.
 #
 # Requires: Xcode, Maestro 2.11.0 (~/.maestro/bin), python3.
 set -euo pipefail
@@ -116,6 +125,53 @@ run_ios() {
   done
 }
 
+android_demo_mode() { # on|off
+  local a=(adb -s "$ANDROID_SERIAL" shell am broadcast -a com.android.systemui.demo)
+  if [ "$1" = off ]; then "${a[@]}" -e command exit >/dev/null; return; fi
+  adb -s "$ANDROID_SERIAL" shell settings put global sysui_demo_allowed 1
+  "${a[@]}" -e command enter >/dev/null
+  "${a[@]}" -e command clock -e hhmm 0941 >/dev/null
+  "${a[@]}" -e command battery -e level 100 -e plugged false >/dev/null
+  "${a[@]}" -e command network -e wifi show -e level 4 -e fully true >/dev/null
+  "${a[@]}" -e command network -e mobile hide >/dev/null
+  "${a[@]}" -e command notifications -e visible false >/dev/null
+}
+
+run_android() {
+  ANDROID_SERIAL="${ANDROID_SERIAL:-emulator-5554}"
+  if [ "$(adb -s "$ANDROID_SERIAL" shell getprop ro.kernel.qemu 2>/dev/null | tr -d '\r')" != "1" ]; then
+    echo "ERROR: $ANDROID_SERIAL is not a running emulator; refusing (the flow wipes app data)" >&2
+    exit 1
+  fi
+  if [ -z "${APK:-}" ]; then
+    echo "== building the debug APK"
+    (cd "$ROOT" && ./gradlew -q :androidApp:assembleDebug)
+    APK="$ROOT/androidApp/build/outputs/apk/debug/androidApp-debug.apk"
+  fi
+  adb -s "$ANDROID_SERIAL" install -r "$APK" >/dev/null
+
+  local out="$ROOT/fastlane/metadata/android/en-US/images/phoneScreenshots"
+  local backup="$WORK/ostomate_demo_backup.json"
+  python3 "$ROOT/scripts/store_demo_backup.py" "$backup"
+  adb -s "$ANDROID_SERIAL" push "$backup" /sdcard/Download/ >/dev/null
+  adb -s "$ANDROID_SERIAL" shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE \
+    -d file:///sdcard/Download/ostomate_demo_backup.json >/dev/null
+  mkdir -p "$out"
+  rm -f "$out"/*.png
+
+  android_demo_mode on
+  local shots="$WORK/maestro-android" f
+  "$MAESTRO" --device "$ANDROID_SERIAL" test --test-output-dir "$shots" \
+    "$ROOT/.maestro/store/android_store_screenshots.yaml"
+  android_demo_mode off
+  adb -s "$ANDROID_SERIAL" shell rm -f /sdcard/Download/ostomate_demo_backup.json
+  while IFS= read -r f; do
+    cp "$f" "$out/$(basename "$f")"
+    check_size "$out/$(basename "$f")" "1080x1920"
+  done < <(find "$shots" -path '*/takeScreenshot/*.png' | sort)
+  [ -n "$(ls "$out"/*.png 2>/dev/null)" ] || { echo "ERROR: no Android screenshots" >&2; exit 1; }
+}
+
 run_feature_graphic() {
   local out="$ROOT/fastlane/metadata/android/en-US/images/featureGraphic.png"
   swift "$ROOT/scripts/feature_graphic.swift" "$out"
@@ -124,9 +180,10 @@ run_feature_graphic() {
 
 case "${1:-}" in
   ios) run_ios ;;
+  android) run_android ;;
   feature-graphic) run_feature_graphic ;;
   *)
-    echo "usage: $0 ios|feature-graphic" >&2
+    echo "usage: $0 ios|android|feature-graphic" >&2
     exit 2
     ;;
 esac

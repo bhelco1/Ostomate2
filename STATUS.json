@@ -1,7 +1,7 @@
 {
   "name": "Ostomate 2",
   "tagline": "Cross-platform (Android + iOS) ostomy supply tracker — Kotlin Multiplatform rewrite of Ostomate v1",
-  "updated": "2026-11-01",
+  "updated": "2026-11-09",
   "state": "waiting",
   "planDoc": "planning/05-dev-plan.md",
   "phases": [
@@ -41,16 +41,14 @@
       "status": "todo"
     }
   ],
-  "now": "Phases 0–2.5 done, main green. Phase 3 under way: CI now builds a signed Android release with its own version number; store screenshots and privacy fixes in progress. Nov 2026: a month-long check that no scans are lost (Pixel, iPhone and paper, compared weekly).",
+  "now": "Phases 0–2.5 done, main green. Phase 3 under way: signed Android release builds in CI, privacy fixes in, store text and screenshots ready for both stores (iPhone-only). Nov 2026: a month-long check that no scans are lost; week 1 matched.",
   "next": [
-    "3.4 Store listings: Android screenshots (needs an emulator image); iPhone shots + feature graphic in PR #55",
-    "Privacy fix: strip the install ID from crash reports, align the privacy policy",
+    "Upload the first signed Android build to a Play closed test (12 testers × 14 days)",
+    "Week-2 trial comparison + iPhone reinstall before the profile expires Sat 11-14",
     "3.2 iOS release signing + TestFlight lane, after the Apple team exists"
   ],
   "waitingOnBobby": [
-    "Register com.ostomate.app in Play Console (developer verification)",
-    "Finish Apple Developer enrollment (Xcode still shows only the free team)",
-    "Decide the Drive backup and health category answers in docs/data-safety.md",
-    "Decide: iPad support (needs 13\" screenshots) or iPhone-only"
+    "Recruit 12 testers for the Play closed test",
+    "Finish Apple Developer enrollment (Xcode still shows only the free team)"
   ]
 }
