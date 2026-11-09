@@ -1,1 +1,1 @@
-Track ostomy supply changes, predict reorders, and manage inventory — private and local.
+Log ostomy bag and flange changes and know when to reorder your supplies.

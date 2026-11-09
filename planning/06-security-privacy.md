@@ -14,9 +14,28 @@
   without explicit user action — turning on the daily Drive backup is that action, once.
 - **Crash reporting: Sentry, opt-in, OFF by default.** `sentry-android` on Android and
   sentry-cocoa on iOS (started from `iOSApp.swift`, gated on `SentryBridgeKt.sentryEnabled()`),
-  both behind the `crashReportingEnabled` setting. Stack traces only — no health data, no
-  supply counts, no PII. (Earlier drafts said *Firebase Crashlytics*; that is not what ships
-  and never was — corrected 2026-07-13.)
+  both behind the `crashReportingEnabled` setting. (Earlier drafts said *Firebase
+  Crashlytics*; that is not what ships and never was — corrected 2026-07-13.)
+  - **What a report contains:** the stack trace, app version/build, and the device context
+    the SDKs attach — maker/model, OS version, and technical state (memory, storage, battery,
+    screen, locale, time zone, boot time). No health data, no supply counts, no notes.
+    Sent on crashes and ANRs / app hangs; no sessions, traces or breadcrumbs.
+  - **No identifier (fixed 2026-11-01):** both SDKs add one by default. sentry-android 7.19.0
+    sets `user.id` and `contexts.device.id` to a random install ID and `user.ip_address` to
+    `{{auto}}` (asking Sentry to store the sender's IP); sentry-cocoa sets `user.id` to its
+    install ID and `contexts.app.device_app_hash` to a hash of `identifierForVendor`. Until
+    2026-11-01 all of these were sent. The `beforeSend` scrubbers now drop the user and those
+    two ID fields (`CrashReporter.android.kt` `scrubCrashEvent`, tested in
+    `CrashReporterScrubTest`; `iOSApp.swift`). Both SDKs run `beforeSend` after their own
+    event processors, so nothing re-adds them.
+  - **IP address:** Sentry necessarily sees the connecting IP in transit, and fills it in for
+    Apple events by default. The Sentry project must have "Prevent Storing of IP Addresses"
+    on (`docs/data-safety.md` action 1); the policy says "configured not to store it" and
+    is only true while that setting is on.
+- **Feedback email: user-sent, not an app network path.** Settings → Send Feedback opens the
+  user's own mail app addressed to ostomate26@gmail.com, pre-filled with app version, device
+  model and OS version (Android adds maker, ABI, and the last crash stack trace that
+  `LastCrashStore` kept on the device). Nothing goes unless the user presses send.
 
 ## Daily Google Drive backup (FEAT-03, Android only, opt-in, hidden)
 
@@ -92,7 +111,7 @@ old CSV `CsvExporter` was deleted):
 | Data exfiltration | No network except opt-in crash reporting and the opt-in Drive backup (both off by default); share sheet is user-initiated |
 | Drive backup reaches the wrong place / too much | `drive.file` scope only; uploads go to the user's own Drive over HTTPS; no developer endpoint exists |
 | Backups pile up or a run deletes user files | Retention keeps the newest 14 of the app's own, backup-named, datable files; drive.file cannot see anything else |
-| Supply data in crash reports | Sentry captures stack traces only; no custom logging of health data |
+| Supply data or identifiers in crash reports | No custom logging of health data; `beforeSend` strips the install ID / device hash and the user (with its `{{auto}}` IP) on both platforms; Sentry's IP storage must be off |
 | Screenshot of sensitive screen | Not mitigated (no `FLAG_SECURE`); the screens show supply counts, not identity |
 | Lost/replaced device | User's JSON backup (Settings → Backup), or the opt-in daily Drive backup on Android; Android Auto Backup is off; iOS: no iCloud backup |
 

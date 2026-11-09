@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -89,6 +88,7 @@ import com.ostomate.app.resources.cd_next_month
 import com.ostomate.app.resources.cd_previous_month
 import com.ostomate.app.resources.cd_view_day
 import com.ostomate.app.ui.components.Pill
+import com.ostomate.app.ui.components.TopBarlessScreenInsets
 import com.ostomate.app.ui.history.EditEventDialog
 import com.ostomate.app.ui.theme.supplyColor
 import kotlinx.datetime.LocalDate
@@ -164,7 +164,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        contentWindowInsets = WindowInsets(0),
+        contentWindowInsets = TopBarlessScreenInsets,
     ) { innerPadding ->
         Column(
             modifier =
