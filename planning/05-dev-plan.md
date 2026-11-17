@@ -381,6 +381,26 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
 - [ ] Release builds: another Android OAuth client with the upload/Play signing SHA-1s
   (after the Phase 3 keystore exists).
 
+### FEAT-04 — NFC sticker logging ⬜
+Requested by Bobby 2026-11-16, outside the phase plan. The phone camera always shows a
+"tap to open" chip for a QR code, and no app can skip it. An NFC sticker on the supply box
+can hold the same `ostomate://log?item=bag|flange` link, so touching the phone to it logs
+the change with no extra tap. The link goes through the existing deep-link path (confirm,
+10 s Undo, scan audit) unchanged. Reading a sticker happens on the phone only, with no
+network.
+- [ ] Bobby buys NTAG213/215 stickers (one-off, about $10 for 10; on-metal tags only for
+  metal surfaces) and writes the bag link with the free NFC Tools app (Write → URL/URI).
+- [ ] Android: tap the sticker with the Pixel, unlocked. If Ostomate opens and logs with no
+  chooser or chip, nothing to build. Otherwise add an `NDEF_DISCOVERED` intent filter for
+  the `ostomate` scheme to `MainActivity` and re-test.
+- [ ] iOS: a plain sticker shows a banner, so set up a Shortcuts personal automation
+  (NFC → the sticker → Open URL `ostomate://log?item=bag` → Run Immediately) on the iPhone.
+  No app change.
+- [ ] Decide whether NFC taps get their own event source (e.g. `&src=nfc` on the link) or
+  stay recorded as `qr` like any other deep link.
+- [ ] Verified on both phones: bag and flange stickers each log exactly one event.
+- [ ] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
+
 ---
 
 ## Phase 3 — Release Preparation
