@@ -89,22 +89,25 @@ done
 # our link and require that it resolves to MainActivity. The app reads the link from
 # intent.data whatever the action, so flow 01 already covers what happens next.
 NFC_TEST="Journey 11: NFC sticker opens Ostomate"
+nfc_started=$(date -u +%Y-%m-%dT%H:%M:%S)
+nfc_start=$(date +%s)
 nfc_out=$(adb shell am start -W -a android.nfc.action.NDEF_DISCOVERED \
   -d "ostomate://log?item=flange" 2>&1)
 echo "$nfc_out"
+nfc_time=$(( $(date +%s) - nfc_start ))
 if echo "$nfc_out" | grep -q "com.ostomate.app/.MainActivity"; then
   passed+=("$NFC_TEST")
-  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\"/>"
+  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\"/>"
   nfc_failures=0
 else
   failed+=("$NFC_TEST")
   fail=1
-  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\"><failure message=\"NDEF_DISCOVERED did not resolve to MainActivity\"/></testcase>"
+  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\"><failure message=\"NDEF_DISCOVERED did not resolve to MainActivity\"/></testcase>"
   nfc_failures=1
 fi
 cat > "$RESULTS/11_nfc_intent_filter.xml" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites><testsuite name="$NFC_TEST" tests="1" failures="$nfc_failures">$nfc_case</testsuite></testsuites>
+<testsuites><testsuite name="$NFC_TEST" tests="1" failures="$nfc_failures" time="$nfc_time" timestamp="$nfc_started">$nfc_case</testsuite></testsuites>
 EOF
 
 bash "$(dirname "$0")/sanitize_artifact_names.sh" "$DIAG"

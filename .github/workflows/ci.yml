@@ -475,9 +475,11 @@ jobs:
   ios-e2e:
     name: iOS E2E (Maestro)
     runs-on: macos-latest
-    # A normal run takes ~20-25 min. Run 36661054658 hung in the Maestro step for over an
-    # hour; the 6-hour default would bill that at the macOS 10x rate.
-    timeout-minutes: 45
+    # A normal run takes ~30-35 min (the app build alone is ~12). Run 36661054658 hung in the
+    # Maestro step for over an hour; the 6-hour default would bill that at the macOS 10x rate.
+    # 45 was too tight: run 44003220627 finished every flow and was then cancelled at 45 min
+    # while setup-gradle saved its cache, so a plain failure read as "cancelled".
+    timeout-minutes: 60
     # Post-merge / manual dispatch only, same as android-e2e (and excluded from the
     # weekly schedule for the same reason): macOS runners are slow and bill at 10x on
     # private repos — free here, but the wall-clock cost is real.
@@ -526,6 +528,27 @@ jobs:
         run: |
           xcrun simctl install "$SIM_UDID" \
             "$RUNNER_TEMP/dd/Build/Products/Debug-iphonesimulator/Ostomate.app"
+      - name: Warm up the simulator and the Maestro driver
+        # Not a test: nothing here is reported. A freshly booted simulator keeps settling after
+        # bootstatus returns, and in run 44003220627 the driver's first request hit an
+        # accessibility IPC timeout (kAXErrorIPCTimeout, 98 s); the driver exited, never came
+        # back, and the first flow failed with DeviceUnreachableException in setPermissions.
+        # Starting the driver and reading the screen here absorbs that, so a sick simulator
+        # fails this setup step instead of a flow. Retries restart the driver (each `maestro`
+        # call reinstalls it), never a flow, and every attempt is logged.
+        timeout-minutes: 15
+        run: |
+          for attempt in 1 2 3; do
+            start=$(date +%s)
+            if maestro --device "$SIM_UDID" hierarchy --compact > /tmp/warmup.csv 2> /tmp/warmup.err; then
+              echo "Warm-up attempt $attempt: driver answered in $(( $(date +%s) - start )) s"
+              exit 0
+            fi
+            echo "::warning::Warm-up attempt $attempt failed after $(( $(date +%s) - start )) s; restarting the driver"
+            tail -20 /tmp/warmup.err
+          done
+          echo "::error::Simulator or Maestro driver never answered; no flow was run"
+          exit 1
       - name: Run Maestro E2E flows (iOS)
         # Covers the clusters where real device bugs appeared: onboarding, log a change,
         # deep link, backup/share. `.maestro/ios/` holds the iOS variants — the Android
