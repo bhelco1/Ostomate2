@@ -76,16 +76,20 @@ name: "Journey 3: Edit/delete event from calendar day sheet"
 # uses the default positional threshold of 50% of the ROW's width, so the element swipe
 # cannot dismiss the row at any duration. It runs, reports COMPLETED, and changes nothing.
 #
-# Measured from the captured UI hierarchy: screen 1080x2148, row x=44..1036 (992 px wide),
-# y=578..781 → centre y ≈ 32%. Swiping 90% → 5% carries ~918 px, well past the ~496 px
-# threshold.
+# Measured from the captured UI hierarchy: screen 1080x2148 (2280 in the screenshot, with
+# the nav bar), row x=44..1036 (992 px wide), y=512..644, so 26% lands on it against either
+# height. Swiping 90% → 5% carries ~918 px, well past the ~496 px threshold.
+# The y is fixed, so a layout change that moves or shrinks the row breaks this: hiding the
+# source tags (PR #58) shrank the row from y=578..781, and the old 32% swiped empty space
+# with every step COMPLETED until "Event deleted" never appeared. Re-measure after any
+# History layout change.
 - extendedWaitUntil:
     visible:
       id: "eventRow"
     timeout: 3000
 - swipe:
-    start: "90%, 32%"
-    end: "5%, 32%"
+    start: "90%, 26%"
+    end: "5%, 26%"
     duration: 600
 
 # Undo delete
