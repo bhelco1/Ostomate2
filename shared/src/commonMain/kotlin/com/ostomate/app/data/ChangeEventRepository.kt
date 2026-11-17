@@ -22,7 +22,12 @@ private const val CONFIRM_REPEAT_WINDOW_MS = 10 * 60 * 1000L
 sealed interface DeepLinkOutcome {
     data class Logged(val supplyName: String) : DeepLinkOutcome
 
-    data class NeedsConfirmation(val supplyId: Long, val supplyName: String, val minutesAgo: Int) : DeepLinkOutcome
+    data class NeedsConfirmation(
+        val supplyId: Long,
+        val supplyName: String,
+        val minutesAgo: Int,
+        val source: ChangeSource = ChangeSource.QR,
+    ) : DeepLinkOutcome
 
     data object Suppressed : DeepLinkOutcome // phantom / within 3s debounce
 
@@ -130,17 +135,22 @@ class ChangeEventRepository(
      * (Android MainActivity onCreate/onNewIntent, iOS onOpenURL) and are recorded — with the
      * resolved outcome — in the diagnostic log, so a BUG-09 duplicate can be traced after the
      * fact (FEAT-02). savedInstanceStateWasNull is only meaningful for Android onCreate.
+     *
+     * The event is tagged NFC when [viaNfc] (Android delivered it as an NFC tag) or the link
+     * itself says `src=nfc` (the iOS Shortcut); otherwise QR (FEAT-04).
      */
     suspend fun handleDeepLink(
         uri: String,
         entryPoint: DeepLinkEntryPoint = DeepLinkEntryPoint.ANDROID_ON_CREATE,
         savedInstanceStateWasNull: Boolean? = null,
+        viaNfc: Boolean = false,
     ): DeepLinkOutcome {
         // Before resolving: resolving opens the database, which is slow on a cold start, and a
         // scan lost in that window (2026-10-18..20 on Bobby's phone) otherwise left no trace.
         diagnosticLog.recordArrival(uri, entryPoint, savedInstanceStateWasNull)
         var loggedEventId: Long? = null
-        val outcome = resolveDeepLink(uri) { loggedEventId = it }
+        val source = if (viaNfc || DeepLinkParser.isNfc(uri)) ChangeSource.NFC else ChangeSource.QR
+        val outcome = resolveDeepLink(uri, source) { loggedEventId = it }
         val decision =
             when (outcome) {
                 is DeepLinkOutcome.Logged -> ScanDecision.LOGGED
@@ -160,6 +170,7 @@ class ChangeEventRepository(
 
     private suspend fun resolveDeepLink(
         uri: String,
+        source: ChangeSource,
         onLogged: (Long) -> Unit,
     ): DeepLinkOutcome {
         val item = DeepLinkParser.parse(uri) ?: return DeepLinkOutcome.Invalid
@@ -186,9 +197,9 @@ class ChangeEventRepository(
             } ?: return DeepLinkOutcome.Invalid
         val minutesAgo = wasLoggedWithinWindow(supply.id)
         if (minutesAgo != null) {
-            return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo)
+            return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo, source)
         }
-        val event = logChange(supply.id, ChangeSource.QR)
+        val event = logChange(supply.id, source)
         onLogged(event.id)
         return DeepLinkOutcome.Logged(supply.name)
     }

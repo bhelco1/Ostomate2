@@ -2,6 +2,7 @@ package com.ostomate.app
 
 import android.Manifest
 import android.content.Intent
+import android.nfc.NfcAdapter
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -77,11 +78,12 @@ class MainActivity : FragmentActivity() {
         savedInstanceStateWasNull: Boolean?,
     ) {
         val uri = intent?.data?.toString() ?: return
+        val viaNfc = intent.action == NfcAdapter.ACTION_NDEF_DISCOVERED
         // Consume the link so a later Activity recreation cannot replay the same scan.
         intent.data = null
         // App scope, not lifecycleScope: destroying this Activity mid-save must not cancel the save.
         (application as OstomateApp).appScope.launch {
-            val outcome = repository.handleDeepLink(uri, entryPoint, savedInstanceStateWasNull)
+            val outcome = repository.handleDeepLink(uri, entryPoint, savedInstanceStateWasNull, viaNfc)
             DeepLinkBus.post(outcome)
         }
     }

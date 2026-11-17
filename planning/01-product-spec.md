@@ -47,7 +47,8 @@ Must be simple enough to use one-handed in a clinical or bathroom setting.
 - Works on cold start and foreground (`onNewIntent` / SwiftUI `onOpenURL`)
 - Unknown QR codes: toast, no action
 - NFC stickers (FEAT-04): a sticker holding the same link logs the same way. Android opens
-  Ostomate with no tap; iPhone needs a one-time Shortcuts automation per sticker
+  Ostomate with no tap; iPhone needs a one-time Shortcuts automation per sticker that opens
+  the link with `&src=nfc`. These events are recorded with their own source (`source:nfc`)
 
 ### 3.3 Calendar View ✅ Implemented
 - Monthly grid; each day shows bag/flange pill counts

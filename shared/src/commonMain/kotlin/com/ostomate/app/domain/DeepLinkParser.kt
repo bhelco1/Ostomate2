@@ -14,24 +14,27 @@ object DeepLinkParser {
     private val idItemRegex = Regex("""^id:\d+$""")
 
     fun parse(uri: String): String? {
-        val normalized = uri.trim().lowercase()
-        if (!normalized.startsWith(SCHEME_PREFIX)) return null
+        val item = queryParams(uri).firstOrNull { it.first == "item" }?.second ?: return null
+        return item.takeIf { it in namedSupplies || idItemRegex.matches(it) }
+    }
 
+    /**
+     * True when the link marks itself as an NFC sticker tap (`&src=nfc`, FEAT-04). iOS
+     * Shortcuts opens the link with no other sign of NFC, so the sticker's link says so.
+     */
+    fun isNfc(uri: String): Boolean = queryParams(uri).any { it.first == "src" && it.second == "nfc" }
+
+    /** The link's query parameters, or none unless it is exactly `ostomate://log`. */
+    private fun queryParams(uri: String): List<Pair<String, String>> {
+        val normalized = uri.trim().lowercase()
         val afterScheme = normalized.removePrefix(SCHEME_PREFIX)
         val host = afterScheme.substringBefore('?').trimEnd('/')
-        if (host != HOST) return null
-
-        val query = afterScheme.substringAfter('?', missingDelimiterValue = "")
-        if (query.isEmpty()) return null
-
-        val item =
-            query.split('&')
-                .map { it.split('=', limit = 2) }
-                .firstOrNull { it.size == 2 && it[0] == "item" }
-                ?.get(1)
-                ?: return null
-
-        return item.takeIf { it in namedSupplies || idItemRegex.matches(it) }
+        val query = if (afterScheme != normalized && host == HOST) afterScheme.substringAfter('?', "") else ""
+        return query
+            .split('&')
+            .map { it.split('=', limit = 2) }
+            .filter { it.size == 2 }
+            .map { it[0] to it[1] }
     }
 
     /** Extracts the numeric supply ID from an `id:<number>` item token, or null. */

@@ -12,6 +12,7 @@ class ChangeSourceTest {
         assertEquals("source:qr", ChangeSource.QR.tag)
         assertEquals("source:manual", ChangeSource.MANUAL.tag)
         assertEquals("source:widget", ChangeSource.WIDGET.tag)
+        assertEquals("source:nfc", ChangeSource.NFC.tag)
     }
 
     @Test
