@@ -2,7 +2,9 @@ package com.ostomate.app.domain
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class DeepLinkParserTest {
     @Test
@@ -93,5 +95,31 @@ class DeepLinkParserTest {
     @Test
     fun parseCustomIdRejectsNonNumericIds() {
         assertNull(DeepLinkParser.parseCustomId("id:abc"))
+    }
+
+    @Test
+    fun nfcMarkerDoesNotChangeTheItem() {
+        assertEquals("bag", DeepLinkParser.parse("ostomate://log?item=bag&src=nfc"))
+        assertEquals("flange", DeepLinkParser.parse("ostomate://log?src=nfc&item=flange"))
+    }
+
+    @Test
+    fun detectsNfcMarker() {
+        assertTrue(DeepLinkParser.isNfc("ostomate://log?item=bag&src=nfc"))
+        assertTrue(DeepLinkParser.isNfc("OSTOMATE://LOG?SRC=NFC&ITEM=BAG"))
+    }
+
+    @Test
+    fun linkWithoutNfcMarkerIsNotNfc() {
+        assertFalse(DeepLinkParser.isNfc("ostomate://log?item=bag"))
+        assertFalse(DeepLinkParser.isNfc("ostomate://log?item=bag&src=qr"))
+        assertFalse(DeepLinkParser.isNfc("ostomate://log?item=bag&nfc=src"))
+        assertFalse(DeepLinkParser.isNfc("ostomate://log"))
+    }
+
+    @Test
+    fun nfcMarkerOnAForeignLinkIsNotNfc() {
+        assertFalse(DeepLinkParser.isNfc("ostomate://evil?item=bag&src=nfc"))
+        assertFalse(DeepLinkParser.isNfc("https://log?item=bag&src=nfc"))
     }
 }

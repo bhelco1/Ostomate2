@@ -395,10 +395,12 @@ network.
   opened Ostomate and logged one flange; Journey 11 in the Android E2E job checks the filter.
 - [ ] Android on the Pixel: tap a real sticker, unlocked; Ostomate opens and logs, no chip.
 - [ ] iOS: a plain sticker shows a banner, so set up a Shortcuts personal automation
-  (NFC → the sticker → Open URL `ostomate://log?item=bag` → Run Immediately) on the iPhone.
-  No app change.
-- [ ] Decide whether NFC taps get their own event source (e.g. `&src=nfc` on the link) or
-  stay recorded as `qr` like any other deep link.
+  (NFC → the sticker → Open URL `ostomate://log?item=bag&src=nfc` → Run Immediately) on the
+  iPhone. `&src=nfc` is what marks it as NFC there; iOS gives the app no other sign.
+- [x] Own event source (Bobby, 2026-11-16): NFC taps are tagged `source:nfc`, not `source:qr`.
+  Android knows from the NFC intent, so stickers keep the plain link; on iOS the Shortcut's
+  link carries `&src=nfc`. A confirmed "Add another?" repeat keeps the NFC source. The web
+  dashboard ignores tags, so its backup contract is unchanged.
 - [ ] Verified on both phones: bag and flange stickers each log exactly one event.
 - [ ] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
 

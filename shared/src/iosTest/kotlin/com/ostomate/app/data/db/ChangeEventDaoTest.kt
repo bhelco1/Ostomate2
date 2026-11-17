@@ -42,6 +42,18 @@ class ChangeEventDaoTest {
         runTest { ChangeEventDaoScenarios.deepLinkLogTagsEventWithQrSource(db) }
 
     @Test
+    fun androidNfcTagTagsEventWithNfcSource() =
+        runTest { ChangeEventDaoScenarios.androidNfcTagTagsEventWithNfcSource(db) }
+
+    @Test
+    fun nfcMarkedLinkTagsEventWithNfcSource() =
+        runTest { ChangeEventDaoScenarios.nfcMarkedLinkTagsEventWithNfcSource(db) }
+
+    @Test
+    fun nfcRepeatConfirmationCarriesNfcSource() =
+        runTest { ChangeEventDaoScenarios.nfcRepeatConfirmationCarriesNfcSource(db) }
+
+    @Test
     fun manualLogTagsEventWithManualSource() =
         runTest { ChangeEventDaoScenarios.manualLogTagsEventWithManualSource(db) }
 

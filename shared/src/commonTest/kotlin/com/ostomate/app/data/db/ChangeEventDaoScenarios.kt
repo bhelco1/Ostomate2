@@ -99,6 +99,36 @@ object ChangeEventDaoScenarios {
         assertEquals(ChangeSource.QR, ChangeSource.fromTags(stored.tags))
     }
 
+    suspend fun androidNfcTagTagsEventWithNfcSource(db: OstomateDatabase) {
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        repository.handleDeepLink("ostomate://log?item=bag", viaNfc = true)
+        val stored = db.changeEventDao().getAllRaw().single()
+        assertEquals(ChangeSource.NFC, ChangeSource.fromTags(stored.tags))
+    }
+
+    suspend fun nfcMarkedLinkTagsEventWithNfcSource(db: OstomateDatabase) {
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
+        assertEquals(DeepLinkOutcome.Logged("Bag"), repository.handleDeepLink("ostomate://log?item=bag&src=nfc"))
+        val stored = db.changeEventDao().getAllRaw().single()
+        assertEquals(ChangeSource.NFC, ChangeSource.fromTags(stored.tags))
+    }
+
+    /** Confirming an NFC repeat must log it as NFC too, not fall back to QR. */
+    suspend fun nfcRepeatConfirmationCarriesNfcSource(db: OstomateDatabase) {
+        var nowMillis = 1_000_000L
+        val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao()) { nowMillis }
+        repository.handleDeepLink("ostomate://log?item=bag", viaNfc = true)
+        nowMillis += 4 * 60 * 1000L
+        val nfc =
+            assertIs<DeepLinkOutcome.NeedsConfirmation>(
+                repository.handleDeepLink("ostomate://log?item=bag", viaNfc = true),
+            )
+        assertEquals(ChangeSource.NFC, nfc.source)
+        nowMillis += 4 * 60 * 1000L
+        val qr = assertIs<DeepLinkOutcome.NeedsConfirmation>(repository.handleDeepLink("ostomate://log?item=bag"))
+        assertEquals(ChangeSource.QR, qr.source)
+    }
+
     suspend fun manualLogTagsEventWithManualSource(db: OstomateDatabase) {
         val repository = ChangeEventRepository(db.changeEventDao(), db.supplyTypeDao())
         val bag = assertNotNull(db.supplyTypeDao().getByKind(SupplyKind.BAG))

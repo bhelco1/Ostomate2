@@ -10,6 +10,7 @@ enum class ChangeSource {
     QR,
     MANUAL,
     WIDGET,
+    NFC,
     ;
 
     /** The token written into a change event's `tags` column, e.g. "source:qr". */
