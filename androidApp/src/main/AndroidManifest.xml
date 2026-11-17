@@ -40,6 +40,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="ostomate" android:host="log" />
             </intent-filter>
+            <!-- FEAT-04: an NFC sticker holding the same link. Without this, Android has no app
+                 for the tag and shows its own "new tag" screen instead of opening Ostomate. -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="ostomate" android:host="log" />
+            </intent-filter>
         </activity>
         <receiver
             android:name=".OstomateWidgetReceiver"

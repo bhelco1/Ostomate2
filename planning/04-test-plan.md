@@ -80,7 +80,7 @@ Both E2E jobs trigger on `main` merges and `workflow_dispatch` only — never on
 
 | Flow | In CI? | What it tests |
 |---|---|---|
-| `01_cold_start_qr_log.yaml` | ❌ not wired | Deep link log on cold start |
+| `01_cold_start_qr_log.yaml` | ✅ | Deep link log on cold start |
 | `02_log_and_undo.yaml` | ✅ | Log a change, verify count, undo |
 | `03_edit_delete_event.yaml` | ✅ | Edit history entry, delete it |
 | `04_set_inventory.yaml` | ✅ | Set inventory counts in Settings |
@@ -88,6 +88,7 @@ Both E2E jobs trigger on `main` merges and `workflow_dispatch` only — never on
 | `08_biometric_gate.yaml` | ✅ | Lock on, nothing enrolled: both locked edits (set-count, +box) go through |
 | `09_store_screenshots.yaml` | ✅ | Capture Play Store screenshots |
 | `10_biometric_gate_pin.yaml` | ✅ | Lock on, PIN set by the runner: prompt shows, Back blocks, PIN unlocks for the visit, leaving re-locks |
+| Journey 11 (in `scripts/run_android_e2e.sh`, not a flow file) | ✅ | FEAT-04: an `NDEF_DISCOVERED` intent for `ostomate://log?item=flange` resolves to `MainActivity`. The emulator has no NFC chip; the sticker itself is checked by hand on the phones |
 
 ### iOS (`ios-e2e` job — macOS runner, freshly created iPhone simulator)
 
