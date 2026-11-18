@@ -90,19 +90,22 @@ done
 # intent.data whatever the action, so flow 01 already covers what happens next.
 NFC_TEST="Journey 11: NFC sticker opens Ostomate"
 nfc_started=$(date -u +%Y-%m-%dT%H:%M:%S)
-nfc_start=$(date +%s)
+# Milliseconds, like Maestro's own files; perl because macOS date has no %N.
+now_ms() { perl -MTime::HiRes=time -e 'printf "%d\n", time * 1000'; }
+nfc_start=$(now_ms)
 nfc_out=$(adb shell am start -W -a android.nfc.action.NDEF_DISCOVERED \
   -d "ostomate://log?item=flange" 2>&1)
 echo "$nfc_out"
-nfc_time=$(( $(date +%s) - nfc_start ))
+nfc_ms=$(( $(now_ms) - nfc_start ))
+nfc_time=$(printf '%d.%03d' $((nfc_ms / 1000)) $((nfc_ms % 1000)))
 if echo "$nfc_out" | grep -q "com.ostomate.app/.MainActivity"; then
   passed+=("$NFC_TEST")
-  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\"/>"
+  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\" timestamp=\"$nfc_started\"/>"
   nfc_failures=0
 else
   failed+=("$NFC_TEST")
   fail=1
-  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\"><failure message=\"NDEF_DISCOVERED did not resolve to MainActivity\"/></testcase>"
+  nfc_case="<testcase classname=\"$NFC_TEST\" name=\"$NFC_TEST\" time=\"$nfc_time\" timestamp=\"$nfc_started\"><failure message=\"NDEF_DISCOVERED did not resolve to MainActivity\"/></testcase>"
   nfc_failures=1
 fi
 cat > "$RESULTS/11_nfc_intent_filter.xml" <<EOF
