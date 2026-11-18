@@ -1,7 +1,7 @@
 {
   "name": "Ostomate 2",
   "tagline": "Cross-platform (Android + iOS) ostomy supply tracker — Kotlin Multiplatform rewrite of Ostomate v1",
-  "updated": "2026-11-16",
+  "updated": "2026-11-18",
   "state": "waiting",
   "planDoc": "planning/05-dev-plan.md",
   "phases": [
@@ -44,9 +44,9 @@
   "now": "Phases 0–2.5 done, main green. Phase 3 under way: signed Android release builds in CI, privacy fixes in, store text and screenshots ready for both stores (iPhone-only). Nov 2026: a month-long check that no scans are lost; week 1 matched.",
   "next": [
     "Upload the first signed Android build to a Play closed test (12 testers × 14 days)",
-    "Week-2 trial comparison + iPhone reinstall before the profile expires Sat 11-14",
+    "Week-2 trial comparison + iPhone reinstall before the profile expires Fri 11-21 evening",
     "3.2 iOS release signing + TestFlight lane, after the Apple team exists",
-    "FEAT-04 NFC: app side merged; test a real sticker on the Pixel + set up the iPhone Shortcut (stickers due 11-18)"
+    "FEAT-04 NFC: stickers work on both phones; check the iPhone logs one event per tap"
   ],
   "waitingOnBobby": [
     "Recruit 12 testers for the Play closed test",
