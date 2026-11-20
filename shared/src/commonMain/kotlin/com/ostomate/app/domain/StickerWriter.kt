@@ -97,6 +97,11 @@ object StickerWriter {
         } catch (_: StickerIoException) {
             return StickerWriteOutcome.LOST_CONTACT
         }
+        // Formatting a factory-blank sticker writes the link and fails outright if it doesn't
+        // finish, and the sticker has no NDEF view to read until the phone sees it again, so a
+        // format that returned is the confirmation. Without this every new sticker would say
+        // "hold it again" on its first hold.
+        if (tag.format == StickerTagFormat.FORMATABLE) return StickerWriteOutcome.WRITTEN
         val readBack =
             try {
                 tag.readLink()

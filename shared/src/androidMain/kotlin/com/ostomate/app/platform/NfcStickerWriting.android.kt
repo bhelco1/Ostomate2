@@ -128,7 +128,7 @@ internal class AndroidStickerTag(tag: Tag) : StickerTag {
 
     /**
      * Null after formatting a blank sticker: its NDEF view only exists once Android discovers
-     * it again, so the next tap writes and confirms it.
+     * it again. [StickerWriter] doesn't read back after a format for that reason.
      */
     override fun readLink(): String? =
         io {

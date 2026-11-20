@@ -128,11 +128,20 @@ class StickerWriterTest {
                 format = StickerTagFormat.FORMATABLE,
                 isWritable = false,
                 capacityBytes = 0,
+                // As on Android: a just-formatted sticker has no NDEF view to read back.
+                readBack = { null },
             )
 
         assertEquals(StickerWriteOutcome.WRITTEN, StickerWriter.write(tag, link))
         assertNull(tag.sizeAskedFor)
         assertEquals(1, tag.writes)
+    }
+
+    @Test
+    fun aFormatableStickerThatFailsToFormatHasLostContact() {
+        val tag = FakeTag(format = StickerTagFormat.FORMATABLE, failWrite = true, readBack = { null })
+
+        assertEquals(StickerWriteOutcome.LOST_CONTACT, StickerWriter.write(tag, link))
     }
 
     @Test
