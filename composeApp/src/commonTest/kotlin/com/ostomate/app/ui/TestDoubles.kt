@@ -11,12 +11,15 @@ import com.ostomate.app.data.db.SupplyTypeDao
 import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.data.drive.DriveBackupRunResult
 import com.ostomate.app.data.drive.DriveBackupUploader
+import com.ostomate.app.domain.StickerWriteOutcome
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricResult
 import com.ostomate.app.platform.CrashReporting
 import com.ostomate.app.platform.DriveAuthorization
 import com.ostomate.app.platform.DriveBackupPlatform
+import com.ostomate.app.platform.NfcStatus
+import com.ostomate.app.platform.NfcStickerWriting
 import com.ostomate.app.platform.ReminderNotifier
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
@@ -250,5 +253,57 @@ class FakeDriveBackupUploader(
     override suspend fun uploadNow(): DriveBackupRunResult {
         calls++
         return result
+    }
+}
+
+/** Stands in for NFC reader mode: a test "holds a sticker" with [tap]. */
+class FakeNfcStickerWriting(
+    var status: NfcStatus = NfcStatus.ON,
+    var startSucceeds: Boolean = true,
+) : NfcStickerWriting {
+    var listeningFor: String? = null
+    var starts = 0
+    var stops = 0
+    var settingsOpened = 0
+
+    /** Models NFC being switched off just as writing starts (start fails, status flips). */
+    var statusAfterFailedStart: NfcStatus? = null
+
+    /** Every outcome callback ever handed to [start], oldest first, to replay late results. */
+    val callbacks = mutableListOf<(StickerWriteOutcome) -> Unit>()
+    private var onOutcome: ((StickerWriteOutcome) -> Unit)? = null
+
+    val isListening: Boolean get() = listeningFor != null
+
+    override fun status(): NfcStatus = status
+
+    override fun start(
+        link: String,
+        onOutcome: (StickerWriteOutcome) -> Unit,
+    ): Boolean {
+        starts++
+        if (!startSucceeds) {
+            statusAfterFailedStart?.let { status = it }
+            return false
+        }
+        callbacks += onOutcome
+        listeningFor = link
+        this.onOutcome = onOutcome
+        return true
+    }
+
+    override fun stop() {
+        stops++
+        listeningFor = null
+        onOutcome = null
+    }
+
+    override fun openNfcSettings() {
+        settingsOpened++
+    }
+
+    fun tap(outcome: StickerWriteOutcome) {
+        val callback = checkNotNull(onOutcome) { "not listening for a sticker" }
+        callback(outcome)
     }
 }

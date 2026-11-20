@@ -55,9 +55,9 @@ import com.ostomate.app.ui.components.ShellInsets
 import com.ostomate.app.ui.history.HistoryScreen
 import com.ostomate.app.ui.home.HomeScreen
 import com.ostomate.app.ui.onboarding.OnboardingScreen
+import com.ostomate.app.ui.settings.LabelsScreen
 import com.ostomate.app.ui.settings.ManageSuppliesScreen
 import com.ostomate.app.ui.settings.PrivacyPolicyScreen
-import com.ostomate.app.ui.settings.QrLabelsScreen
 import com.ostomate.app.ui.settings.ReorderWarningsScreen
 import com.ostomate.app.ui.settings.SettingsScreen
 import com.ostomate.app.ui.stats.StatsScreen
@@ -83,7 +83,7 @@ import org.koin.compose.koinInject
 
 @Serializable object PrivacyPolicyDestination
 
-@Serializable object QrLabelsDestination
+@Serializable object LabelsDestination
 
 @Composable
 fun App() {
@@ -166,7 +166,7 @@ private fun MainApp() {
             currentDestination?.hasRoute<ManageSuppliesDestination>() == true ||
             currentDestination?.hasRoute<ReorderWarningsDestination>() == true ||
             currentDestination?.hasRoute<PrivacyPolicyDestination>() == true ||
-            currentDestination?.hasRoute<QrLabelsDestination>() == true
+            currentDestination?.hasRoute<LabelsDestination>() == true
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -243,8 +243,8 @@ private fun MainApp() {
                     onNavigateToPrivacyPolicy = {
                         navController.navigate(PrivacyPolicyDestination)
                     },
-                    onNavigateToQrLabels = {
-                        navController.navigate(QrLabelsDestination)
+                    onNavigateToLabels = {
+                        navController.navigate(LabelsDestination)
                     },
                 )
             }
@@ -257,8 +257,8 @@ private fun MainApp() {
             composable<PrivacyPolicyDestination> {
                 PrivacyPolicyScreen(onBack = { navController.navigateUp() })
             }
-            composable<QrLabelsDestination> {
-                QrLabelsScreen(onBack = { navController.navigateUp() })
+            composable<LabelsDestination> {
+                LabelsScreen(onBack = { navController.navigateUp() })
             }
             composable<HistoryDestination> { backStackEntry ->
                 val dest: HistoryDestination = backStackEntry.toRoute()

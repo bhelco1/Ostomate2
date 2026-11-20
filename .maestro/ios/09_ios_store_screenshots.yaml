@@ -125,14 +125,16 @@ name: "iOS store screenshots — iPhone"
 - waitForAnimationToEnd
 - takeScreenshot: "07_manage_supplies"
 
-# 8 — QR labels to stick on the supply boxes
+# 8 — Labels & stickers: a QR code and an NFC sticker for each supply
 - tapOn:
     id: "nav_settings"
 - tapOn:
-    text: "Print QR Labels"
+    text: "Labels & stickers"
+# The Settings row carries the same title, so wait on a label only the new screen has.
 - extendedWaitUntil:
     visible:
-      text: "QR Labels"
+      text: "Share QR.*"
+      index: 0
     timeout: 5000
 - waitForAnimationToEnd
 - takeScreenshot: "08_qr_labels"
