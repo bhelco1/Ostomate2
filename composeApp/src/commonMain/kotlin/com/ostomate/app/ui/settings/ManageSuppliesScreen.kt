@@ -99,18 +99,6 @@ private val CUSTOM_COLORS =
         OstomateColors.Custom7,
     )
 
-private val CUSTOM_COLORS_DARK =
-    listOf(
-        OstomateColors.Custom0Dark,
-        OstomateColors.Custom1Dark,
-        OstomateColors.Custom2Dark,
-        OstomateColors.Custom3Dark,
-        OstomateColors.Custom4Dark,
-        OstomateColors.Custom5Dark,
-        OstomateColors.Custom6Dark,
-        OstomateColors.Custom7Dark,
-    )
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageSuppliesScreen(

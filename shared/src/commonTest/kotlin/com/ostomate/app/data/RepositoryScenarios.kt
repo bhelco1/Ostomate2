@@ -50,45 +50,7 @@ object RepositoryScenarios {
         val (sourceSettings, sourcePath) = newSettingsRepository()
         val (targetSettings, targetPath) = newSettingsRepository()
         try {
-            val supplyDao = source.supplyTypeDao()
-            val eventDao = source.changeEventDao()
-
-            SupplyRepository(supplyDao).addCustomSupply(
-                name = "Barrier rings",
-                boxSize = 20,
-                warnThresholdDays = 10,
-                colorIndex = 5,
-            )
-            val custom = assertNotNull(supplyDao.getAll().find { it.kind == SupplyKind.CUSTOM })
-            val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
-            val flange = assertNotNull(supplyDao.getByKind(SupplyKind.FLANGE))
-            supplyDao.archive(flange.id)
-
-            // Two events at the same millisecond, one edited and tagged.
-            eventDao.insert(
-                ChangeEventEntity(
-                    supplyTypeId = bag.id,
-                    timestampMillis = 5_000,
-                    note = "leak overnight",
-                    tags = "leak,night",
-                    createdAtMillis = 5_000,
-                    editedAtMillis = 6_000,
-                ),
-            )
-            eventDao.insert(
-                ChangeEventEntity(
-                    supplyTypeId = custom.id,
-                    timestampMillis = 5_000,
-                    createdAtMillis = 5_001,
-                ),
-            )
-            eventDao.insert(
-                ChangeEventEntity(
-                    supplyTypeId = bag.id,
-                    timestampMillis = 9_000,
-                    createdAtMillis = 9_000,
-                ),
-            )
+            seedRoundTripSource(source)
 
             val sourceStateSettings =
                 AppSettings(
@@ -122,6 +84,49 @@ object RepositoryScenarios {
             FileSystem.SYSTEM.delete(sourcePath.toPath(), mustExist = false)
             FileSystem.SYSTEM.delete(targetPath.toPath(), mustExist = false)
         }
+    }
+
+    /** An archived flange, a CUSTOM supply, and three events: two at the same millisecond, one edited and tagged. */
+    private suspend fun seedRoundTripSource(source: OstomateDatabase) {
+        val supplyDao = source.supplyTypeDao()
+        val eventDao = source.changeEventDao()
+
+        SupplyRepository(supplyDao).addCustomSupply(
+            name = "Barrier rings",
+            boxSize = 20,
+            warnThresholdDays = 10,
+            colorIndex = 5,
+        )
+        val custom = assertNotNull(supplyDao.getAll().find { it.kind == SupplyKind.CUSTOM })
+        val bag = assertNotNull(supplyDao.getByKind(SupplyKind.BAG))
+        val flange = assertNotNull(supplyDao.getByKind(SupplyKind.FLANGE))
+        supplyDao.archive(flange.id)
+
+        // Two events at the same millisecond, one edited and tagged.
+        eventDao.insert(
+            ChangeEventEntity(
+                supplyTypeId = bag.id,
+                timestampMillis = 5_000,
+                note = "leak overnight",
+                tags = "leak,night",
+                createdAtMillis = 5_000,
+                editedAtMillis = 6_000,
+            ),
+        )
+        eventDao.insert(
+            ChangeEventEntity(
+                supplyTypeId = custom.id,
+                timestampMillis = 5_000,
+                createdAtMillis = 5_001,
+            ),
+        )
+        eventDao.insert(
+            ChangeEventEntity(
+                supplyTypeId = bag.id,
+                timestampMillis = 9_000,
+                createdAtMillis = 9_000,
+            ),
+        )
     }
 
     /**

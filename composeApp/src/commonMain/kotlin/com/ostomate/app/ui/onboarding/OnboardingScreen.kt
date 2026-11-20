@@ -131,7 +131,6 @@ fun OnboardingScreen(
                 QrExplainerStep(
                     displayStep = uiState.displayStep,
                     totalSteps = uiState.totalSteps,
-                    onBack = viewModel::prevStep,
                     onDone = {
                         viewModel.finish()
                         onDone()
@@ -369,7 +368,6 @@ private fun CountsStep(
 private fun QrExplainerStep(
     displayStep: Int,
     totalSteps: Int,
-    onBack: () -> Unit,
     onDone: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
@@ -422,7 +420,7 @@ private fun StepIndicator(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = Modifier.semantics { contentDescription = label },
     ) {
-        (1..total).forEach { i ->
+        for (i in 1..total) {
             Spacer(
                 Modifier
                     .size(width = if (i == step) 24.dp else 8.dp, height = 8.dp)

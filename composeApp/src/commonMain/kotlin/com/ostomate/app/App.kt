@@ -34,7 +34,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.ostomate.app.data.ChangeEventRepository
 import com.ostomate.app.data.DeepLinkOutcome
 import com.ostomate.app.data.settings.SettingsRepository
@@ -260,12 +259,9 @@ private fun MainApp() {
             composable<LabelsDestination> {
                 LabelsScreen(onBack = { navController.navigateUp() })
             }
-            composable<HistoryDestination> { backStackEntry ->
-                val dest: HistoryDestination = backStackEntry.toRoute()
-                HistoryScreen(
-                    supplyId = dest.supplyId,
-                    onBack = { navController.navigateUp() },
-                )
+            // HistoryViewModel reads the route's supplyId from its SavedStateHandle.
+            composable<HistoryDestination> {
+                HistoryScreen(onBack = { navController.navigateUp() })
             }
         }
     }

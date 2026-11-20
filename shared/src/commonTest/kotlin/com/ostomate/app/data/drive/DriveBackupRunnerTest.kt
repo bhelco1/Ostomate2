@@ -93,7 +93,10 @@ class DriveBackupRunnerTest {
 
             assertEquals(DriveBackupRunResult.Succeeded, runner.run())
 
-            val (find, create, upload, list) = transport.requests
+            val find = transport.requests[0]
+            val create = transport.requests[1]
+            val upload = transport.requests[2]
+            val list = transport.requests[3]
             assertTrue(find.url.contains("Ostomate%20backups"))
             assertEquals("""{"name":"Ostomate backups","mimeType":"application/vnd.google-apps.folder"}""", create.body)
             val body = upload.body.orEmpty()

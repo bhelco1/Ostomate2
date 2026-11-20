@@ -74,6 +74,9 @@ private class QrLabelsPrintAdapter(
         callback.onLayoutFinished(info, oldAttributes != newAttributes)
     }
 
+    // The print framework waits for onWriteFinished or onWriteFailed; any failure while drawing
+    // or writing the PDF must reach it as onWriteFailed, or the print dialog hangs.
+    @Suppress("TooGenericExceptionCaught")
     override fun onWrite(
         pages: Array<out PageRange>?,
         destination: ParcelFileDescriptor,
@@ -143,6 +146,8 @@ private class QrLabelsPrintAdapter(
         }
     }
 
+    // As in QrCodeEncoder: a code ZXing cannot encode is left out of the sheet, not a crash.
+    @Suppress("TooGenericExceptionCaught")
     private fun drawQrCode(
         canvas: Canvas,
         data: String,
@@ -159,7 +164,7 @@ private class QrLabelsPrintAdapter(
                     size.toInt(),
                     mapOf(EncodeHintType.MARGIN to 1),
                 )
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 return
             }
 

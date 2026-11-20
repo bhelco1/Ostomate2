@@ -53,7 +53,6 @@ class StatsViewModel(
             eventRepository.observeEvents(),
         ) { period, supplies, allEvents ->
             val cutoff = Clock.System.now().toEpochMilliseconds() - period.days * 86_400_000L
-            val supplyMap = supplies.associateBy { it.id }
 
             val rows =
                 supplies.mapNotNull { supply ->

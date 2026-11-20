@@ -65,7 +65,7 @@ fun HomeScreen(
     val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
-        val event = uiState.pendingUndo ?: return@LaunchedEffect
+        if (uiState.pendingUndo == null) return@LaunchedEffect
         val name = uiState.undoSupplyName
         val onHand = uiState.undoOnHand
         val message =

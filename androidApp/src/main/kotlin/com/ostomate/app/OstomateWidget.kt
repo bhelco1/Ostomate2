@@ -112,7 +112,7 @@ private fun WidgetContent(rows: List<WidgetRow>) {
             )
         } else {
             rows.forEach { row ->
-                WidgetRow(row = row, primary = primary, onSurface = onSurface, subtle = subtle)
+                WidgetRow(row = row, onSurface = onSurface, subtle = subtle)
             }
         }
     }
@@ -121,7 +121,6 @@ private fun WidgetContent(rows: List<WidgetRow>) {
 @Composable
 private fun WidgetRow(
     row: WidgetRow,
-    primary: ColorProvider,
     onSurface: ColorProvider,
     subtle: ColorProvider,
 ) {

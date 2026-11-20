@@ -39,7 +39,7 @@ class HistoryTagsUiTest : ScreenshotTest() {
         awaitState(vm.uiState) { state -> state.events.size == 2 }
 
         runComposeUiTest {
-            setContent { OstomateTheme { HistoryScreen(supplyId = bagId, onBack = {}, viewModel = vm) } }
+            setContent { OstomateTheme { HistoryScreen(onBack = {}, viewModel = vm) } }
             onNodeWithText("Leak").assertExists()
             onNodeWithText("source:qr", substring = true).assertDoesNotExist()
             onNodeWithText("source:manual", substring = true).assertDoesNotExist()

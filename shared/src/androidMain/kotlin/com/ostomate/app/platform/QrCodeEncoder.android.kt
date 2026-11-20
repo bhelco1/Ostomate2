@@ -9,6 +9,9 @@ import java.io.ByteArrayOutputStream
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual object QrCodeEncoder {
+    // ZXing reports input it cannot encode as WriterException or IllegalArgumentException; any
+    // failure means "no image" (an empty array), never a crash of the screen showing the code.
+    @Suppress("TooGenericExceptionCaught")
     actual fun encodeToPng(
         url: String,
         size: Int,
@@ -22,7 +25,7 @@ actual object QrCodeEncoder {
                     size,
                     mapOf(EncodeHintType.MARGIN to 1),
                 )
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 return ByteArray(0)
             }
         val bitmap = Bitmap.createBitmap(matrix.width, matrix.height, Bitmap.Config.ARGB_8888)

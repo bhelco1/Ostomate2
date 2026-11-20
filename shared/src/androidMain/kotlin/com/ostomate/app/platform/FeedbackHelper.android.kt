@@ -50,6 +50,9 @@ actual class FeedbackHelper(private val context: Context) {
             "\n"
     }
 
+    // The feedback email must still open if the package lookup fails for any reason; the
+    // failure message goes into the email in place of the app details.
+    @Suppress("TooGenericExceptionCaught")
     private fun buildAppInfo(): String {
         return try {
             val pm = context.packageManager

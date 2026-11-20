@@ -4,6 +4,7 @@ import com.ostomate.app.data.db.ChangeEventDao
 import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.ChangeEventWithSupply
 import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.data.diagnostics.DeepLinkEntryPoint
 import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
@@ -186,21 +187,21 @@ class ChangeEventRepository(
                 }
             }
         if (!allowed) return DeepLinkOutcome.Suppressed
-        val supply =
-            when {
-                item == "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)
-                item == "flange" -> supplyTypeDao.getByKind(SupplyKind.FLANGE)
-                else -> {
-                    val id = DeepLinkParser.parseCustomId(item) ?: return DeepLinkOutcome.Invalid
-                    supplyTypeDao.getById(id)
-                }
-            } ?: return DeepLinkOutcome.Invalid
+        val supply = supplyForDeepLinkItem(item) ?: return DeepLinkOutcome.Invalid
         val minutesAgo = wasLoggedWithinWindow(supply.id)
-        if (minutesAgo != null) {
-            return DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo, source)
+        return if (minutesAgo != null) {
+            DeepLinkOutcome.NeedsConfirmation(supply.id, supply.name, minutesAgo, source)
+        } else {
+            val event = logChange(supply.id, source)
+            onLogged(event.id)
+            DeepLinkOutcome.Logged(supply.name)
         }
-        val event = logChange(supply.id, source)
-        onLogged(event.id)
-        return DeepLinkOutcome.Logged(supply.name)
     }
+
+    private suspend fun supplyForDeepLinkItem(item: String): SupplyTypeEntity? =
+        when (item) {
+            "bag" -> supplyTypeDao.getByKind(SupplyKind.BAG)
+            "flange" -> supplyTypeDao.getByKind(SupplyKind.FLANGE)
+            else -> DeepLinkParser.parseCustomId(item)?.let { supplyTypeDao.getById(it) }
+        }
 }

@@ -6,8 +6,16 @@ config:
   warningsAsErrors: false
 
 complexity:
+  CyclomaticComplexMethod:
+    # A screen composable branches on its UiState to choose what to show; the decisions
+    # themselves live in ViewModels and use cases, which this rule still checks.
+    ignoreAnnotated:
+      - 'Composable'
   LongMethod:
     threshold: 50
+    # A composable's length is its layout tree, not logic. Non-UI functions keep the limit.
+    ignoreAnnotated:
+      - 'Composable'
   LongParameterList:
     # Composables legitimately take many parameters
     active: false
@@ -20,6 +28,18 @@ naming:
     # Allow PascalCase for @Composable functions (Compose convention)
     ignoreAnnotated:
       - 'Composable'
+    # detekt's default test excludes plus androidHostTest, the KMP Android plugin's name for
+    # host tests, so test names like migrate2To3_addsColumn are allowed there as in commonTest.
+    excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidHostTest/**'
+      - '**/androidInstrumentedTest/**'
+      - '**/jsTest/**'
+      - '**/iosTest/**'
 
 style:
   MagicNumber:

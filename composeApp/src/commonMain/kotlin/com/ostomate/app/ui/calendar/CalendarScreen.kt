@@ -109,7 +109,7 @@ fun CalendarScreen(viewModel: CalendarViewModel = koinViewModel()) {
     val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
-        val deleted = uiState.pendingUndo ?: return@LaunchedEffect
+        if (uiState.pendingUndo == null) return@LaunchedEffect
         val result =
             snackbarHostState.showSnackbar(
                 message = eventDeletedMsg,

@@ -282,6 +282,13 @@ object ChangeEventDaoScenarios {
             ),
         )
 
+        assertOneEntryPerOutcome(decisionEntries(store))
+
+        assertEquals(1, db.changeEventDao().count())
+    }
+
+    /** The audit's decision lines, after checking each scan wrote RECEIVED first. */
+    private fun decisionEntries(store: InMemoryDiagnosticLogStore): List<ScanAuditEntry> {
         val lines =
             store.read()
                 .split('\n')
@@ -294,7 +301,10 @@ object ChangeEventDaoScenarios {
         assertEquals(entries.map { it.uri }, received.map { it.uri })
         assertEquals(entries.map { it.entryPoint }, received.map { it.entryPoint })
         assertEquals(4, entries.size)
+        return entries
+    }
 
+    private fun assertOneEntryPerOutcome(entries: List<ScanAuditEntry>) {
         assertEquals(ScanDecision.LOGGED, entries[0].decision)
         assertEquals(DeepLinkEntryPoint.ANDROID_ON_CREATE, entries[0].entryPoint)
         assertEquals(true, entries[0].savedInstanceStateWasNull)
@@ -312,8 +322,6 @@ object ChangeEventDaoScenarios {
 
         assertEquals(ScanDecision.INVALID, entries[3].decision)
         assertNull(entries[3].eventId)
-
-        assertEquals(1, db.changeEventDao().count())
     }
 
     /**
