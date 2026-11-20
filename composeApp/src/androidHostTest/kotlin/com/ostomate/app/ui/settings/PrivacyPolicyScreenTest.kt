@@ -28,6 +28,17 @@ class PrivacyPolicyScreenTest : ScreenshotTest() {
         }
     }
 
+    // Compose resources print an Android-style \' as written: the policy said "Google\'s".
+    @Test
+    fun apostrophesRenderWithoutABackslash() {
+        runComposeUiTest {
+            setContent { OstomateTheme { PrivacyPolicyScreen(onBack = {}) } }
+
+            onNodeWithText("sign in through Google's own screen", substring = true).performScrollTo().assertExists()
+            onNodeWithText("\\'", substring = true).assertDoesNotExist()
+        }
+    }
+
     // Reports carry device details as well as the stack trace; "only crash stack traces are
     // sent" was false. They carry no identifier because the beforeSend scrubbers strip it.
     @Test

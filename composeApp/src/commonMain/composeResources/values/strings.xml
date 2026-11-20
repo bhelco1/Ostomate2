@@ -112,7 +112,7 @@
     <string name="settings_restore_complete_title">Restore complete</string>
     <string name="settings_restore_success">Restored %1$d supplies and %2$d events.</string>
     <string name="settings_restore_failed_title">Restore failed</string>
-    <string name="settings_restore_error_malformed">This file isn\'t a valid Ostomate backup.</string>
+    <string name="settings_restore_error_malformed">This file isn't a valid Ostomate backup.</string>
     <string name="settings_restore_error_format">This backup was made by an incompatible version of Ostomate.</string>
     <string name="settings_restore_error_schema">This backup is from a different database version. Restore is only supported between the same app version.</string>
     <string name="settings_restore_error_oversized">This file is too large to restore (max 10 MB).</string>
@@ -125,8 +125,8 @@
     <string name="settings_drive_backup_sub">Once a day, uploads the same file as Export backup to an “Ostomate backups” folder in your own Google Drive. Keeps the newest 14. Nothing goes to the developer.</string>
     <string name="settings_drive_backup_authorizing">Waiting for Google sign-in…</string>
     <string name="settings_drive_backup_error_cancelled">Google sign-in was cancelled. Daily backup is still off.</string>
-    <string name="settings_drive_backup_error_failed">Couldn\'t get access to Google Drive. Daily backup is still off.</string>
-    <string name="settings_drive_status_not_run">Daily Drive backup: on · hasn\'t run yet</string>
+    <string name="settings_drive_backup_error_failed">Couldn't get access to Google Drive. Daily backup is still off.</string>
+    <string name="settings_drive_status_not_run">Daily Drive backup: on · hasn't run yet</string>
     <string name="settings_drive_status_ok">Daily Drive backup: on · last run %1$s</string>
     <string name="settings_drive_status_failed">Daily Drive backup: on · last run failed %1$s (%2$s)</string>
     <string name="settings_drive_failure_sign_in">Google sign-in needed</string>
@@ -159,10 +159,10 @@
 
     <!-- Reorder Warnings screen -->
     <string name="reorder_warnings_title">Reorder Warnings</string>
-    <string name="reorder_warnings_description">Warn when you haven\'t changed a supply in this many days.</string>
+    <string name="reorder_warnings_description">Warn when you haven't changed a supply in this many days.</string>
     <string name="reorder_warnings_warn_after">Warn after %1$d days</string>
     <string name="reorder_warnings_dialog_title">%1$s warning</string>
-    <string name="reorder_warnings_dialog_body">You\'ll see a warning on the home screen when this supply hasn\'t been changed in that many days.</string>
+    <string name="reorder_warnings_dialog_body">You'll see a warning on the home screen when this supply hasn't been changed in that many days.</string>
     <string name="reorder_warnings_days_suffix">days</string>
     <string name="cd_edit_threshold">Edit %1$s threshold</string>
 
@@ -245,13 +245,13 @@
     <string name="privacy_section_analytics_title">No analytics or tracking</string>
     <string name="privacy_section_analytics_body">Ostomate contains no analytics SDKs, no advertising networks, and no telemetry of any kind. We do not know how you use the app.</string>
     <string name="privacy_section_account_title">No account required</string>
-    <string name="privacy_section_account_body">Ostomate works without creating an account or providing any personal information. Your name, email, and identity are never collected. If you turn on the optional Google Drive backup, you sign in through Google\'s own screen; Ostomate never sees your password and does not ask Google for your name or email.</string>
+    <string name="privacy_section_account_body">Ostomate works without creating an account or providing any personal information. Your name, email, and identity are never collected. If you turn on the optional Google Drive backup, you sign in through Google's own screen; Ostomate never sees your password and does not ask Google for your name or email.</string>
     <string name="privacy_section_backups_title">Backups</string>
     <string name="privacy_section_backups_body">The Export feature creates a backup file on your device that you can save wherever you choose. If you have turned on the optional daily Google Drive backup (below), the Backup button instead saves that file straight to the same “Ostomate backups” folder in your own Google Drive.</string>
     <string name="privacy_section_drive_title">Daily Google Drive backup (optional, Android)</string>
-    <string name="privacy_section_drive_body">The Android app has an optional daily backup to Google Drive. It is off by default and is not shown in the app\'s regular settings. If you turn it on, Google asks you to allow Ostomate access to only the files Ostomate itself creates in your Drive (Google\'s “drive.file” permission); Ostomate cannot see or change any of your other files. Once a day, Ostomate then uploads the same backup file the Export feature makes — your supplies, your change history and your app settings — to a folder named “Ostomate backups” in your own Google Drive, over an encrypted connection directly from your device to Google. Backups you make with the Backup button while this is on go to the same folder. It keeps the 14 newest backups and deletes its own older ones. Nothing is ever sent to the developer or to anyone else; storage in your Drive is covered by Google\'s privacy policy. You can turn the daily backup off at any time. Backups already in your Drive stay there until you delete them.</string>
+    <string name="privacy_section_drive_body">The Android app has an optional daily backup to Google Drive. It is off by default and is not shown in the app's regular settings. If you turn it on, Google asks you to allow Ostomate access to only the files Ostomate itself creates in your Drive (Google's “drive.file” permission); Ostomate cannot see or change any of your other files. Once a day, Ostomate then uploads the same backup file the Export feature makes — your supplies, your change history and your app settings — to a folder named “Ostomate backups” in your own Google Drive, over an encrypted connection directly from your device to Google. Backups you make with the Backup button while this is on go to the same folder. It keeps the 14 newest backups and deletes its own older ones. Nothing is ever sent to the developer or to anyone else; storage in your Drive is covered by Google's privacy policy. You can turn the daily backup off at any time. Backups already in your Drive stay there until you delete them.</string>
     <string name="privacy_section_crash_title">Crash reporting (optional)</string>
-    <string name="privacy_section_crash_body">Ostomate includes optional crash reporting powered by Sentry, which is off by default. If you turn it on in Settings → Security, a report is sent to Sentry when the app crashes or freezes. A report contains the technical stack trace of the error, the app version, and basic device details: the device maker and model, the operating system version, and technical state such as memory, storage, battery, screen size, language and time zone. It never contains your supply data, change history or event notes, and it carries no account and no identifier for you, your device or your installation of the app. As with any internet connection, Sentry\'s servers can see your IP address when a report arrives; Ostomate\'s Sentry project is configured not to store it. You can turn crash reporting off at any time.</string>
+    <string name="privacy_section_crash_body">Ostomate includes optional crash reporting powered by Sentry, which is off by default. If you turn it on in Settings → Security, a report is sent to Sentry when the app crashes or freezes. A report contains the technical stack trace of the error, the app version, and basic device details: the device maker and model, the operating system version, and technical state such as memory, storage, battery, screen size, language and time zone. It never contains your supply data, change history or event notes, and it carries no account and no identifier for you, your device or your installation of the app. As with any internet connection, Sentry's servers can see your IP address when a report arrives; Ostomate's Sentry project is configured not to store it. You can turn crash reporting off at any time.</string>
     <string name="privacy_section_feedback_title">Feedback email</string>
     <string name="privacy_section_feedback_body">Settings → Send Feedback opens your own email app with a new message addressed to ostomate26@gmail.com. The message is pre-filled with the app version, your device model and operating system version, and, on Android, the technical stack trace of the last crash recorded on your device, if there was one. Ostomate sends nothing itself: you can read and edit the message, and nothing is sent unless you press send in your email app. If you do send it, the developer receives it like any other email, including your email address.</string>
     <string name="privacy_section_deletion_title">Data deletion</string>
