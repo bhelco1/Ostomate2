@@ -36,6 +36,35 @@ class StringResourcesTest {
         assertEquals(emptyList(), offenders)
     }
 
+    @Test
+    fun spanishHasEveryEnglishStringAndNoOther() {
+        val english = strings(appStrings("values")).toMap()
+        val spanish = strings(appStrings("values-es")).toMap()
+        assertEquals(emptyList(), (english.keys - spanish.keys).sorted(), "missing from values-es")
+        assertEquals(emptyList(), (spanish.keys - english.keys).sorted(), "only in values-es")
+    }
+
+    @Test
+    fun spanishUsesTheSamePlaceholdersAsEnglish() {
+        val english = strings(appStrings("values")).toMap()
+        val spanish = strings(appStrings("values-es")).toMap()
+        val mismatches =
+            english.keys.intersect(spanish.keys).sorted().mapNotNull { name ->
+                val en = placeholders(english.getValue(name))
+                val es = placeholders(spanish.getValue(name))
+                if (en == es) null else "$name: values $en, values-es $es"
+            }
+        assertEquals(emptyList(), mismatches)
+    }
+
+    private fun appStrings(qualifier: String): File =
+        File("src/commonMain/composeResources/$qualifier/strings.xml").also {
+            assertTrue(it.isFile, "missing ${it.path}")
+        }
+
+    // Sorted, because a translation may reorder positional arguments.
+    private fun placeholders(text: String): List<String> = PLACEHOLDER.findAll(text).map { it.value }.sorted().toList()
+
     private fun literalEscapes(text: String): List<String> {
         val found = mutableListOf<String>()
         var i = 0
@@ -61,5 +90,6 @@ class StringResourcesTest {
 
     private companion object {
         const val UNESCAPED = "ntu\\"
+        val PLACEHOLDER = Regex("""%(\d+\$)?[-#+ 0,(]*\d*(\.\d+)?[a-zA-Z%]""")
     }
 }
