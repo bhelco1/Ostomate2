@@ -33,9 +33,9 @@ import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.sticker_close
 import com.ostomate.app.resources.sticker_copy_link
 import com.ostomate.app.resources.sticker_ios_intro
+import com.ostomate.app.resources.sticker_ios_optional_write
 import com.ostomate.app.resources.sticker_ios_step_automation
 import com.ostomate.app.resources.sticker_ios_step_test
-import com.ostomate.app.resources.sticker_ios_step_write
 import com.ostomate.app.resources.sticker_link_copied
 import com.ostomate.app.resources.sticker_locked
 import com.ostomate.app.resources.sticker_lost_contact
@@ -147,11 +147,15 @@ private fun StepsBody(
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Text(stringResource(Res.string.sticker_ios_intro), style = body)
         Spacer(Modifier.height(12.dp))
-        Text(stringResource(Res.string.sticker_ios_step_write), style = body)
-        Spacer(Modifier.height(8.dp))
         Text(stringResource(Res.string.sticker_ios_step_automation), style = body)
         Spacer(Modifier.height(8.dp))
         Text(stringResource(Res.string.sticker_ios_step_test, item.supply.name), style = body)
+        Spacer(Modifier.height(12.dp))
+        Text(
+            stringResource(Res.string.sticker_ios_optional_write),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Spacer(Modifier.height(16.dp))
         SelectionContainer {
             Text(

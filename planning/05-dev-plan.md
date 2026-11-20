@@ -443,6 +443,9 @@ reading and writing stickers happen on the phone only, with no network.
   `&src=nfc` link. In-app writing on iPhone needs Apple's NFC capability, which needs the
   paid Developer account, so it waits for enrollment.
   Done as a dialog from the row's **NFC sticker** button (`StickerCard`, strings EN + ES).
+  Writing the sticker is optional on iPhone (Bobby, 2026-11-20): his test showed a blank
+  sticker plus the automation logs, because Shortcuts keys on the sticker's own ID. The steps
+  are now the automation and a test tap; writing is a note for Android use.
 - [x] A custom item's sticker still works after a backup restore on a new phone: test that
   restore keeps supply ids (the link holds the id). `customItemStickerSurvivesRestore` (JVM +
   iOS sim): a custom item with id 41 restores onto a phone with its own custom item, and both

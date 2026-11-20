@@ -193,10 +193,10 @@
     <string name="sticker_try_again">Reintentar</string>
     <string name="sticker_write_another">Grabar otra</string>
     <string name="sticker_close">Cerrar</string>
-    <string name="sticker_ios_intro">El iPhone no puede grabar pegatinas desde Ostomate. Configura una en tres pasos:</string>
-    <string name="sticker_ios_step_write">1. Graba la pegatina: en la app NFC Tools, Escribir → Añadir un registro → URL, pega el enlace de abajo, luego Escribir y acerca la pegatina al iPhone. O grábala desde Ostomate en un teléfono Android.</string>
-    <string name="sticker_ios_step_automation">2. Haz que un toque la registre: en Atajos, Automatización → + → NFC → Escanear, y acerca la pegatina al iPhone. Luego añade Abrir URL, pega el enlace de abajo y elige Ejecutar inmediatamente.</string>
-    <string name="sticker_ios_step_test">3. Toca la pegatina: Ostomate se abre y registra %1$s.</string>
+    <string name="sticker_ios_intro">En el iPhone sirve cualquier pegatina NFC, incluso una en blanco: Atajos reconoce la propia pegatina, así que no hace falta grabar nada en ella. Configúrala en dos pasos:</string>
+    <string name="sticker_ios_optional_write">Opcional: para que la misma pegatina funcione también en un teléfono Android, graba el enlace en ella, desde Ostomate en un teléfono Android o con la app NFC Tools (Escribir → Añadir un registro → URL).</string>
+    <string name="sticker_ios_step_automation">1. Haz que un toque la registre: en Atajos, Automatización → + → NFC → Escanear, y acerca la pegatina al iPhone. Luego añade Abrir URL, pega el enlace de abajo y elige Ejecutar inmediatamente.</string>
+    <string name="sticker_ios_step_test">2. Toca la pegatina: Ostomate se abre y registra %1$s.</string>
     <string name="sticker_copy_link">Copiar enlace</string>
     <string name="sticker_link_copied">Enlace copiado</string>
 
