@@ -15,6 +15,7 @@ import com.ostomate.app.data.drive.HttpTransport
 import com.ostomate.app.data.drive.UrlConnectionTransport
 import com.ostomate.app.data.settings.settingsDataStore
 import com.ostomate.app.platform.AndroidDriveBackupPlatform
+import com.ostomate.app.platform.AndroidNfcStickerWriting
 import com.ostomate.app.platform.BiometricAuth
 import com.ostomate.app.platform.BiometricAuthenticator
 import com.ostomate.app.platform.CrashReporter
@@ -22,6 +23,7 @@ import com.ostomate.app.platform.CrashReporting
 import com.ostomate.app.platform.DriveBackupPlatform
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.NfcStickerWriting
 import com.ostomate.app.platform.Notifier
 import com.ostomate.app.platform.ReminderNotifier
 import org.koin.android.ext.koin.androidContext
@@ -37,6 +39,7 @@ actual val platformModule: Module =
         single { Notifier(androidContext()) } bind ReminderNotifier::class
         single { BiometricAuthenticator() } bind BiometricAuth::class
         single { FileSharer() }
+        single<NfcStickerWriting> { AndroidNfcStickerWriting(androidContext()) }
         single { FeedbackHelper(androidContext()) }
         single { CrashReporter(androidContext()) } bind CrashReporting::class
         single<DriveBackupPlatform> { AndroidDriveBackupPlatform(androidContext()) }
