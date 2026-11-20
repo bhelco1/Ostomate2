@@ -39,13 +39,27 @@ fun supplyColor(
     kind: SupplyKind,
     colorIndex: Int? = null,
 ): Color {
-    val dark = isSystemInDarkTheme()
+    if (!isSystemInDarkTheme()) return supplyPrintColor(kind, colorIndex)
     return when (kind) {
-        SupplyKind.BAG -> if (dark) OstomateColors.BagDark else OstomateColors.Bag
-        SupplyKind.FLANGE -> if (dark) OstomateColors.FlangeDark else OstomateColors.Flange
-        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark)
+        SupplyKind.BAG -> OstomateColors.BagDark
+        SupplyKind.FLANGE -> OstomateColors.FlangeDark
+        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark = true)
     }
 }
+
+/**
+ * An item's light-theme colour, whatever the phone's theme: labels print on white paper, and
+ * the on-screen and shared QR codes match the print.
+ */
+fun supplyPrintColor(
+    kind: SupplyKind,
+    colorIndex: Int? = null,
+): Color =
+    when (kind) {
+        SupplyKind.BAG -> OstomateColors.Bag
+        SupplyKind.FLANGE -> OstomateColors.Flange
+        SupplyKind.CUSTOM -> customSupplyColor(colorIndex, dark = false)
+    }
 
 @Composable
 fun supplyPillBg(

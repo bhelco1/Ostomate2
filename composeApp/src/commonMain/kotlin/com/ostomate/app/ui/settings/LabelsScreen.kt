@@ -38,6 +38,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -66,6 +68,10 @@ import com.ostomate.app.resources.labels_title
 import com.ostomate.app.resources.labels_write_sticker
 import com.ostomate.app.resources.qr_links_header
 import com.ostomate.app.ui.theme.supplyColor
+import com.ostomate.app.ui.theme.supplyPrintColor
+import io.github.alexzhirkevich.qrose.options.QrBrush
+import io.github.alexzhirkevich.qrose.options.QrColors
+import io.github.alexzhirkevich.qrose.options.solid
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -195,7 +201,8 @@ private fun shareQr(
     fileSharer: FileSharer,
     item: LabelItem,
 ) {
-    val png = QrCodeEncoder.encodeToPng(item.link, 512)
+    val color = supplyPrintColor(item.supply.kind, item.supply.colorIndex).toArgb()
+    val png = QrCodeEncoder.encodeToPng(item.link, 512, color)
     if (png.isNotEmpty()) {
         fileSharer.shareBytes(bytes = png, fileName = "${item.supply.name}-qr.png", mimeType = "image/png")
     }
@@ -211,7 +218,13 @@ internal fun LabelRow(
 ) {
     val supply = item.supply
     val accent = supplyColor(supply.kind, supply.colorIndex)
-    val qrPainter = rememberQrCodePainter(item.link)
+    // The print colour, not the theme's: what's on screen and shared matches the printed label.
+    val qrColor = supplyPrintColor(supply.kind, supply.colorIndex)
+    val qrPainter =
+        rememberQrCodePainter(
+            item.link,
+            colors = QrColors(dark = QrBrush.solid(qrColor), light = QrBrush.solid(Color.White)),
+        )
 
     Card(
         modifier =
