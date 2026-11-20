@@ -2,8 +2,8 @@ package com.ostomate.app.platform
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.ParcelFileDescriptor
@@ -16,22 +16,23 @@ import android.print.pdf.PrintedPdfDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.qrcode.QRCodeWriter
 import com.ostomate.app.data.db.SupplyTypeEntity
-import com.ostomate.app.domain.SupplyLink
 import java.io.FileOutputStream
+
+private const val MILS_PER_INCH = 1000.0
+private const val POINTS_PER_INCH = 72.0
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class QrPrinter(private val context: Context) {
     actual fun isPrintingAvailable(): Boolean = true
 
     actual fun print(supplies: List<SupplyTypeEntity>) {
+        val labels = printLabels(supplies)
+        if (labels.isEmpty()) return
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
         printManager.print(
             "Ostomate QR Labels",
-            QrLabelsPrintAdapter(context, supplies),
+            QrLabelsPrintAdapter(context, labels),
             PrintAttributes.Builder()
                 .setMediaSize(PrintAttributes.MediaSize.NA_LETTER)
                 .setResolution(PrintAttributes.Resolution("default", "Default", 300, 300))
@@ -49,9 +50,10 @@ actual fun rememberQrPrinter(): QrPrinter {
 
 private class QrLabelsPrintAdapter(
     private val context: Context,
-    private val supplies: List<SupplyTypeEntity>,
+    private val labels: List<PrintLabel>,
 ) : PrintDocumentAdapter() {
     private var printAttributes: PrintAttributes = PrintAttributes.Builder().build()
+    private var sheet: QrLabelSheet? = null
 
     override fun onLayout(
         oldAttributes: PrintAttributes?,
@@ -64,14 +66,24 @@ private class QrLabelsPrintAdapter(
             callback.onLayoutCancelled()
             return
         }
+        val media = newAttributes.mediaSize ?: PrintAttributes.MediaSize.NA_LETTER
         printAttributes = newAttributes
+        // A PDF page measures in points; the chosen paper size comes in mils (1/1000 in).
+        val laidOut =
+            QrLabelLayout.layout(
+                count = labels.size,
+                pageWidth = media.widthMils * POINTS_PER_INCH / MILS_PER_INCH,
+                pageHeight = media.heightMils * POINTS_PER_INCH / MILS_PER_INCH,
+            )
+        val changed = oldAttributes != newAttributes || sheet == null
+        sheet = laidOut
         val info =
             PrintDocumentInfo
                 .Builder("ostomate_qr_labels.pdf")
                 .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                .setPageCount(1)
+                .setPageCount(laidOut.pageCount)
                 .build()
-        callback.onLayoutFinished(info, oldAttributes != newAttributes)
+        callback.onLayoutFinished(info, changed)
     }
 
     // The print framework waits for onWriteFinished or onWriteFailed; any failure while drawing
@@ -83,106 +95,92 @@ private class QrLabelsPrintAdapter(
         cancellationSignal: CancellationSignal?,
         callback: WriteResultCallback,
     ) {
+        val laidOut = sheet
+        if (laidOut == null) {
+            callback.onWriteFailed("not laid out")
+            return
+        }
+        val wanted = pages?.takeUnless { it.isEmpty() } ?: arrayOf(PageRange.ALL_PAGES)
         val pdf = PrintedPdfDocument(context, printAttributes)
         try {
-            val page = pdf.startPage(0)
-            drawLabels(page.canvas, pdf.pageWidth, pdf.pageHeight)
-            pdf.finishPage(page)
+            for (pageNumber in 0 until laidOut.pageCount) {
+                if (wanted.none { pageNumber in it.start..it.end }) continue
+                if (cancellationSignal?.isCanceled == true) {
+                    callback.onWriteCancelled()
+                    return
+                }
+                val page = pdf.startPage(pageNumber)
+                // PdfDocument moves the origin to the printer's content rect; the layout is
+                // for the whole sheet, so move it back to the paper's corner.
+                page.canvas.translate(-page.info.contentRect.left.toFloat(), -page.info.contentRect.top.toFloat())
+                drawQrLabelPage(page.canvas, laidOut.onPage(pageNumber), labels)
+                pdf.finishPage(page)
+            }
             FileOutputStream(destination.fileDescriptor).use { pdf.writeTo(it) }
-            callback.onWriteFinished(arrayOf(PageRange.ALL_PAGES))
+            callback.onWriteFinished(wanted)
         } catch (e: Exception) {
             callback.onWriteFailed(e.message)
         } finally {
             pdf.close()
         }
     }
+}
 
-    private fun drawLabels(
-        canvas: Canvas,
-        pageWidth: Int,
-        pageHeight: Int,
-    ) {
-        val margin = 36f // 0.5 inch in points
-        val cols = 2
-        val colWidth = (pageWidth - margin * (cols + 1)) / cols
-        val qrSize = minOf(colWidth - 16f, 180f)
-        val cellHeight = qrSize + 56f // QR + name + URL text
-
-        val namePaint =
-            Paint().apply {
-                color = Color.BLACK
-                textSize = 14f
-                isFakeBoldText = true
-                isAntiAlias = true
-            }
-        val urlPaint =
-            Paint().apply {
-                color = Color.DKGRAY
-                textSize = 9f
-                isAntiAlias = true
-            }
-
-        supplies.forEachIndexed { index, supply ->
-            val col = index % cols
-            val row = index / cols
-
-            val cellLeft = margin + col * (colWidth + margin)
-            val cellTop = margin + row * (cellHeight + margin)
-
-            if (cellTop + cellHeight > pageHeight - margin) return
-
-            val url = SupplyLink.of(supply.kind, supply.id)
-
-            // Draw QR code directly to canvas
-            drawQrCode(canvas, url, cellLeft + (colWidth - qrSize) / 2f, cellTop, qrSize)
-
-            // Supply name centered below QR
-            val nameX = cellLeft + colWidth / 2f - namePaint.measureText(supply.name) / 2f
-            canvas.drawText(supply.name, nameX, cellTop + qrSize + 18f, namePaint)
-
-            // URL in small monospace below name
-            val urlX = cellLeft + colWidth / 2f - urlPaint.measureText(url) / 2f
-            canvas.drawText(url, urlX, cellTop + qrSize + 32f, urlPaint)
+/** Draws one page of labels; [canvas] is in points, as a PDF page is. */
+internal fun drawQrLabelPage(
+    canvas: Canvas,
+    placements: List<LabelPlacement>,
+    labels: List<PrintLabel>,
+) {
+    val modulePaint = Paint().apply { style = Paint.Style.FILL }
+    val namePaint =
+        Paint().apply {
+            textSize = QrLabelLayout.NAME_TEXT_PT.toFloat()
+            isFakeBoldText = true
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
         }
-    }
-
-    // As in QrCodeEncoder: a code ZXing cannot encode is left out of the sheet, not a crash.
-    @Suppress("TooGenericExceptionCaught")
-    private fun drawQrCode(
-        canvas: Canvas,
-        data: String,
-        left: Float,
-        top: Float,
-        size: Float,
-    ) {
-        val matrix =
-            try {
-                QRCodeWriter().encode(
-                    data,
-                    BarcodeFormat.QR_CODE,
-                    size.toInt(),
-                    size.toInt(),
-                    mapOf(EncodeHintType.MARGIN to 1),
-                )
-            } catch (ignored: Exception) {
-                return
-            }
-
-        val paint = Paint().apply { color = Color.BLACK }
-        val cellSize = size / matrix.width
-
-        for (x in 0 until matrix.width) {
-            for (y in 0 until matrix.height) {
-                if (matrix[x, y]) {
-                    canvas.drawRect(
-                        left + x * cellSize,
-                        top + y * cellSize,
-                        left + (x + 1) * cellSize,
-                        top + (y + 1) * cellSize,
-                        paint,
-                    )
-                }
-            }
+    val linkPaint =
+        Paint().apply {
+            color = QrLabelLayout.LINK_COLOR
+            textSize = QrLabelLayout.LINK_TEXT_PT.toFloat()
+            isAntiAlias = true
+            textAlign = Paint.Align.CENTER
         }
+
+    placements.forEach { placement ->
+        val label = labels[placement.index]
+        modulePaint.color = label.color
+        // One path, filled once: rectangles filled one by one leave hairline seams where
+        // anti-aliased edges meet, in PDF viewers and on paper.
+        val code = Path()
+        label.modules.moduleRects(placement.qr).forEach {
+            code.addRect(
+                it.left.toFloat(),
+                it.top.toFloat(),
+                it.right.toFloat(),
+                it.bottom.toFloat(),
+                Path.Direction.CW,
+            )
+        }
+        canvas.drawPath(code, modulePaint)
+        val centerX = placement.cell.centerX.toFloat()
+        val width = placement.cell.width.toFloat()
+        namePaint.color = label.color
+        canvas.drawText(fit(label.name, namePaint, width), centerX, placement.nameBaseline.toFloat(), namePaint)
+        canvas.drawText(fit(label.link, linkPaint, width), centerX, placement.linkBaseline.toFloat(), linkPaint)
     }
 }
+
+/** [text] cut short with an ellipsis if it is wider than [width]. */
+private fun fit(
+    text: String,
+    paint: Paint,
+    width: Float,
+): String {
+    if (paint.measureText(text) <= width) return text
+    val kept = paint.breakText(text, true, width - paint.measureText(ELLIPSIS), null)
+    return text.take(kept).trimEnd() + ELLIPSIS
+}
+
+private const val ELLIPSIS = "\u2026"

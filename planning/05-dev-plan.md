@@ -423,11 +423,16 @@ reading and writing stickers happen on the phone only, with no network.
 - [x] One shared link builder in `shared` for QR, NFC and Copy link, replacing the two copies
   (`QrPrinter.android.kt`, `QrLabelsScreen.kt`), with unit tests for bag, flange and custom.
   `domain/SupplyLink` (+ `SupplyLinkTest`); it also replaced a third copy in `QrPrinter.ios.kt`.
-- [ ] QR size and colour, from Bobby's printed test sheet (black vs the app's bag green
+- [x] QR size and colour, from Bobby's printed test sheet (black vs the app's bag green
   #16A34A, 3.3:1 on white, and flange orange #E65100, 3.8:1, at 8–40 mm on both phones):
   print codes in the item's colour only if colour reads at the same sizes as black;
   otherwise keep the code black with an item-colour border and name band. Default label
   size = the smallest that both phones read reliably, with margin.
+  Result (Bobby, 2026-11-20): both phones read every code down to 8 mm in black, green and
+  orange, so labels print in the item's light-theme colour with the symbol 25 mm square
+  (Bobby's choice), name in the item colour, link in small grey, 4 × 6 per Letter page and
+  on to more pages. Shared `QrLabelLayout` (both printers) + `supplyPrintColor`; on-screen
+  and shared QR codes use the same colour. Physical size still to check with a ruler.
 - [x] Android writes the sticker (Bobby, 2026-11-20): "Write sticker", hold a blank sticker
   to the phone; NFC reader mode writes one NDEF URI record with the item's link (taps don't
   log while writing), then reads it back. Clear outcome for each case: written, sticker

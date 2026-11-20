@@ -41,16 +41,15 @@
       "status": "todo"
     }
   ],
-  "now": "Phases 0–2.5 done, main green. Phase 3 under way: signed Android release builds in CI, privacy fixes in, store text and screenshots ready for both stores (iPhone-only). Nov 2026: a month-long check that no scans are lost; weeks 1–3 matched. NFC stickers log on both phones. FEAT-05 Labels & stickers (Android writes NFC stickers in the app) is in review.",
+  "now": "Phases 0–2.5 done, main green. Phase 3 under way: signed Android release builds in CI, privacy fixes in, store text and screenshots ready for both stores (iPhone-only). Nov 2026: a month-long check that no scans are lost; weeks 1–3 matched. NFC stickers log on both phones. FEAT-05 Labels & stickers is merged; its last item (QR labels in item colour at 25 mm, from Bobby's test sheet) is in review.",
   "next": [
     "Upload the first signed Android build to a Play closed test (12 testers × 14 days)",
-    "FEAT-05: review + merge, then write a bag and a custom-item sticker on the Pixel",
+    "FEAT-05: review + merge the 25 mm colour QR labels, print a sheet and measure it; write a bag and a custom-item sticker on the Pixel",
     "Week-4 trial comparison + iPhone reinstall before the profile expires Fri 11-27 10:42 am",
     "3.2 iOS release signing + TestFlight lane, after the Apple team exists"
   ],
   "waitingOnBobby": [
     "Recruit 12 testers for the Play closed test",
-    "Finish Apple Developer enrollment (Xcode still shows only the free team)",
-    "Print the QR size/colour test sheet (FEAT-05 label size and colour)"
+    "Finish Apple Developer enrollment (Xcode still shows only the free team)"
   ]
 }
