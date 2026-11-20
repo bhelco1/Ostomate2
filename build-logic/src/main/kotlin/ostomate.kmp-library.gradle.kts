@@ -24,6 +24,13 @@ kotlin {
 
 detekt {
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    // Without this, detekt.yml is the whole config and only rules it marks `active: true` run, which
+    // left UnusedImports as the one rule checked. Layer it on detekt's defaults instead.
+    buildUponDefaultConfig = true
+    // detekt's default source is src/{main,test}/{java,kotlin}, which a KMP module does not have,
+    // so `detekt` ran NO-SOURCE here. Point it at src/<set>/kotlin for every KMP source set, main and
+    // test; directories, not a file list, so a new file is not missed by an up-to-date check.
+    source.setFrom(provider { kotlin.sourceSets.map { set -> file("src/${set.name}/kotlin") } })
 }
 
 ktlint {

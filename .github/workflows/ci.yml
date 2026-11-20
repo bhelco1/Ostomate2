@@ -92,7 +92,9 @@ jobs:
       - name: ktlint check
         run: ./gradlew :shared:ktlintCheck :composeApp:ktlintCheck :androidApp:ktlintCheck --stacktrace
       - name: detekt
-        run: ./gradlew :shared:detektMetadataCommonMain :composeApp:detektMetadataCommonMain :androidApp:detekt --stacktrace
+        # `detekt` covers every source set, main and test (the KMP modules set its source in
+        # ostomate.kmp-library). detektMetadataCommonMain, used before, saw commonMain only.
+        run: ./gradlew :shared:detekt :composeApp:detekt :androidApp:detekt --stacktrace
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug --stacktrace
       - name: Run JVM host tests with coverage

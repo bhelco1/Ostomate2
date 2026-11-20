@@ -2,8 +2,11 @@ package com.ostomate.app.data
 
 import com.ostomate.app.data.db.BackupDao
 import com.ostomate.app.data.db.ChangeEventDao
+import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.OstomateDatabase
 import com.ostomate.app.data.db.SupplyTypeDao
+import com.ostomate.app.data.db.SupplyTypeEntity
+import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.platform.currentTimeMillis
 import kotlinx.coroutines.flow.first
@@ -69,35 +72,52 @@ class BackupRepository(
      * left untouched — never wipe first and fail second.
      */
     suspend fun restoreBackup(json: String): RestoreResult {
-        if (json.length > MAX_BACKUP_CHARS) return RestoreResult.Failure(RestoreError.OVERSIZED)
+        val backup =
+            when (val checked = validate(json)) {
+                is Validation.Invalid -> return RestoreResult.Failure(checked.error)
+                is Validation.Valid -> checked
+            }
+
+        backupDao.replaceAll(backup.supplies, backup.events)
+        // Settings live in DataStore, a separate store from the SQLite DB, so they are written
+        // after the DB transaction commits rather than inside it.
+        settingsRepository.restore(backup.settings)
+
+        return RestoreResult.Success(supplyTypes = backup.supplies.size, events = backup.events.size)
+    }
+
+    private fun validate(json: String): Validation {
+        if (json.length > MAX_BACKUP_CHARS) return Validation.Invalid(RestoreError.OVERSIZED)
 
         val envelope =
             runCatching { backupJson.decodeFromString<BackupEnvelope>(json) }
-                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+                .getOrElse { return Validation.Invalid(RestoreError.MALFORMED) }
 
-        if (envelope.formatVersion != BACKUP_FORMAT_VERSION) {
-            return RestoreResult.Failure(RestoreError.UNSUPPORTED_FORMAT_VERSION)
-        }
-        if (envelope.schemaVersion != OstomateDatabase.SCHEMA_VERSION) {
-            return RestoreResult.Failure(RestoreError.UNSUPPORTED_SCHEMA_VERSION)
-        }
+        val versionError =
+            when {
+                envelope.formatVersion != BACKUP_FORMAT_VERSION -> RestoreError.UNSUPPORTED_FORMAT_VERSION
+                envelope.schemaVersion != OstomateDatabase.SCHEMA_VERSION -> RestoreError.UNSUPPORTED_SCHEMA_VERSION
+                else -> null
+            }
+        if (versionError != null) return Validation.Invalid(versionError)
 
         // Map (and thereby validate enums) fully before touching the DB.
-        val supplies =
-            runCatching { envelope.supplyTypes.map { it.toEntity() } }
-                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
-        val events =
-            runCatching { envelope.events.map { it.toEntity() } }
-                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
-        val settings =
-            runCatching { envelope.settings.toAppSettings() }
-                .getOrElse { return RestoreResult.Failure(RestoreError.MALFORMED) }
+        return runCatching {
+            Validation.Valid(
+                supplies = envelope.supplyTypes.map { it.toEntity() },
+                events = envelope.events.map { it.toEntity() },
+                settings = envelope.settings.toAppSettings(),
+            )
+        }.getOrElse { Validation.Invalid(RestoreError.MALFORMED) }
+    }
 
-        backupDao.replaceAll(supplies, events)
-        // Settings live in DataStore, a separate store from the SQLite DB, so they are written
-        // after the DB transaction commits rather than inside it.
-        settingsRepository.restore(settings)
+    private sealed interface Validation {
+        class Valid(
+            val supplies: List<SupplyTypeEntity>,
+            val events: List<ChangeEventEntity>,
+            val settings: AppSettings,
+        ) : Validation
 
-        return RestoreResult.Success(supplyTypes = supplies.size, events = events.size)
+        class Invalid(val error: RestoreError) : Validation
     }
 }

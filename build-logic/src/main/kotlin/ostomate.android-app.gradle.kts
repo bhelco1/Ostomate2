@@ -43,4 +43,7 @@ kotlin {
 
 detekt {
     config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    // Without this, detekt.yml is the whole config and only rules it marks `active: true` run, which
+    // left UnusedImports as the one rule checked. Layer it on detekt's defaults instead.
+    buildUponDefaultConfig = true
 }

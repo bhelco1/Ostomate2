@@ -106,7 +106,7 @@ class AndroidDriveBackupPlatform(private val context: Context) : DriveBackupPlat
             block()
         } catch (e: CancellationException) {
             throw e
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             DriveAuthorization.Failed
         }
 }

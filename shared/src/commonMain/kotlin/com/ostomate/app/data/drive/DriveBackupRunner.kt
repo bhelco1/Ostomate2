@@ -88,13 +88,13 @@ class DriveBackupRunner(
             }
         } catch (e: CancellationException) {
             throw e
-        } catch (e: DriveNetworkException) {
+        } catch (ignored: DriveNetworkException) {
             DriveBackupFailure.NETWORK
         } catch (e: DriveApiException) {
             failureForHttpStatus(e.status)
-        } catch (e: SerializationException) {
+        } catch (ignored: SerializationException) {
             DriveBackupFailure.DRIVE_ERROR
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             DriveBackupFailure.OTHER
         }
 
@@ -118,11 +118,11 @@ class DriveBackupRunner(
     ) {
         try {
             backupsToDelete(client.listFiles(token, folderId)).forEach { client.delete(token, it.id) }
-        } catch (e: DriveApiException) {
+        } catch (ignored: DriveApiException) {
             return
-        } catch (e: DriveNetworkException) {
+        } catch (ignored: DriveNetworkException) {
             return
-        } catch (e: SerializationException) {
+        } catch (ignored: SerializationException) {
             return
         }
     }

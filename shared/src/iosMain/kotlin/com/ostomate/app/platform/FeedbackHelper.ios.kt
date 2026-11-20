@@ -5,13 +5,10 @@ import platform.UIKit.UIApplication
 
 actual class FeedbackHelper {
     actual fun launch() {
+        // A safe cast with a fallback: nothing here throws, so it needs no try/catch.
         val appVersion =
-            try {
-                platform.Foundation.NSBundle.mainBundle.infoDictionary
-                    ?.get("CFBundleShortVersionString") as? String ?: "unknown"
-            } catch (e: Exception) {
-                "unknown"
-            }
+            platform.Foundation.NSBundle.mainBundle.infoDictionary
+                ?.get("CFBundleShortVersionString") as? String ?: "unknown"
 
         val osVersion = platform.UIKit.UIDevice.currentDevice.systemVersion
         val model = platform.UIKit.UIDevice.currentDevice.model

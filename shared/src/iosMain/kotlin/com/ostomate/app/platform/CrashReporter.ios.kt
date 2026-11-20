@@ -7,7 +7,11 @@ actual class CrashReporter : CrashReporting {
     override fun init(
         dsn: String,
         enabled: Boolean,
-    ) {}
+    ) {
+        // No-op: Sentry starts from Swift (see above).
+    }
 
-    override fun setEnabled(enabled: Boolean) {}
+    override fun setEnabled(enabled: Boolean) {
+        // No-op: Swift reads the setting at the next launch.
+    }
 }

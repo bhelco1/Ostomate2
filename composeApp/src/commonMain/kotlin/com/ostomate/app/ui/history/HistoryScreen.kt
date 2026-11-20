@@ -141,7 +141,6 @@ private fun buildHistoryItems(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    supplyId: Long,
     onBack: () -> Unit,
     viewModel: HistoryViewModel = koinViewModel(),
 ) {
@@ -153,7 +152,7 @@ fun HistoryScreen(
     val undoLabel = stringResource(Res.string.action_undo)
 
     LaunchedEffect(uiState.pendingUndo) {
-        val deleted = uiState.pendingUndo ?: return@LaunchedEffect
+        if (uiState.pendingUndo == null) return@LaunchedEffect
         val result =
             snackbarHostState.showSnackbar(
                 message = eventDeletedMsg,
