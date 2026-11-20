@@ -409,37 +409,51 @@ network.
 - [x] Verified on both phones: bag and flange stickers each log exactly one event. Pixel
   above; on the iPhone each Nov 19 tap saved one bag tagged `source:nfc` (events 204–206),
   and a quick second tap got the "Add another?" prompt or was suppressed, as for QR.
-- [ ] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
+- [x] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
+  Wanted (Bobby, 2026-11-20): became FEAT-05 below.
 
-### FEAT-05 — Labels & stickers: set up QR codes and NFC stickers for any item 📋 planned
+### FEAT-05 — Labels & stickers: set up QR codes and NFC stickers for any item 🔨 code in review (FEAT-05 PR); Pixel check open
 Requested by Bobby 2026-11-20, outside the phase plan. Anyone should be able to set up QR
 labels and NFC stickers for every item they track, without NFC Tools or help: bag, flange
 and each custom item (custom items use the existing `item=id:<n>` link). Builds on FEAT-04;
 reading and writing stickers happen on the phone only, with no network.
-- [ ] Settings → QR Labels becomes **Labels & stickers** (Bobby, 2026-11-20). One row per
-  item, with **QR code** (print / share, as today) and **NFC sticker**.
-- [ ] One shared link builder in `shared` for QR, NFC and Copy link, replacing the two copies
+- [x] Settings → QR Labels becomes **Labels & stickers** (Bobby, 2026-11-20). One row per
+  item, with **QR code** (print / share, as today) and **NFC sticker**. `LabelsScreen` +
+  `LabelsViewModel`; onboarding's hint now points at Settings → Labels & stickers.
+- [x] One shared link builder in `shared` for QR, NFC and Copy link, replacing the two copies
   (`QrPrinter.android.kt`, `QrLabelsScreen.kt`), with unit tests for bag, flange and custom.
+  `domain/SupplyLink` (+ `SupplyLinkTest`); it also replaced a third copy in `QrPrinter.ios.kt`.
 - [ ] QR size and colour, from Bobby's printed test sheet (black vs the app's bag green
   #16A34A, 3.3:1 on white, and flange orange #E65100, 3.8:1, at 8–40 mm on both phones):
   print codes in the item's colour only if colour reads at the same sizes as black;
   otherwise keep the code black with an item-colour border and name band. Default label
   size = the smallest that both phones read reliably, with margin.
-- [ ] Android writes the sticker (Bobby, 2026-11-20): "Write sticker", hold a blank sticker
+- [x] Android writes the sticker (Bobby, 2026-11-20): "Write sticker", hold a blank sticker
   to the phone; NFC reader mode writes one NDEF URI record with the item's link (taps don't
   log while writing), then reads it back. Clear outcome for each case: written, sticker
   locked / read-only, too small, moved away too soon, NFC off (link to settings). Hidden on
   phones without NFC. Never locks stickers (locking is permanent; add only if Bobby asks).
   Adds `android.permission.NFC` (normal permission, no prompt).
-- [ ] iPhone: steps to write the sticker (NFC Tools or an Android phone) and to create the
+  Code done: `domain/StickerWriter` decides each outcome (JVM-tested with a fake tag);
+  `AndroidNfcStickerWriting` runs reader mode only while the dialog is open and the screen is
+  resumed, and has no lock call at all. An unreadable read-back says "hold it again", and a
+  card that is not an NDEF sticker gets its own message. Checked on hardware: the box below.
+- [x] iPhone: steps to write the sticker (NFC Tools or an Android phone) and to create the
   Shortcuts automation (apps can't create it), with a **Copy link** button for the item's
   `&src=nfc` link. In-app writing on iPhone needs Apple's NFC capability, which needs the
   paid Developer account, so it waits for enrollment.
-- [ ] A custom item's sticker still works after a backup restore on a new phone: test that
-  restore keeps supply ids (the link holds the id).
+  Done as a dialog from the row's **NFC sticker** button (`StickerCard`, strings EN + ES).
+- [x] A custom item's sticker still works after a backup restore on a new phone: test that
+  restore keeps supply ids (the link holds the id). `customItemStickerSurvivesRestore` (JVM +
+  iOS sim): a custom item with id 41 restores onto a phone with its own custom item, and both
+  its plain and `&src=nfc` links log it.
 - [ ] Tests: link builder + write-outcome mapping (unit), ViewModel/UiState, screenshot
   baselines for the new screen, a Maestro check of the rows and Copy link. The emulator
   has no NFC chip, so writing is checked by hand.
+  Done: `SupplyLinkTest`, `StickerWriterTest`, `LabelsViewModelTest`, 9 Roborazzi baselines
+  (`labels_*`, `sticker_*`), accessibility checks for the screen and every dialog state.
+  Open: the Maestro check (rows + Copy link); the store-screenshot flows were only re-pointed
+  at the new Settings row.
 - [ ] Verified on the Pixel: write a blank sticker for bag and for a custom item; tapping
   each logs exactly one event of that item on both phones.
 

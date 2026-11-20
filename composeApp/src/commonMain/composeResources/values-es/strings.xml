@@ -79,8 +79,8 @@
     <string name="settings_section_inventory">Inventario</string>
     <string name="settings_manage_supplies">Gestionar suministros</string>
     <string name="settings_manage_supplies_sub">Ver y actualizar cantidades disponibles</string>
-    <string name="settings_print_qr">Imprimir etiquetas QR</string>
-    <string name="settings_print_qr_sub">Escanear para registrar un cambio al instante</string>
+    <string name="settings_labels">Etiquetas y pegatinas</string>
+    <string name="settings_labels_sub">Códigos QR y pegatinas NFC que registran un cambio</string>
     <string name="settings_reorder_warnings">Alertas de reposición</string>
     <string name="settings_reorder_warnings_sub">Días de umbral por suministro</string>
     <string name="settings_section_security">Seguridad</string>
@@ -162,14 +162,39 @@
     <string name="reorder_warnings_days_suffix">días</string>
     <string name="cd_edit_threshold">Editar umbral de %1$s</string>
 
-    <!-- QR Labels screen -->
-    <string name="qr_labels_title">Etiquetas QR</string>
-    <string name="qr_labels_print">Imprimir</string>
-    <string name="qr_labels_no_supplies">Sin suministros configurados.</string>
-    <string name="qr_labels_share_link">Compartir enlace</string>
+    <!-- Labels & stickers screen (FEAT-05) -->
+    <string name="labels_title">Etiquetas y pegatinas</string>
+    <string name="labels_print">Imprimir</string>
+    <string name="labels_no_supplies">Sin suministros configurados.</string>
+    <string name="labels_share_qr">Compartir QR</string>
+    <string name="labels_write_sticker">Grabar pegatina</string>
+    <string name="labels_setup_sticker">Pegatina NFC</string>
     <string name="qr_links_header">Enlaces QR de Ostomate</string>
     <string name="cd_share_all_links">Compartir todos los enlaces</string>
     <string name="cd_qr_code_for">Código QR para %1$s</string>
+    <string name="cd_share_qr_for">Compartir el código QR de %1$s</string>
+    <string name="cd_write_sticker_for">Grabar la pegatina NFC de %1$s</string>
+    <string name="cd_setup_sticker_for">Configurar la pegatina NFC de %1$s</string>
+    <string name="sticker_title">Pegatina NFC: %1$s</string>
+    <string name="sticker_waiting">Acerca una pegatina NFC en blanco a la parte trasera del teléfono y mantenla quieta.</string>
+    <string name="sticker_not_logging">Mientras esto esté abierto, una pegatina acercada al teléfono se graba, no se registra.</string>
+    <string name="sticker_written">Pegatina grabada. Al tocarla ahora se registra %1$s.</string>
+    <string name="sticker_locked">Esta pegatina está bloqueada y no se puede cambiar. Usa otra pegatina.</string>
+    <string name="sticker_too_small">Esta pegatina es demasiado pequeña para el enlace. Usa una más grande, como NTAG213 o superior.</string>
+    <string name="sticker_lost_contact">La pegatina se apartó demasiado pronto. Mantenla quieta contra el teléfono e inténtalo de nuevo.</string>
+    <string name="sticker_unsupported">La app no puede grabar este tipo de etiqueta. Usa una pegatina NTAG en blanco.</string>
+    <string name="sticker_not_confirmed">No se pudo comprobar la pegatina. Acércala de nuevo al teléfono.</string>
+    <string name="sticker_nfc_off">El NFC está desactivado. Actívalo para grabar la pegatina.</string>
+    <string name="sticker_open_nfc_settings">Abrir ajustes de NFC</string>
+    <string name="sticker_try_again">Reintentar</string>
+    <string name="sticker_write_another">Grabar otra</string>
+    <string name="sticker_close">Cerrar</string>
+    <string name="sticker_ios_intro">El iPhone no puede grabar pegatinas desde Ostomate. Configura una en tres pasos:</string>
+    <string name="sticker_ios_step_write">1. Graba la pegatina: en la app NFC Tools, Escribir → Añadir un registro → URL, pega el enlace de abajo, luego Escribir y acerca la pegatina al iPhone. O grábala desde Ostomate en un teléfono Android.</string>
+    <string name="sticker_ios_step_automation">2. Haz que un toque la registre: en Atajos, Automatización → + → NFC → Escanear, y acerca la pegatina al iPhone. Luego añade Abrir URL, pega el enlace de abajo y elige Ejecutar inmediatamente.</string>
+    <string name="sticker_ios_step_test">3. Toca la pegatina: Ostomate se abre y registra %1$s.</string>
+    <string name="sticker_copy_link">Copiar enlace</string>
+    <string name="sticker_link_copied">Enlace copiado</string>
 
     <!-- Onboarding screen -->
     <string name="onboarding_skip">Omitir</string>
@@ -185,7 +210,7 @@
     <string name="onboarding_back">← Atrás</string>
     <string name="onboarding_qr_title">Registra en menos de 2 segundos</string>
     <string name="onboarding_qr_body">Imprime una etiqueta QR y pégala en tu caja de suministros. Escanéala con tu cámara y el cambio se registrará al instante — sin navegar por la app.</string>
-    <string name="onboarding_qr_hint">Puedes imprimir etiquetas en cualquier momento desde Ajustes → Imprimir etiquetas QR.</string>
+    <string name="onboarding_qr_hint">Puedes imprimir etiquetas QR y configurar pegatinas NFC en cualquier momento desde Ajustes → Etiquetas y pegatinas.</string>
     <string name="onboarding_get_started">Comenzar</string>
     <string name="onboarding_print_later">Imprimir etiquetas después</string>
     <string name="onboarding_step_indicator">Paso %1$d de %2$d</string>

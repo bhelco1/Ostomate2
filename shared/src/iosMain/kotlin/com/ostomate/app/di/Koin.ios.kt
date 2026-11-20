@@ -17,6 +17,8 @@ import com.ostomate.app.platform.CrashReporting
 import com.ostomate.app.platform.DriveBackupPlatform
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.IosNfcStickerWriting
+import com.ostomate.app.platform.NfcStickerWriting
 import com.ostomate.app.platform.Notifier
 import com.ostomate.app.platform.ReminderNotifier
 import com.ostomate.app.platform.UnsupportedDriveBackupPlatform
@@ -32,6 +34,8 @@ actual val platformModule: Module =
         single { Notifier() } bind ReminderNotifier::class
         single { BiometricAuthenticator() } bind BiometricAuth::class
         single { FileSharer() }
+        // In-app sticker writing needs Apple's paid NFC capability; the screen shows steps.
+        single<NfcStickerWriting> { IosNfcStickerWriting }
         single { FeedbackHelper() }
         single { CrashReporter() } bind CrashReporting::class
         // The daily Google Drive backup is Android only; Settings hides its controls here.

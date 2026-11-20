@@ -29,6 +29,13 @@ class RepositoryTest {
         }
 
     @Test
+    fun customItemStickerSurvivesRestore() =
+        runTest {
+            val target = newDatabase().also { extraDbs += it }
+            RepositoryScenarios.customItemStickerSurvivesRestore(db, target)
+        }
+
+    @Test
     fun malformedBackupIsRejectedLeavingDataUntouched() =
         runTest { RepositoryScenarios.malformedBackupIsRejectedLeavingDataUntouched(db) }
 

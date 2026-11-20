@@ -7,6 +7,12 @@
          the backup does not depend on a crash reporter's manifest to reach the network. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- FEAT-05: Settings → Labels & stickers writes NFC stickers (reader mode). A normal
+         permission: granted at install, no prompt. NFC stays optional so phones without it
+         still install the app; the write action is hidden there. -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"

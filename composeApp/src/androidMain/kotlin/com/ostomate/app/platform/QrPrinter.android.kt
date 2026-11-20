@@ -20,7 +20,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
 import com.ostomate.app.data.db.SupplyTypeEntity
-import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyLink
 import java.io.FileOutputStream
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
@@ -128,7 +128,7 @@ private class QrLabelsPrintAdapter(
 
             if (cellTop + cellHeight > pageHeight - margin) return
 
-            val url = supplyDeepLinkUrl(supply)
+            val url = SupplyLink.of(supply.kind, supply.id)
 
             // Draw QR code directly to canvas
             drawQrCode(canvas, url, cellLeft + (colWidth - qrSize) / 2f, cellTop, qrSize)
@@ -179,15 +179,5 @@ private class QrLabelsPrintAdapter(
                 }
             }
         }
-    }
-
-    private fun supplyDeepLinkUrl(supply: SupplyTypeEntity): String {
-        val item =
-            when (supply.kind) {
-                SupplyKind.BAG -> "bag"
-                SupplyKind.FLANGE -> "flange"
-                SupplyKind.CUSTOM -> "id:${supply.id}"
-            }
-        return "ostomate://log?item=$item"
     }
 }

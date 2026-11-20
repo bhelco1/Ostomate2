@@ -73,7 +73,7 @@ composeApp/commonMain/
     settings/
       SettingsScreen + SettingsViewModel
       ManageSuppliesScreen + ManageSuppliesViewModel
-      QrLabelsScreen
+      LabelsScreen + LabelsViewModel (QR labels and NFC stickers, FEAT-05)
       ReorderWarningsScreen
       PrivacyPolicyScreen
     components/   LogButton, Pill, SupplyCard, WarningBanner

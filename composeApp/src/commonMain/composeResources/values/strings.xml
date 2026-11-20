@@ -80,8 +80,8 @@
     <string name="settings_section_inventory">Inventory</string>
     <string name="settings_manage_supplies">Manage Supplies</string>
     <string name="settings_manage_supplies_sub">View and update on-hand counts</string>
-    <string name="settings_print_qr">Print QR Labels</string>
-    <string name="settings_print_qr_sub">Scan to log a change instantly</string>
+    <string name="settings_labels">Labels &amp; stickers</string>
+    <string name="settings_labels_sub">QR codes and NFC stickers that log a change</string>
     <string name="settings_reorder_warnings">Reorder Warnings</string>
     <string name="settings_reorder_warnings_sub">Per-supply threshold days</string>
     <string name="settings_section_security">Security</string>
@@ -166,14 +166,39 @@
     <string name="reorder_warnings_days_suffix">days</string>
     <string name="cd_edit_threshold">Edit %1$s threshold</string>
 
-    <!-- QR Labels screen -->
-    <string name="qr_labels_title">QR Labels</string>
-    <string name="qr_labels_print">Print</string>
-    <string name="qr_labels_no_supplies">No supplies configured.</string>
-    <string name="qr_labels_share_link">Share link</string>
+    <!-- Labels & stickers screen (FEAT-05) -->
+    <string name="labels_title">Labels &amp; stickers</string>
+    <string name="labels_print">Print</string>
+    <string name="labels_no_supplies">No supplies configured.</string>
+    <string name="labels_share_qr">Share QR</string>
+    <string name="labels_write_sticker">Write sticker</string>
+    <string name="labels_setup_sticker">NFC sticker</string>
     <string name="qr_links_header">Ostomate QR links</string>
     <string name="cd_share_all_links">Share all links</string>
     <string name="cd_qr_code_for">QR code for %1$s</string>
+    <string name="cd_share_qr_for">Share QR code for %1$s</string>
+    <string name="cd_write_sticker_for">Write NFC sticker for %1$s</string>
+    <string name="cd_setup_sticker_for">Set up NFC sticker for %1$s</string>
+    <string name="sticker_title">NFC sticker: %1$s</string>
+    <string name="sticker_waiting">Hold a blank NFC sticker flat against the back of the phone and keep it still.</string>
+    <string name="sticker_not_logging">While this is open, a sticker held to the phone is written, not logged.</string>
+    <string name="sticker_written">Sticker written. Tapping it now logs %1$s.</string>
+    <string name="sticker_locked">This sticker is locked and can't be changed. Use another sticker.</string>
+    <string name="sticker_too_small">This sticker is too small for the link. Use a bigger one, such as NTAG213 or larger.</string>
+    <string name="sticker_lost_contact">The sticker moved away too soon. Hold it still against the phone and try again.</string>
+    <string name="sticker_unsupported">The app can't write this kind of tag. Use a blank NTAG sticker.</string>
+    <string name="sticker_not_confirmed">The sticker couldn't be checked. Hold it to the phone again.</string>
+    <string name="sticker_nfc_off">NFC is turned off. Turn it on to write the sticker.</string>
+    <string name="sticker_open_nfc_settings">Open NFC settings</string>
+    <string name="sticker_try_again">Try again</string>
+    <string name="sticker_write_another">Write another</string>
+    <string name="sticker_close">Close</string>
+    <string name="sticker_ios_intro">iPhone can't write stickers from Ostomate. Set one up in three steps:</string>
+    <string name="sticker_ios_step_write">1. Write the sticker: in the NFC Tools app, Write → Add a record → URL, paste the link below, then Write and hold the sticker to the iPhone. Or write it from Ostomate on an Android phone.</string>
+    <string name="sticker_ios_step_automation">2. Make a tap log it: in Shortcuts, Automation → + → NFC → Scan, and hold the sticker to the iPhone. Then add Open URL, paste the link below, and choose Run Immediately.</string>
+    <string name="sticker_ios_step_test">3. Tap the sticker: Ostomate opens and logs %1$s.</string>
+    <string name="sticker_copy_link">Copy link</string>
+    <string name="sticker_link_copied">Link copied</string>
 
     <!-- Onboarding screen -->
     <string name="onboarding_skip">Skip</string>
@@ -189,7 +214,7 @@
     <string name="onboarding_back">← Back</string>
     <string name="onboarding_qr_title">Log in under 2 seconds</string>
     <string name="onboarding_qr_body">Print a QR sticker and stick it on your supply box. Scan it with your camera and the change is logged instantly — no app navigation required.</string>
-    <string name="onboarding_qr_hint">You can print labels anytime from Settings → Print QR Labels.</string>
+    <string name="onboarding_qr_hint">You can print QR labels and set up NFC stickers anytime from Settings → Labels &amp; stickers.</string>
     <string name="onboarding_get_started">Get started</string>
     <string name="onboarding_print_later">Print labels later</string>
     <string name="onboarding_step_indicator">Step %1$d of %2$d</string>

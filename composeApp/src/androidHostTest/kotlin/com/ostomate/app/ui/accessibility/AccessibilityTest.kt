@@ -11,6 +11,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.unit.dp
@@ -20,12 +21,15 @@ import com.ostomate.app.data.diagnostics.DiagnosticLog
 import com.ostomate.app.data.diagnostics.InMemoryDiagnosticLogStore
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.domain.NotificationScheduler
+import com.ostomate.app.domain.StickerWriteOutcome
 import com.ostomate.app.domain.SupplyKind
 import com.ostomate.app.platform.FeedbackHelper
 import com.ostomate.app.platform.FileSharer
+import com.ostomate.app.platform.NfcStatus
 import com.ostomate.app.ui.FakeBackupDao
 import com.ostomate.app.ui.FakeDriveBackupPlatform
 import com.ostomate.app.ui.FakeDriveBackupUploader
+import com.ostomate.app.ui.FakeNfcStickerWriting
 import com.ostomate.app.ui.InMemoryDataStore
 import com.ostomate.app.ui.RecordingCrashReporter
 import com.ostomate.app.ui.RecordingNotifier
@@ -35,8 +39,14 @@ import com.ostomate.app.ui.screenshot.DAY_MS
 import com.ostomate.app.ui.screenshot.FIXED_MILLIS
 import com.ostomate.app.ui.screenshot.FIXED_TODAY
 import com.ostomate.app.ui.screenshot.ScreenshotTest
+import com.ostomate.app.ui.settings.LabelItem
+import com.ostomate.app.ui.settings.LabelsScreen
+import com.ostomate.app.ui.settings.LabelsViewModel
 import com.ostomate.app.ui.settings.SettingsScreen
 import com.ostomate.app.ui.settings.SettingsViewModel
+import com.ostomate.app.ui.settings.StickerCard
+import com.ostomate.app.ui.settings.StickerSheet
+import com.ostomate.app.ui.settings.WritePhase
 import com.ostomate.app.ui.testSupply
 import com.ostomate.app.ui.theme.OstomateTheme
 import org.junit.After
@@ -48,7 +58,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Automated accessibility check (2.5.9) on Home and Settings, read from Compose semantics on
+ * Automated accessibility check (2.5.9) on Home, Settings and Labels & stickers, read from Compose semantics on
  * the JVM host: every clickable has something for a screen reader to announce (spec 4.3).
  * Manual TalkBack/VoiceOver stays on the release checklist for how the screens actually sound.
  *
@@ -152,6 +162,59 @@ class AccessibilityTest : ScreenshotTest() {
             setContent { OstomateTheme { SettingsScreen(viewModel = vm) } }
             onNodeWithTag("driveBackupSwitch").assertExists()
             assertNoViolations()
+        }
+    }
+
+    @Test
+    fun labelsAndStickersIsAccessibleOnAndroidAndIphone() {
+        startKoin { modules(module { single { FileSharer() } }) }
+        seed {
+            supplyDao.seed(
+                testSupply(name = "Bag", kind = SupplyKind.BAG),
+                testSupply(name = "Barrier Ring", kind = SupplyKind.CUSTOM, sortOrder = 1, colorIndex = 2),
+            )
+        }
+        for (status in listOf(NfcStatus.ON, NfcStatus.NOT_IN_APP)) {
+            val vm = LabelsViewModel(supplyRepository, FakeNfcStickerWriting(status))
+            awaitState(vm.uiState) { it.items.size == 2 }
+
+            runComposeUiTest {
+                setContent { OstomateTheme { LabelsScreen(onBack = {}, viewModel = vm) } }
+                // Each row's sticker button names its item, not just "Write sticker".
+                val verb = if (status == NfcStatus.ON) "Write" else "Set up"
+                onNodeWithContentDescription("$verb NFC sticker for Barrier Ring").assertExists()
+                onNodeWithContentDescription("Share QR code for Bag").assertExists()
+                assertNoViolations()
+            }
+        }
+    }
+
+    @Test
+    fun stickerDialogsAreAccessible() {
+        val item = LabelItem(testSupply(id = 41, name = "Barrier Ring", kind = SupplyKind.CUSTOM))
+        val sheets =
+            listOf(
+                StickerSheet.Write(item, WritePhase.Waiting),
+                StickerSheet.Write(item, WritePhase.NfcOff),
+                StickerSheet.Write(item, WritePhase.Done(StickerWriteOutcome.WRITTEN)),
+                StickerSheet.Write(item, WritePhase.Done(StickerWriteOutcome.TOO_SMALL)),
+                StickerSheet.Steps(item),
+            )
+        for (sheet in sheets) {
+            runComposeUiTest {
+                setContent {
+                    OstomateTheme {
+                        StickerCard(
+                            sheet = sheet,
+                            onClose = {},
+                            onWriteAgain = {},
+                            onOpenNfcSettings = {},
+                        )
+                    }
+                }
+                assertTrue(clickables().isNotEmpty(), "no buttons found for $sheet")
+                assertNoViolations()
+            }
         }
     }
 

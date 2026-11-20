@@ -78,10 +78,10 @@ import com.ostomate.app.resources.settings_drive_upload_saved_title
 import com.ostomate.app.resources.settings_export_backup
 import com.ostomate.app.resources.settings_feedback
 import com.ostomate.app.resources.settings_feedback_sub
+import com.ostomate.app.resources.settings_labels
+import com.ostomate.app.resources.settings_labels_sub
 import com.ostomate.app.resources.settings_manage_supplies
 import com.ostomate.app.resources.settings_manage_supplies_sub
-import com.ostomate.app.resources.settings_print_qr
-import com.ostomate.app.resources.settings_print_qr_sub
 import com.ostomate.app.resources.settings_privacy_policy
 import com.ostomate.app.resources.settings_reorder_warnings
 import com.ostomate.app.resources.settings_reorder_warnings_sub
@@ -118,7 +118,7 @@ fun SettingsScreen(
     onNavigateToManageSupplies: () -> Unit = {},
     onNavigateToReorderWarnings: () -> Unit = {},
     onNavigateToPrivacyPolicy: () -> Unit = {},
-    onNavigateToQrLabels: () -> Unit = {},
+    onNavigateToLabels: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val settings by viewModel.settings.collectAsState()
@@ -290,12 +290,12 @@ fun SettingsScreen(
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )
             ListItem(
-                headlineContent = { Text(stringResource(Res.string.settings_print_qr)) },
-                supportingContent = { Text(stringResource(Res.string.settings_print_qr_sub)) },
+                headlineContent = { Text(stringResource(Res.string.settings_labels)) },
+                supportingContent = { Text(stringResource(Res.string.settings_labels_sub)) },
                 modifier =
                     Modifier.clickable(
-                        onClickLabel = stringResource(Res.string.settings_print_qr),
-                        onClick = { onNavigateToQrLabels() },
+                        onClickLabel = stringResource(Res.string.settings_labels),
+                        onClick = { onNavigateToLabels() },
                     ),
                 colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
             )

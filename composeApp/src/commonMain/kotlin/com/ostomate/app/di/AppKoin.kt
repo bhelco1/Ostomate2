@@ -4,6 +4,7 @@ import com.ostomate.app.ui.calendar.CalendarViewModel
 import com.ostomate.app.ui.history.HistoryViewModel
 import com.ostomate.app.ui.home.HomeViewModel
 import com.ostomate.app.ui.onboarding.OnboardingViewModel
+import com.ostomate.app.ui.settings.LabelsViewModel
 import com.ostomate.app.ui.settings.ManageSuppliesViewModel
 import com.ostomate.app.ui.settings.SettingsViewModel
 import com.ostomate.app.ui.stats.StatsViewModel
@@ -24,6 +25,7 @@ val uiModule =
         viewModelOf(::StatsViewModel)
         viewModelOf(::SettingsViewModel)
         viewModelOf(::ManageSuppliesViewModel)
+        viewModelOf(::LabelsViewModel)
         viewModelOf(::OnboardingViewModel)
     }
 

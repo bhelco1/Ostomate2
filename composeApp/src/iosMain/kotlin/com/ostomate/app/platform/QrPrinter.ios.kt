@@ -5,7 +5,7 @@ package com.ostomate.app.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.ostomate.app.data.db.SupplyTypeEntity
-import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyLink
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
@@ -27,7 +27,7 @@ actual class QrPrinter {
 
         val images: List<UIImage> =
             supplies.mapNotNull { supply ->
-                val png = QrCodeEncoder.encodeToPng(supplyDeepLinkUrl(supply), 512)
+                val png = QrCodeEncoder.encodeToPng(SupplyLink.of(supply.kind, supply.id), 512)
                 if (png.isEmpty()) return@mapNotNull null
                 val nsData = png.usePinned { NSData.dataWithBytes(it.addressOf(0), png.size.toULong()) }
                 UIImage(data = nsData)
@@ -36,16 +36,6 @@ actual class QrPrinter {
 
         controller.printingItems = images
         controller.presentAnimated(true, completionHandler = null)
-    }
-
-    private fun supplyDeepLinkUrl(supply: SupplyTypeEntity): String {
-        val item =
-            when (supply.kind) {
-                SupplyKind.BAG -> "bag"
-                SupplyKind.FLANGE -> "flange"
-                SupplyKind.CUSTOM -> "id:${supply.id}"
-            }
-        return "ostomate://log?item=$item"
     }
 }
 
