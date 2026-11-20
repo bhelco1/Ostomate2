@@ -381,27 +381,34 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
 - [ ] Release builds: another Android OAuth client with the upload/Play signing SHA-1s
   (after the Phase 3 keystore exists).
 
-### FEAT-04 — NFC sticker logging 🔄 (app change in; sticker test waits on the stickers)
+### FEAT-04 — NFC sticker logging ✅ (verified on both phones 2026-11-20)
 Requested by Bobby 2026-11-16, outside the phase plan. The phone camera always shows a
 "tap to open" chip for a QR code, and no app can skip it. An NFC sticker on the supply box
 can hold the same `ostomate://log?item=bag|flange` link, so touching the phone to it logs
 the change with no extra tap. The link goes through the existing deep-link path (confirm,
 10 s Undo, scan audit) unchanged. Reading a sticker happens on the phone only, with no
 network.
-- [ ] Bobby buys NTAG213/215 stickers (one-off, about $10 for 10; on-metal tags only for
+- [x] Bobby buys NTAG213/215 stickers (one-off, about $10 for 10; on-metal tags only for
   metal surfaces) and writes the bag link with the free NFC Tools app (Write → URL/URI).
+  Bag and flange stickers written 2026-11-18.
 - [x] Android: `NDEF_DISCOVERED` intent filter for `ostomate://log` on `MainActivity`, added
   up front rather than relying on Android's fallback. On an API 35 emulator the NFC intent
   opened Ostomate and logged one flange; Journey 11 in the Android E2E job checks the filter.
-- [ ] Android on the Pixel: tap a real sticker, unlocked; Ostomate opens and logs, no chip.
-- [ ] iOS: a plain sticker shows a banner, so set up a Shortcuts personal automation
+- [x] Android on the Pixel: tap a real sticker, unlocked; Ostomate opens and logs, no chip.
+  2026-11-18, build 2edf433: every tap came from `com.google.android.nfc` as NDEF_DISCOVERED
+  with no chooser; the 15:25 flange and bag taps saved events 205 and 206, one each, both
+  `source:nfc`. A tap repeated within seconds was suppressed, as for QR.
+- [x] iOS: a plain sticker shows a banner, so set up a Shortcuts personal automation
   (NFC → the sticker → Open URL `ostomate://log?item=bag&src=nfc` → Run Immediately) on the
   iPhone. `&src=nfc` is what marks it as NFC there; iOS gives the app no other sign.
+  Bag and flange automations set up 2026-11-18; Bobby reports both open Ostomate and log.
 - [x] Own event source (Bobby, 2026-11-16): NFC taps are tagged `source:nfc`, not `source:qr`.
   Android knows from the NFC intent, so stickers keep the plain link; on iOS the Shortcut's
   link carries `&src=nfc`. A confirmed "Add another?" repeat keeps the NFC source. The web
   dashboard ignores tags, so its backup contract is unchanged.
-- [ ] Verified on both phones: bag and flange stickers each log exactly one event.
+- [x] Verified on both phones: bag and flange stickers each log exactly one event. Pixel
+  above; on the iPhone each Nov 19 tap saved one bag tagged `source:nfc` (events 204–206),
+  and a quick second tap got the "Add another?" prompt or was suppressed, as for QR.
 - [ ] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
 
 ---
