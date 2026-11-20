@@ -162,7 +162,9 @@ Run before any release candidate.
 - [ ] Calendar — month view shows correct day counts
 - [ ] Settings — biometric lock engages; Touch ID / Face ID unlocks
 - [ ] Settings → Manage Supplies — add custom supply type
-- [ ] Settings → QR Labels — share sheet appears with PNG
+- [ ] Settings → Labels & stickers — one row per item; Share QR shows the share sheet with a PNG
+- [ ] Settings → Labels & stickers → NFC sticker — steps show; Copy link copies the item's
+  `&src=nfc` link (paste it in Notes to check)
 - [ ] Settings → Export CSV — share sheet appears with .csv
 - [ ] Notifications — reduce days remaining below threshold, verify notification fires
 - [ ] Dark mode — toggle in Settings app, verify all screens readable
@@ -171,6 +173,10 @@ Run before any release candidate.
 ### Android (physical device)
 - [ ] Same checklist as iOS
 - [ ] QR deep link via camera
+- [ ] Settings → Labels & stickers → Write sticker (FEAT-05; the emulator has no NFC chip, so
+  only a real phone checks this): a blank sticker says "Sticker written"; tapping it afterwards
+  logs exactly one event of that item; a tap while the dialog is open logs nothing; NFC off
+  shows "Open NFC settings" and writing resumes on return
 - [ ] Notification via WorkManager (set supply below threshold, wait up to 24h or use ADB to trigger)
 - [ ] TalkBack navigation
 

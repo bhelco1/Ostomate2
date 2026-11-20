@@ -114,7 +114,7 @@ Output (fastlane layout):
 5. **Stats** — 30-day averages per supply
 6. **Settings** — overview
 7. **Manage Supplies** — on-hand counts and box sizes
-8. **QR Labels** — both QR codes with supply titles
+8. **Labels & stickers** — each supply's QR code with its Share QR and NFC sticker buttons
 
 Ensure no personal data visible in screenshots — never use a real backup.
 
