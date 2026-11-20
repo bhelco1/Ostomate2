@@ -381,7 +381,7 @@ newest 14. Details and privacy posture: `06-security-privacy.md` ("Daily Google 
 - [ ] Release builds: another Android OAuth client with the upload/Play signing SHA-1s
   (after the Phase 3 keystore exists).
 
-### FEAT-04 — NFC sticker logging 🔄 (works on both phones; iPhone one-event-per-tap check left)
+### FEAT-04 — NFC sticker logging ✅ (verified on both phones 2026-11-20)
 Requested by Bobby 2026-11-16, outside the phase plan. The phone camera always shows a
 "tap to open" chip for a QR code, and no app can skip it. An NFC sticker on the supply box
 can hold the same `ostomate://log?item=bag|flange` link, so touching the phone to it logs
@@ -406,8 +406,9 @@ network.
   Android knows from the NFC intent, so stickers keep the plain link; on iOS the Shortcut's
   link carries `&src=nfc`. A confirmed "Add another?" repeat keeps the NFC source. The web
   dashboard ignores tags, so its backup contract is unchanged.
-- [ ] Verified on both phones: bag and flange stickers each log exactly one event. Pixel
-  done (above); iPhone still to check in its history (one event per tap, right item).
+- [x] Verified on both phones: bag and flange stickers each log exactly one event. Pixel
+  above; on the iPhone each Nov 19 tap saved one bag tagged `source:nfc` (events 204–206),
+  and a quick second tap got the "Add another?" prompt or was suppressed, as for QR.
 - [ ] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
 
 ---
