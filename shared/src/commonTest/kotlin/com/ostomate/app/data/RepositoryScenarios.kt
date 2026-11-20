@@ -2,11 +2,13 @@ package com.ostomate.app.data
 
 import com.ostomate.app.data.db.ChangeEventEntity
 import com.ostomate.app.data.db.OstomateDatabase
+import com.ostomate.app.data.db.SupplyTypeEntity
 import com.ostomate.app.data.settings.AppSettings
 import com.ostomate.app.data.settings.SettingsRepository
 import com.ostomate.app.data.settings.createSettingsDataStore
 import com.ostomate.app.domain.ApplianceType
 import com.ostomate.app.domain.SupplyKind
+import com.ostomate.app.domain.SupplyLink
 import com.ostomate.app.testTempDir
 import kotlinx.coroutines.flow.first
 import okio.FileSystem
@@ -116,6 +118,62 @@ object RepositoryScenarios {
             assertEquals(2, target.changeEventDao().getAllRaw().count { it.timestampMillis == 5_000L })
             // Settings match the source exactly.
             assertEquals(sourceStateSettings, targetSettings.settings.first())
+        } finally {
+            FileSystem.SYSTEM.delete(sourcePath.toPath(), mustExist = false)
+            FileSystem.SYSTEM.delete(targetPath.toPath(), mustExist = false)
+        }
+    }
+
+    /**
+     * FEAT-05: a custom item's QR label or NFC sticker holds its row id (`item=id:<n>`), so a
+     * restore onto a new phone must keep supply ids. The target phone already has its own
+     * custom item, so a restore that let ids be regenerated would point the old sticker at the
+     * wrong item (or at nothing).
+     */
+    suspend fun customItemStickerSurvivesRestore(
+        source: OstomateDatabase,
+        target: OstomateDatabase,
+    ) {
+        val (sourceSettings, sourcePath) = newSettingsRepository()
+        val (targetSettings, targetPath) = newSettingsRepository()
+        try {
+            // A phone that has had many items: the custom item's id is far from what a fresh
+            // insert would get, so a restore that regenerated ids could never land on it.
+            val ringsId =
+                source.supplyTypeDao().insert(
+                    SupplyTypeEntity(
+                        id = 41,
+                        name = "Barrier rings",
+                        kind = SupplyKind.CUSTOM,
+                        boxSize = 20,
+                        warnThresholdDays = 10,
+                        onHand = 6,
+                        sortOrder = 2,
+                        colorIndex = 5,
+                    ),
+                )
+            assertEquals(41L, ringsId)
+            val rings = assertNotNull(source.supplyTypeDao().getById(ringsId))
+            val stickerLinks =
+                listOf(
+                    SupplyLink.of(rings.kind, rings.id),
+                    SupplyLink.of(rings.kind, rings.id, nfc = true),
+                )
+            // The new phone already has a custom item of its own before the restore.
+            SupplyRepository(target.supplyTypeDao())
+                .addCustomSupply(name = "Other", boxSize = 1, warnThresholdDays = 7, colorIndex = 0)
+
+            val json = backupRepository(source, sourceSettings).exportBackup()
+            assertIs<RestoreResult.Success>(backupRepository(target, targetSettings).restoreBackup(json))
+
+            assertEquals(rings, target.supplyTypeDao().getById(ringsId))
+            var now = 1_000_000L
+            val events = ChangeEventRepository(target.changeEventDao(), target.supplyTypeDao(), clock = { now })
+            for (link in stickerLinks) {
+                assertEquals(DeepLinkOutcome.Logged("Barrier rings"), events.handleDeepLink(link))
+                now += 86_400_000L // a day apart: past the repeat-scan prompt window
+            }
+            assertEquals(2, target.changeEventDao().getBySupplyType(ringsId).size)
         } finally {
             FileSystem.SYSTEM.delete(sourcePath.toPath(), mustExist = false)
             FileSystem.SYSTEM.delete(targetPath.toPath(), mustExist = false)
