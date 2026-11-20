@@ -42,9 +42,9 @@ actual object QrCodeEncoder {
     ): BitMatrix? =
         try {
             QRCodeWriter().encode(url, BarcodeFormat.QR_CODE, size, size, mapOf(EncodeHintType.MARGIN to 1))
-        } catch (e: WriterException) {
+        } catch (ignored: WriterException) {
             null
-        } catch (e: IllegalArgumentException) {
+        } catch (ignored: IllegalArgumentException) {
             null
         }
 }

@@ -23,18 +23,18 @@ class QrModules(
     ): Boolean = dark[y * size + x]
 
     /** Horizontal runs of dark modules, row by row: one rectangle per run instead of per module. */
-    fun darkRuns(): List<ModuleRun> {
+    fun darkRuns(): List<ModuleRun> = (0 until size).flatMap { y -> darkRunsInRow(y) }
+
+    private fun darkRunsInRow(y: Int): List<ModuleRun> {
         val runs = mutableListOf<ModuleRun>()
-        for (y in 0 until size) {
-            var x = 0
-            while (x < size) {
-                if (isDark(x, y)) {
-                    val start = x
-                    while (x < size && isDark(x, y)) x++
-                    runs += ModuleRun(row = y, start = start, length = x - start)
-                } else {
-                    x++
-                }
+        var x = 0
+        while (x < size) {
+            if (isDark(x, y)) {
+                val start = x
+                while (x < size && isDark(x, y)) x++
+                runs += ModuleRun(row = y, start = start, length = x - start)
+            } else {
+                x++
             }
         }
         return runs
