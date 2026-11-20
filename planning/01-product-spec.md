@@ -66,6 +66,8 @@ Must be simple enough to use one-handed in a clinical or bathroom setting.
 - Biometric-locked inventory editing (count + warning threshold per type)
 - Fallback to device PIN if no biometric enrolled; auto-unlock if none enrolled
 - QR Labels: generate and share QR code PNGs for each supply type
+- Labels & stickers (FEAT-05, planned): QR Labels becomes one screen per item for QR codes
+  and NFC stickers; Android writes stickers itself, iPhone gets steps + a Copy link button
 - Reorder Warnings: configure threshold per type
 - Manage Supplies: add/rename/reorder custom supply types with color palette
 - CSV Export: export all events as `id,type,timestamp_iso8601`
