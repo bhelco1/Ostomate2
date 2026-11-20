@@ -193,10 +193,10 @@
     <string name="sticker_try_again">Try again</string>
     <string name="sticker_write_another">Write another</string>
     <string name="sticker_close">Close</string>
-    <string name="sticker_ios_intro">iPhone can't write stickers from Ostomate. Set one up in three steps:</string>
-    <string name="sticker_ios_step_write">1. Write the sticker: in the NFC Tools app, Write → Add a record → URL, paste the link below, then Write and hold the sticker to the iPhone. Or write it from Ostomate on an Android phone.</string>
-    <string name="sticker_ios_step_automation">2. Make a tap log it: in Shortcuts, Automation → + → NFC → Scan, and hold the sticker to the iPhone. Then add Open URL, paste the link below, and choose Run Immediately.</string>
-    <string name="sticker_ios_step_test">3. Tap the sticker: Ostomate opens and logs %1$s.</string>
+    <string name="sticker_ios_intro">Any NFC sticker works on iPhone, even a blank one: Shortcuts recognizes the sticker itself, so nothing needs writing to it. Set it up in two steps:</string>
+    <string name="sticker_ios_optional_write">Optional: to make the same sticker work on an Android phone too, write the link to it, from Ostomate on an Android phone or with the NFC Tools app (Write → Add a record → URL).</string>
+    <string name="sticker_ios_step_automation">1. Make a tap log it: in Shortcuts, Automation → + → NFC → Scan, and hold the sticker to the iPhone. Then add Open URL, paste the link below, and choose Run Immediately.</string>
+    <string name="sticker_ios_step_test">2. Tap the sticker: Ostomate opens and logs %1$s.</string>
     <string name="sticker_copy_link">Copy link</string>
     <string name="sticker_link_copied">Link copied</string>
 
