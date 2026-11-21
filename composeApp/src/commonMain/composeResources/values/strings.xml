@@ -170,13 +170,9 @@
     <string name="labels_title">Labels &amp; stickers</string>
     <string name="labels_print">Print</string>
     <string name="labels_no_supplies">No supplies configured.</string>
-    <string name="labels_share_qr">Share QR</string>
     <string name="labels_write_sticker">Write sticker</string>
     <string name="labels_setup_sticker">NFC sticker</string>
-    <string name="qr_links_header">Ostomate QR links</string>
-    <string name="cd_share_all_links">Share all links</string>
     <string name="cd_qr_code_for">QR code for %1$s</string>
-    <string name="cd_share_qr_for">Share QR code for %1$s</string>
     <string name="cd_write_sticker_for">Write NFC sticker for %1$s</string>
     <string name="cd_setup_sticker_for">Set up NFC sticker for %1$s</string>
     <string name="sticker_title">NFC sticker: %1$s</string>

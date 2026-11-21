@@ -1,7 +1,6 @@
 package com.ostomate.app.platform
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -176,7 +175,7 @@ class QrLabelPrintTest {
     }
 
     @Test
-    fun renderedAt300DpiTheBagCodeMeasuresTwentyFiveMillimetresAndEveryCodeDecodes() {
+    fun renderedAt300DpiTheBagCodeMeasuresTwentyFiveMillimetresAndEveryCodeIsItsColourOnWhiteAndDecodes() {
         val labels = printLabels(supplies)
         val sheet = QrLabelLayout.layout(labels.size, 612.0, 792.0)
         val dpi = 300
@@ -202,6 +201,25 @@ class QrLabelPrintTest {
         assertTrue(abs(widthMm - 25.0) < 0.2, "width $widthMm mm")
         assertTrue(abs(heightMm - 25.0) < 0.2, "height $heightMm mm")
 
+        // Each code is its item's colour on white: every module's centre pixel is the item's
+        // colour if the module is dark and white if it is light.
+        sheet.onPage(0).forEach { placement ->
+            val label = labels[placement.index]
+            val module = placement.qr.width / label.modules.symbolSize
+            for (y in 0 until label.modules.symbolSize) {
+                for (x in 0 until label.modules.symbolSize) {
+                    val px = ((placement.qr.left + (x + 0.5) * module) * dpi / 72).toInt()
+                    val py = ((placement.qr.top + (y + 0.5) * module) * dpi / 72).toInt()
+                    val dark = label.modules.isDark(x + label.modules.quietZone, y + label.modules.quietZone)
+                    assertEquals(
+                        if (dark) label.color else Color.WHITE,
+                        bitmap.getPixel(px, py),
+                        "label ${placement.index} module $x,$y",
+                    )
+                }
+            }
+        }
+
         // And each coloured code still decodes to its own link.
         sheet.onPage(0).forEach { placement ->
             val pad = 20
@@ -213,23 +231,6 @@ class QrLabelPrintTest {
             val binary = BinaryBitmap(HybridBinarizer(RGBLuminanceSource(size, size, pixels)))
             assertEquals(labels[placement.index].link, QRCodeReader().decode(binary).text)
         }
-    }
-
-    @Test
-    fun sharedPngDrawsTheModulesInTheItemsColourOnWhite() {
-        val png = QrCodeEncoder.encodeToPng("ostomate://log?item=bag", 512, bagGreen)
-        val bitmap = BitmapFactory.decodeByteArray(png, 0, png.size)
-
-        val colors =
-            (0 until bitmap.width step 4).flatMap { x ->
-                (0 until bitmap.height step 4).map { y ->
-                    bitmap.getPixel(
-                        x,
-                        y,
-                    )
-                }
-            }.toSet()
-        assertEquals(setOf(bagGreen, Color.WHITE), colors)
     }
 
     @Test

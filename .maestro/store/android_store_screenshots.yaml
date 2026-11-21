@@ -121,10 +121,11 @@ name: "Android store screenshots — phone"
     id: "nav_settings"
 - tapOn:
     text: "Labels & stickers"
-# The Settings row carries the same title, so wait on a label only the new screen has.
+# The Settings row carries the same title, so wait on a label only the new screen has:
+# each row's link under its code (Write sticker needs NFC hardware, which the emulator lacks).
 - extendedWaitUntil:
     visible:
-      text: "Share QR.*"
+      text: "ostomate://log.*"
       index: 0
     timeout: 5000
 - waitForAnimationToEnd
