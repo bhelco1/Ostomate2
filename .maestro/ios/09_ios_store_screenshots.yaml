@@ -131,7 +131,7 @@ name: "iOS store screenshots — iPhone"
 - tapOn:
     text: "Labels & stickers"
 # The Settings row carries the same title, so wait on a label only the new screen has:
-# each row's NFC sticker button (always there on iPhone; Print QR needs a printer).
+# each row's NFC sticker button (always there on iPhone).
 - extendedWaitUntil:
     visible:
       text: "NFC sticker.*"

@@ -39,29 +39,17 @@ actual class QrPrinter {
     actual fun print(supplies: List<SupplyTypeEntity>) {
         val labels = printLabels(supplies)
         if (labels.isEmpty()) return
-        present("Ostomate QR Labels", QrLabelPageRenderer(labels))
-    }
-
-    actual fun printFullPage(supply: SupplyTypeEntity) {
-        val label = printLabels(listOf(supply)).singleOrNull() ?: return
-        present("Ostomate QR ${label.name}", QrFullPageRenderer(label))
-    }
-
-    private fun present(
-        jobName: String,
-        renderer: UIPrintPageRenderer,
-    ) {
         val controller = UIPrintInteractionController.sharedPrintController()
 
         val info = UIPrintInfo.printInfo()
-        info.jobName = jobName
+        info.jobName = "Ostomate QR Labels"
         info.outputType = UIPrintInfoOutputType.UIPrintInfoOutputGeneral
         controller.printInfo = info
         controller.printingItem = null
         controller.printingItems = null
         // A page renderer draws in points on the chosen paper and is never scaled to fit,
         // unlike a printing item, so the codes print at their true size.
-        controller.printPageRenderer = renderer
+        controller.printPageRenderer = QrLabelPageRenderer(labels)
         controller.presentAnimated(true, completionHandler = null)
     }
 }
@@ -87,21 +75,6 @@ private class QrLabelPageRenderer(
     }
 }
 
-private class QrFullPageRenderer(
-    private val label: PrintLabel,
-) : UIPrintPageRenderer() {
-    override fun numberOfPages(): NSInteger = 1
-
-    override fun drawPageAtIndex(
-        pageIndex: NSInteger,
-        inRect: CValue<CGRect>,
-    ) {
-        val context = UIGraphicsGetCurrentContext() ?: return
-        val symbol = paperRect.useContents { QrLabelLayout.fullPage(size.width, size.height) }
-        fillCode(context, label, symbol)
-    }
-}
-
 /** Draws one page of labels; the context is in points with its origin at the paper's top-left corner. */
 internal fun drawQrLabelPage(
     context: CGContextRef,
@@ -120,26 +93,17 @@ internal fun drawQrLabelPage(
     placements.forEach { placement ->
         val label = labels[placement.index]
         val color = uiColor(label.color)
-        fillCode(context, label, placement.qr)
+        CGContextSetFillColorWithColor(context, color.CGColor)
+        // One path, filled once: rectangles filled one by one leave hairline seams where
+        // anti-aliased edges meet.
+        CGContextBeginPath(context)
+        label.modules.moduleRects(placement.qr).forEach {
+            CGContextAddRect(context, CGRectMake(it.left, it.top, it.width, it.height))
+        }
+        CGContextFillPath(context)
         drawLine(label.name, placement, placement.nameBaseline, nameFont, color, centred)
         drawLine(label.link, placement, placement.linkBaseline, linkFont, linkColor, centred)
     }
-}
-
-/** [label]'s modules in its colour, covering [symbol] exactly. */
-private fun fillCode(
-    context: CGContextRef,
-    label: PrintLabel,
-    symbol: PrintRect,
-) {
-    CGContextSetFillColorWithColor(context, uiColor(label.color).CGColor)
-    // One path, filled once: rectangles filled one by one leave hairline seams where
-    // anti-aliased edges meet.
-    CGContextBeginPath(context)
-    label.modules.moduleRects(symbol).forEach {
-        CGContextAddRect(context, CGRectMake(it.left, it.top, it.width, it.height))
-    }
-    CGContextFillPath(context)
 }
 
 private fun drawLine(

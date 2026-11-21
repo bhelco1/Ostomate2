@@ -170,11 +170,9 @@
     <string name="labels_title">Labels &amp; stickers</string>
     <string name="labels_print">Print</string>
     <string name="labels_no_supplies">No supplies configured.</string>
-    <string name="labels_print_qr">Print QR</string>
     <string name="labels_write_sticker">Write sticker</string>
     <string name="labels_setup_sticker">NFC sticker</string>
     <string name="cd_qr_code_for">QR code for %1$s</string>
-    <string name="cd_print_qr_for">Print QR code for %1$s</string>
     <string name="cd_write_sticker_for">Write NFC sticker for %1$s</string>
     <string name="cd_setup_sticker_for">Set up NFC sticker for %1$s</string>
     <string name="sticker_title">NFC sticker: %1$s</string>

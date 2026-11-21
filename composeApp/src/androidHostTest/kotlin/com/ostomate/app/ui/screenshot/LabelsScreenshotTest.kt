@@ -30,7 +30,7 @@ class LabelsScreenshotTest : ScreenshotTest() {
 
     private fun viewModel(status: NfcStatus) = LabelsViewModel(supplyRepository, FakeNfcStickerWriting(status))
 
-    /** Android with NFC: one row per item with Print QR and Write sticker; the top bar has Print only. */
+    /** Android with NFC: one row per item with Write sticker; the top bar has Print only. */
     @Test
     fun labelsRows() {
         seedItems()

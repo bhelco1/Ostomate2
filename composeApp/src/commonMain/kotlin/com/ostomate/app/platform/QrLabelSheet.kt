@@ -51,7 +51,7 @@ class QrLabelSheet(
  * so a label prints at its true size at 100% scale. Each label is the item's QR code (the
  * symbol 25 mm square; its 1-module quiet zone is white space around it), the item's name and
  * its link. Labels fill a grid row by row, centred across the page, and run on to further
- * pages rather than being dropped. [fullPage] places one item's code alone on a page instead.
+ * pages rather than being dropped.
  */
 object QrLabelLayout {
     /** Bobby's choice (2026-11-20): both phones read every test code down to 8 mm. */
@@ -107,19 +107,6 @@ object QrLabelLayout {
                 )
             }
         return QrLabelSheet(columns, rows, placements)
-    }
-
-    /**
-     * One item's code on a page of its own (Bobby, 2026-11-20): the symbol as large a square as
-     * fits inside the margins, centred across the page and top-aligned at the margin. The white
-     * margin is its quiet zone.
-     */
-    fun fullPage(
-        pageWidth: Double,
-        pageHeight: Double,
-    ): PrintRect {
-        val side = minOf(pageWidth, pageHeight) - 2 * MARGIN_PT
-        return PrintRect((pageWidth - side) / 2, MARGIN_PT, side, side)
     }
 
     /** Cells that fit between the margins; at least one, so a small page still prints. */

@@ -182,7 +182,7 @@ class AccessibilityTest : ScreenshotTest() {
                 // Each row's sticker button names its item, not just "Write sticker".
                 val verb = if (status == NfcStatus.ON) "Write" else "Set up"
                 onNodeWithContentDescription("$verb NFC sticker for Barrier Ring").assertExists()
-                onNodeWithContentDescription("Print QR code for Bag").assertExists()
+                onNodeWithContentDescription("QR code for Bag").assertExists()
                 assertNoViolations()
             }
         }

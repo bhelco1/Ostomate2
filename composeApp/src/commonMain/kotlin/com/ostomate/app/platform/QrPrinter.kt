@@ -7,11 +7,7 @@ import com.ostomate.app.data.db.SupplyTypeEntity
 expect class QrPrinter {
     fun isPrintingAvailable(): Boolean
 
-    /** All items on a sheet of 25 mm labels. */
     fun print(supplies: List<SupplyTypeEntity>)
-
-    /** One item's code alone, as large as fits on the page, in its colour; no name or link. */
-    fun printFullPage(supply: SupplyTypeEntity)
 }
 
 @Composable

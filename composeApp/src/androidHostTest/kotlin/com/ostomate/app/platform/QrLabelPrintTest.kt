@@ -25,8 +25,7 @@ import kotlin.test.assertTrue
  * The Android label printer's drawing, on a canvas in points (as a PDF page is). It records
  * what is drawn, so the printed size is measured rather than assumed. Robolectric has no
  * native PdfDocument, so the sheet is also rendered at 300 dpi to
- * `build/outputs/qr-labels/qr-labels-letter-300dpi.png` and measured in pixels; one item's
- * full-page code goes to `qr-full-page-letter-150dpi.png` beside it.
+ * `build/outputs/qr-labels/qr-labels-letter-300dpi.png` and measured in pixels.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -176,7 +175,7 @@ class QrLabelPrintTest {
     }
 
     @Test
-    fun renderedAt300DpiTheBagCodeMeasuresTwentyFiveMillimetresAndEveryCodeDecodes() {
+    fun renderedAt300DpiTheBagCodeMeasuresTwentyFiveMillimetresAndEveryCodeIsItsColourOnWhiteAndDecodes() {
         val labels = printLabels(supplies)
         val sheet = QrLabelLayout.layout(labels.size, 612.0, 792.0)
         val dpi = 300
@@ -202,6 +201,25 @@ class QrLabelPrintTest {
         assertTrue(abs(widthMm - 25.0) < 0.2, "width $widthMm mm")
         assertTrue(abs(heightMm - 25.0) < 0.2, "height $heightMm mm")
 
+        // Each code is its item's colour on white: every module's centre pixel is the item's
+        // colour if the module is dark and white if it is light.
+        sheet.onPage(0).forEach { placement ->
+            val label = labels[placement.index]
+            val module = placement.qr.width / label.modules.symbolSize
+            for (y in 0 until label.modules.symbolSize) {
+                for (x in 0 until label.modules.symbolSize) {
+                    val px = ((placement.qr.left + (x + 0.5) * module) * dpi / 72).toInt()
+                    val py = ((placement.qr.top + (y + 0.5) * module) * dpi / 72).toInt()
+                    val dark = label.modules.isDark(x + label.modules.quietZone, y + label.modules.quietZone)
+                    assertEquals(
+                        if (dark) label.color else Color.WHITE,
+                        bitmap.getPixel(px, py),
+                        "label ${placement.index} module $x,$y",
+                    )
+                }
+            }
+        }
+
         // And each coloured code still decodes to its own link.
         sheet.onPage(0).forEach { placement ->
             val pad = 20
@@ -213,61 +231,6 @@ class QrLabelPrintTest {
             val binary = BinaryBitmap(HybridBinarizer(RGBLuminanceSource(size, size, pixels)))
             assertEquals(labels[placement.index].link, QRCodeReader().decode(binary).text)
         }
-    }
-
-    @Test
-    fun oneItemPrintsAsOneCodeInItsColourFillingThePageInsideTheMargins() {
-        val bag = printLabels(supplies).first()
-        for ((width, height) in listOf(612.0 to 792.0, 595.28 to 841.89, 792.0 to 612.0)) {
-            val canvas = RecordingCanvas()
-
-            drawQrFullPage(canvas, bag, width, height)
-
-            val expected = QrLabelLayout.fullPage(width, height)
-            // One path, in the bag's colour, and nothing else: no name, no link.
-            val code = canvas.rects.single()
-            assertEquals(bagGreen, code.color)
-            assertTrue(canvas.texts.isEmpty(), "text drawn on $width×$height: ${canvas.texts.map { it.text }}")
-            assertClose(expected.left, code.left, "left on $width×$height")
-            assertClose(expected.top, code.top, "top on $width×$height")
-            assertClose(expected.right, code.right, "right on $width×$height")
-            assertClose(expected.bottom, code.bottom, "bottom on $width×$height")
-            assertClose(0.0, (code.right - code.left) - (code.bottom - code.top), "square on $width×$height")
-        }
-    }
-
-    @Test
-    fun aFullPageCodeRenderedAt150DpiIsTheItemsColourOnWhiteAndDecodes() {
-        val bag = printLabels(supplies).first()
-        val dpi = 150
-        val scale = dpi / 72.0
-        // Letter at 150 dpi, drawn through the same points-based code a PDF page gets.
-        val bitmap = Bitmap.createBitmap(1275, 1650, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap).apply { drawColor(Color.WHITE) }
-        canvas.scale(scale.toFloat(), scale.toFloat())
-        drawQrFullPage(canvas, bag, 612.0, 792.0)
-        File("build/outputs/qr-labels").mkdirs()
-        File("build/outputs/qr-labels/qr-full-page-letter-150dpi.png").outputStream().use {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-        }
-
-        // The centre of every module is the bag's green if dark and white if light.
-        val symbol = QrLabelLayout.fullPage(612.0, 792.0)
-        val modules = bag.modules
-        val module = symbol.width / modules.symbolSize
-        for (y in 0 until modules.symbolSize) {
-            for (x in 0 until modules.symbolSize) {
-                val px = ((symbol.left + (x + 0.5) * module) * scale).toInt()
-                val py = ((symbol.top + (y + 0.5) * module) * scale).toInt()
-                val dark = modules.isDark(x + modules.quietZone, y + modules.quietZone)
-                assertEquals(if (dark) bagGreen else Color.WHITE, bitmap.getPixel(px, py), "module $x,$y")
-            }
-        }
-
-        val pixels = IntArray(bitmap.width * bitmap.height)
-        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        val binary = BinaryBitmap(HybridBinarizer(RGBLuminanceSource(bitmap.width, bitmap.height, pixels)))
-        assertEquals(bag.link, QRCodeReader().decode(binary).text)
     }
 
     @Test

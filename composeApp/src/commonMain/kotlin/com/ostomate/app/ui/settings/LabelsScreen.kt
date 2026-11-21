@@ -4,8 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,13 +49,11 @@ import com.ostomate.app.platform.NfcStatus
 import com.ostomate.app.platform.rememberQrPrinter
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.cd_back
-import com.ostomate.app.resources.cd_print_qr_for
 import com.ostomate.app.resources.cd_qr_code_for
 import com.ostomate.app.resources.cd_setup_sticker_for
 import com.ostomate.app.resources.cd_write_sticker_for
 import com.ostomate.app.resources.labels_no_supplies
 import com.ostomate.app.resources.labels_print
-import com.ostomate.app.resources.labels_print_qr
 import com.ostomate.app.resources.labels_setup_sticker
 import com.ostomate.app.resources.labels_title
 import com.ostomate.app.resources.labels_write_sticker
@@ -71,8 +67,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Settings → Labels & stickers (FEAT-05): one row per item with its QR code (printed full page)
- * and its NFC sticker (written in the app on Android; setup steps on iPhone).
+ * Settings → Labels & stickers (FEAT-05): one row per item with its QR code and its NFC
+ * sticker (written in the app on Android; setup steps on iPhone). The top bar's Print is the
+ * one way to print codes: a sheet of 25 mm labels for every item.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -134,12 +131,6 @@ fun LabelsScreen(
                 LabelRow(
                     item = item,
                     nfcStatus = uiState.nfcStatus,
-                    onPrintQr =
-                        if (qrPrinter.isPrintingAvailable()) {
-                            { qrPrinter.printFullPage(item.supply) }
-                        } else {
-                            null
-                        },
                     onSticker = { viewModel.openSticker(item) },
                 )
             }
@@ -181,12 +172,10 @@ private fun StickerWritingLifecycle(viewModel: LabelsViewModel) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LabelRow(
     item: LabelItem,
     nfcStatus: NfcStatus,
-    onPrintQr: (() -> Unit)?,
     onSticker: () -> Unit,
 ) {
     val supply = item.supply
@@ -223,25 +212,13 @@ internal fun LabelRow(
                     style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                Spacer(Modifier.height(4.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    if (onPrintQr != null) {
-                        val printLabel = stringResource(Res.string.cd_print_qr_for, supply.name)
-                        TextButton(
-                            onClick = onPrintQr,
-                            modifier = Modifier.testTag("printQrButton").semantics { contentDescription = printLabel },
-                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                        ) {
-                            Text(stringResource(Res.string.labels_print_qr))
-                        }
-                    }
-                    if (nfcStatus != NfcStatus.NO_HARDWARE) {
-                        StickerButton(
-                            supplyName = supply.name,
-                            inApp = nfcStatus != NfcStatus.NOT_IN_APP,
-                            onClick = onSticker,
-                        )
-                    }
+                if (nfcStatus != NfcStatus.NO_HARDWARE) {
+                    Spacer(Modifier.height(4.dp))
+                    StickerButton(
+                        supplyName = supply.name,
+                        inApp = nfcStatus != NfcStatus.NOT_IN_APP,
+                        onClick = onSticker,
+                    )
                 }
             }
         }
