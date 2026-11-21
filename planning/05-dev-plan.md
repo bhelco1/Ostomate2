@@ -586,3 +586,23 @@ See `04-test-plan.md` manual device checklist. All items must pass.
 - App Store: Submit for review → release
 
 **v1.0 shipped when:** Both stores at 100% rollout, crash-free rate ≥ 99% for 7 days.
+
+---
+
+## Later ideas (not scheduled)
+
+### IDEA-01 — Help system and streamlining
+Raised by Bobby 2026-11-20, explicitly for the future, not now. There are now four ways to log
+a change (button, home-screen widget, QR code, NFC sticker), which can look daunting to anyone
+who isn't Bobby, and not everyone will buy NFC stickers or set them up. The app risks feeling
+bloated.
+- Start new users on the simplest path (the button); offer the widget, QR labels and NFC
+  stickers as optional "make it faster" extras behind one help screen, instead of up front.
+- Decide which features earn their place by how people actually log. Bobby's idea is to log
+  user actions and remove what isn't used; that conflicts with the local-first, no-analytics
+  posture (`06-security-privacy.md`) and the store privacy answers, so it needs a privacy
+  decision first. Lighter options that keep the posture:
+  - every event already records how it was logged (`source:qr|manual|widget|nfc`), so a
+    person's own backup shows their methods;
+  - ask the Play closed-test testers to share a backup or answer a short survey (consent);
+  - an opt-in, on-device usage summary the person chooses to send, like opt-in crash reports.
