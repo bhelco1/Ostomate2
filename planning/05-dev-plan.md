@@ -418,7 +418,7 @@ labels and NFC stickers for every item they track, without NFC Tools or help: ba
 and each custom item (custom items use the existing `item=id:<n>` link). Builds on FEAT-04;
 reading and writing stickers happen on the phone only, with no network.
 - [x] Settings → QR Labels becomes **Labels & stickers** (Bobby, 2026-11-20). One row per
-  item, with **QR code** (print / share, as today) and **NFC sticker**. `LabelsScreen` +
+  item, with **QR code** (print; sharing removed below) and **NFC sticker**. `LabelsScreen` +
   `LabelsViewModel`; onboarding's hint now points at Settings → Labels & stickers.
 - [x] One shared link builder in `shared` for QR, NFC and Copy link, replacing the two copies
   (`QrPrinter.android.kt`, `QrLabelsScreen.kt`), with unit tests for bag, flange and custom.
@@ -432,7 +432,7 @@ reading and writing stickers happen on the phone only, with no network.
   orange, so labels print in the item's light-theme colour with the symbol 25 mm square
   (Bobby's choice), name in the item colour, link in small grey, 4 × 6 per Letter page and
   on to more pages. Shared `QrLabelLayout` (both printers) + `supplyPrintColor`; on-screen
-  and shared QR codes use the same colour. Physical size still to check with a ruler.
+  QR codes use the same colour. Physical size still to check with a ruler.
 - [x] Android writes the sticker (Bobby, 2026-11-20): "Write sticker", hold a blank sticker
   to the phone; NFC reader mode writes one NDEF URI record with the item's link (taps don't
   log while writing), then reads it back. Clear outcome for each case: written, sticker
@@ -455,6 +455,11 @@ reading and writing stickers happen on the phone only, with no network.
   restore keeps supply ids (the link holds the id). `customItemStickerSurvivesRestore` (JVM +
   iOS sim): a custom item with id 41 restores onto a phone with its own custom item, and both
   its plain and `&src=nfc` links log it.
+- [x] No sharing; each row prints its own code full page (Bobby, 2026-11-20: "Lets remove the
+  'Share QR' from the app, and lets print just whats in this image"; then "remove the share
+  icon too"). Row **Print QR** prints one page: that code only, as large a square as fits
+  inside the margins, in the item's colour (`QrLabelLayout.fullPage`, both printers). Share
+  QR, the share-all-links icon and `QrCodeEncoder.encodeToPng` are gone; top bar keeps Print.
 - [ ] Tests: link builder + write-outcome mapping (unit), ViewModel/UiState, screenshot
   baselines for the new screen, a Maestro check of the rows and Copy link. The emulator
   has no NFC chip, so writing is checked by hand.

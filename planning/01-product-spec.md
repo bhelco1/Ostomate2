@@ -66,9 +66,10 @@ Must be simple enough to use one-handed in a clinical or bathroom setting.
 - Biometric-locked inventory editing (count + warning threshold per type)
 - Fallback to device PIN if no biometric enrolled; auto-unlock if none enrolled
 - Labels & stickers (FEAT-05, replaced QR Labels): one row per item with its QR code
-  (print / share PNG) and its NFC sticker; Android writes stickers itself, iPhone gets steps
-  + a Copy link button. QR codes are in the item's colour (light-theme shade, on white);
-  printed labels are 25 mm codes with the name and link below, as many pages as needed
+  (Print QR: that code alone, as large as fits the page) and its NFC sticker; Android writes
+  stickers itself, iPhone gets steps + a Copy link button. Nothing on the screen shares codes
+  or links. QR codes are in the item's colour (light-theme shade, on white); the top bar's
+  Print makes 25 mm labels with the name and link below, as many pages as needed
 - Reorder Warnings: configure threshold per type
 - Manage Supplies: add/rename/reorder custom supply types with color palette
 - CSV Export: export all events as `id,type,timestamp_iso8601`
