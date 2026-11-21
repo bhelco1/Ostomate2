@@ -1,0 +1,419 @@
+{
+  "generatedAt": "2026-11-21T02:29:42+00:00",
+  "run": {
+    "sha": "8b1f4cfd229ba4612178990fe6d559754e658f2b",
+    "branch": "main",
+    "url": "https://github.com/bhelco1/Ostomate2/actions/runs/44853724456"
+  },
+  "categories": {
+    "unit": {
+      "tests": 92,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.domain.CalendarAggregatorTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.573
+        },
+        {
+          "name": "com.ostomate.app.domain.DeepLinkParserTest",
+          "tests": 22,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.014
+        },
+        {
+          "name": "com.ostomate.app.domain.NotificationSchedulerTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.015
+        },
+        {
+          "name": "com.ostomate.app.domain.PredictionEngineTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.214
+        },
+        {
+          "name": "com.ostomate.app.domain.StickerWriterTest",
+          "tests": 12,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.011
+        },
+        {
+          "name": "com.ostomate.app.domain.SupplyLinkTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.006
+        },
+        {
+          "name": "com.ostomate.app.domain.drive.DriveBackupPolicyTest",
+          "tests": 13,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.019
+        },
+        {
+          "name": "com.ostomate.app.platform.BiometricAuthenticatorTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 2.663
+        },
+        {
+          "name": "com.ostomate.app.platform.CrashReporterScrubTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.03
+        },
+        {
+          "name": "com.ostomate.app.platform.QrCodeEncoderTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.066
+        },
+        {
+          "name": "com.ostomate.app.platform.QrModulesTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.002
+        }
+      ],
+      "status": "pass"
+    },
+    "integration": {
+      "tests": 86,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.data.ChangeSourceTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.612
+        },
+        {
+          "name": "com.ostomate.app.data.RepositoryTest",
+          "tests": 15,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 13.871
+        },
+        {
+          "name": "com.ostomate.app.data.db.ChangeEventDaoTest",
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.535
+        },
+        {
+          "name": "com.ostomate.app.data.db.MigrationTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.032
+        },
+        {
+          "name": "com.ostomate.app.data.diagnostics.DiagnosticLogTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.304
+        },
+        {
+          "name": "com.ostomate.app.data.drive.DriveBackupRunnerTest",
+          "tests": 16,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.732
+        },
+        {
+          "name": "com.ostomate.app.data.drive.DriveClientTest",
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.068
+        },
+        {
+          "name": "com.ostomate.app.data.drive.UrlConnectionTransportTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.2
+        },
+        {
+          "name": "com.ostomate.app.data.settings.SettingsRepositoryTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.12
+        }
+      ],
+      "status": "pass"
+    },
+    "ui": {
+      "tests": 142,
+      "failed": 0,
+      "skipped": 0,
+      "suites": [
+        {
+          "name": "com.ostomate.app.AppShellTest",
+          "tests": 4,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 27.559
+        },
+        {
+          "name": "com.ostomate.app.platform.QrLabelPrintTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.347
+        },
+        {
+          "name": "com.ostomate.app.platform.QrLabelSheetTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.034
+        },
+        {
+          "name": "com.ostomate.app.resources.StringResourcesTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.131
+        },
+        {
+          "name": "com.ostomate.app.ui.accessibility.AccessibilityTest",
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.44
+        },
+        {
+          "name": "com.ostomate.app.ui.calendar.CalendarViewModelTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.28
+        },
+        {
+          "name": "com.ostomate.app.ui.history.HistoryTagsUiTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.259
+        },
+        {
+          "name": "com.ostomate.app.ui.history.HistoryViewModelTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.055
+        },
+        {
+          "name": "com.ostomate.app.ui.home.HomeViewModelTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.086
+        },
+        {
+          "name": "com.ostomate.app.ui.onboarding.OnboardingViewModelTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.019
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.CalendarScreenshotTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.394
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.HomeScreenshotTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.017
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.LabelsScreenshotTest",
+          "tests": 9,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 2.278
+        },
+        {
+          "name": "com.ostomate.app.ui.screenshot.OnboardingScreenshotTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.288
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.LabelsScreenUiTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.119
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.LabelsViewModelTest",
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.152
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.ManageSuppliesViewModelTest",
+          "tests": 10,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.091
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.PrivacyPolicyScreenTest",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.513
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.SettingsDriveBackupUiTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 1.005
+        },
+        {
+          "name": "com.ostomate.app.ui.settings.SettingsViewModelTest",
+          "tests": 18,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.203
+        },
+        {
+          "name": "com.ostomate.app.ui.stats.StatsViewModelTest",
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.048
+        },
+        {
+          "name": "com.ostomate.app.ui.theme.SupplyPrintColorTest",
+          "tests": 5,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "time": 0.025
+        }
+      ],
+      "e2e": {
+        "iOS E2E (Maestro)": "failure",
+        "Android E2E (Maestro)": "success"
+      },
+      "status": "pass"
+    },
+    "cicd": {
+      "jobs": [
+        {
+          "name": "Detect changes",
+          "conclusion": "success"
+        },
+        {
+          "name": "iOS shared tests + app build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Android build + JVM tests",
+          "conclusion": "success"
+        },
+        {
+          "name": "iOS E2E (Maestro)",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Android release AAB (signed)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Android E2E (Maestro)",
+          "conclusion": "success"
+        },
+        {
+          "name": "Publish QA dashboard",
+          "conclusion": "in_progress"
+        }
+      ],
+      "status": "fail"
+    }
+  },
+  "coverage": {
+    "shared": {
+      "covered": 768,
+      "total": 812,
+      "percent": 94.6
+    },
+    "composeApp": {
+      "covered": 624,
+      "total": 656,
+      "percent": 95.1
+    }
+  }
+}
