@@ -412,7 +412,7 @@ network.
 - [x] Later, only if wanted: write stickers from Settings → QR Labels instead of NFC Tools.
   Wanted (Bobby, 2026-11-20): became FEAT-05 below.
 
-### FEAT-05 — Labels & stickers: set up QR codes and NFC stickers for any item 🔨 code in review (FEAT-05 PR); Pixel check open
+### FEAT-05 — Labels & stickers: set up QR codes and NFC stickers for any item ✅ (verified on the phones 2026-11-20; one Maestro check open)
 Requested by Bobby 2026-11-20, outside the phase plan. Anyone should be able to set up QR
 labels and NFC stickers for every item they track, without NFC Tools or help: bag, flange
 and each custom item (custom items use the existing `item=id:<n>` link). Builds on FEAT-04;
@@ -466,10 +466,14 @@ reading and writing stickers happen on the phone only, with no network.
   has no NFC chip, so writing is checked by hand.
   Done: `SupplyLinkTest`, `StickerWriterTest`, `LabelsViewModelTest`, 9 Roborazzi baselines
   (`labels_*`, `sticker_*`), accessibility checks for the screen and every dialog state.
-  Open: the Maestro check (rows + Copy link); the store-screenshot flows were only re-pointed
-  at the new Settings row.
-- [ ] Verified on the Pixel: write a blank sticker for bag and for a custom item; tapping
+  The store-screenshot flows open the screen and wait on its rows on both platforms (green
+  in run 44847570632). Open: a Maestro check of Copy link.
+- [x] Verified on the Pixel: write a blank sticker for bag and for a custom item; tapping
   each logs exactly one event of that item on both phones.
+  Bobby, 2026-11-20 on build 638059e: wrote a rings sticker, then rewrote it as bag; taps
+  logged the right item each time (scan log: rings event 230, then deleted as a test). The
+  top Print's 25 mm colour sheet printed and scanned correctly from both phones. Both phones
+  run 47d9fe1 (#71) since 19:01.
 
 ---
 
