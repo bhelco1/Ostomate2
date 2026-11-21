@@ -455,11 +455,12 @@ reading and writing stickers happen on the phone only, with no network.
   restore keeps supply ids (the link holds the id). `customItemStickerSurvivesRestore` (JVM +
   iOS sim): a custom item with id 41 restores onto a phone with its own custom item, and both
   its plain and `&src=nfc` links log it.
-- [x] No sharing; each row prints its own code full page (Bobby, 2026-11-20: "Lets remove the
-  'Share QR' from the app, and lets print just whats in this image"; then "remove the share
-  icon too"). Row **Print QR** prints one page: that code only, as large a square as fits
-  inside the margins, in the item's colour (`QrLabelLayout.fullPage`, both printers). Share
-  QR, the share-all-links icon and `QrCodeEncoder.encodeToPng` are gone; top bar keeps Print.
+- [x] One print path, no sharing (Bobby, 2026-11-20). Share QR went first ("Lets remove the
+  'Share QR' from the app"), then the share-all-links icon ("yes, remove the share icon
+  too"). A per-item full-page Print QR was tried and removed: "There is never a scenario
+  that I can think of where I would want a full sheet of paper QR Code." The top bar's
+  Print (25 mm sheet of every item) is the only way to print; `QrCodeEncoder.encodeToPng`
+  is gone with Share QR.
 - [ ] Tests: link builder + write-outcome mapping (unit), ViewModel/UiState, screenshot
   baselines for the new screen, a Maestro check of the rows and Copy link. The emulator
   has no NFC chip, so writing is checked by hand.

@@ -162,8 +162,8 @@ Run before any release candidate.
 - [ ] Calendar — month view shows correct day counts
 - [ ] Settings — biometric lock engages; Touch ID / Face ID unlocks
 - [ ] Settings → Manage Supplies — add custom supply type
-- [ ] Settings → Labels & stickers — one row per item; Print QR prints that item's code
-  alone, filling the page width in its colour, no text
+- [ ] Settings → Labels & stickers — one row per item, no share or per-item print buttons;
+  Print prints the 25 mm label sheet, each code in its item's colour
 - [ ] Settings → Labels & stickers → NFC sticker — steps show; Copy link copies the item's
   `&src=nfc` link (paste it in Notes to check)
 - [ ] Settings → Export CSV — share sheet appears with .csv
