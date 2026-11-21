@@ -170,13 +170,11 @@
     <string name="labels_title">Etiquetas y pegatinas</string>
     <string name="labels_print">Imprimir</string>
     <string name="labels_no_supplies">Sin suministros configurados.</string>
-    <string name="labels_share_qr">Compartir QR</string>
+    <string name="labels_print_qr">Imprimir QR</string>
     <string name="labels_write_sticker">Grabar pegatina</string>
     <string name="labels_setup_sticker">Pegatina NFC</string>
-    <string name="qr_links_header">Enlaces QR de Ostomate</string>
-    <string name="cd_share_all_links">Compartir todos los enlaces</string>
     <string name="cd_qr_code_for">Código QR para %1$s</string>
-    <string name="cd_share_qr_for">Compartir el código QR de %1$s</string>
+    <string name="cd_print_qr_for">Imprimir el código QR de %1$s</string>
     <string name="cd_write_sticker_for">Grabar la pegatina NFC de %1$s</string>
     <string name="cd_setup_sticker_for">Configurar la pegatina NFC de %1$s</string>
     <string name="sticker_title">Pegatina NFC: %1$s</string>

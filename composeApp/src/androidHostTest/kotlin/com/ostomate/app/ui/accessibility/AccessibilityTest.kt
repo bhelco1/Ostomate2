@@ -167,7 +167,6 @@ class AccessibilityTest : ScreenshotTest() {
 
     @Test
     fun labelsAndStickersIsAccessibleOnAndroidAndIphone() {
-        startKoin { modules(module { single { FileSharer() } }) }
         seed {
             supplyDao.seed(
                 testSupply(name = "Bag", kind = SupplyKind.BAG),
@@ -183,7 +182,7 @@ class AccessibilityTest : ScreenshotTest() {
                 // Each row's sticker button names its item, not just "Write sticker".
                 val verb = if (status == NfcStatus.ON) "Write" else "Set up"
                 onNodeWithContentDescription("$verb NFC sticker for Barrier Ring").assertExists()
-                onNodeWithContentDescription("Share QR code for Bag").assertExists()
+                onNodeWithContentDescription("Print QR code for Bag").assertExists()
                 assertNoViolations()
             }
         }

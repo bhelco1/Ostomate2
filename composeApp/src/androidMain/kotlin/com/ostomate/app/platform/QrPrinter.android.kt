@@ -29,10 +29,57 @@ actual class QrPrinter(private val context: Context) {
     actual fun print(supplies: List<SupplyTypeEntity>) {
         val labels = printLabels(supplies)
         if (labels.isEmpty()) return
+        print(
+            jobName = "Ostomate QR Labels",
+            fileName = "ostomate_qr_labels.pdf",
+            pages =
+                object : PrintPages {
+                    override fun count(
+                        width: Double,
+                        height: Double,
+                    ) = QrLabelLayout.layout(labels.size, width, height).pageCount
+
+                    override fun draw(
+                        canvas: Canvas,
+                        page: Int,
+                        width: Double,
+                        height: Double,
+                    ) = drawQrLabelPage(canvas, QrLabelLayout.layout(labels.size, width, height).onPage(page), labels)
+                },
+        )
+    }
+
+    actual fun printFullPage(supply: SupplyTypeEntity) {
+        val label = printLabels(listOf(supply)).singleOrNull() ?: return
+        print(
+            jobName = "Ostomate QR ${label.name}",
+            fileName = "ostomate_qr_code.pdf",
+            pages =
+                object : PrintPages {
+                    override fun count(
+                        width: Double,
+                        height: Double,
+                    ) = 1
+
+                    override fun draw(
+                        canvas: Canvas,
+                        page: Int,
+                        width: Double,
+                        height: Double,
+                    ) = drawQrFullPage(canvas, label, width, height)
+                },
+        )
+    }
+
+    private fun print(
+        jobName: String,
+        fileName: String,
+        pages: PrintPages,
+    ) {
         val printManager = context.getSystemService(Context.PRINT_SERVICE) as PrintManager
         printManager.print(
-            "Ostomate QR Labels",
-            QrLabelsPrintAdapter(context, labels),
+            jobName,
+            QrPrintAdapter(context, fileName, pages),
             PrintAttributes.Builder()
                 .setMediaSize(PrintAttributes.MediaSize.NA_LETTER)
                 .setResolution(PrintAttributes.Resolution("default", "Default", 300, 300))
@@ -48,12 +95,30 @@ actual fun rememberQrPrinter(): QrPrinter {
     return remember(context) { QrPrinter(context) }
 }
 
-private class QrLabelsPrintAdapter(
+/** What a print job draws, in points on the paper the print dialog has chosen. */
+private interface PrintPages {
+    fun count(
+        width: Double,
+        height: Double,
+    ): Int
+
+    fun draw(
+        canvas: Canvas,
+        page: Int,
+        width: Double,
+        height: Double,
+    )
+}
+
+private class QrPrintAdapter(
     private val context: Context,
-    private val labels: List<PrintLabel>,
+    private val fileName: String,
+    private val content: PrintPages,
 ) : PrintDocumentAdapter() {
     private var printAttributes: PrintAttributes = PrintAttributes.Builder().build()
-    private var sheet: QrLabelSheet? = null
+    private var pageWidth = 0.0
+    private var pageHeight = 0.0
+    private var pageCount: Int? = null
 
     override fun onLayout(
         oldAttributes: PrintAttributes?,
@@ -69,19 +134,16 @@ private class QrLabelsPrintAdapter(
         val media = newAttributes.mediaSize ?: PrintAttributes.MediaSize.NA_LETTER
         printAttributes = newAttributes
         // A PDF page measures in points; the chosen paper size comes in mils (1/1000 in).
-        val laidOut =
-            QrLabelLayout.layout(
-                count = labels.size,
-                pageWidth = media.widthMils * POINTS_PER_INCH / MILS_PER_INCH,
-                pageHeight = media.heightMils * POINTS_PER_INCH / MILS_PER_INCH,
-            )
-        val changed = oldAttributes != newAttributes || sheet == null
-        sheet = laidOut
+        pageWidth = media.widthMils * POINTS_PER_INCH / MILS_PER_INCH
+        pageHeight = media.heightMils * POINTS_PER_INCH / MILS_PER_INCH
+        val count = content.count(pageWidth, pageHeight)
+        val changed = oldAttributes != newAttributes || pageCount == null
+        pageCount = count
         val info =
             PrintDocumentInfo
-                .Builder("ostomate_qr_labels.pdf")
+                .Builder(fileName)
                 .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)
-                .setPageCount(laidOut.pageCount)
+                .setPageCount(count)
                 .build()
         callback.onLayoutFinished(info, changed)
     }
@@ -95,15 +157,15 @@ private class QrLabelsPrintAdapter(
         cancellationSignal: CancellationSignal?,
         callback: WriteResultCallback,
     ) {
-        val laidOut = sheet
-        if (laidOut == null) {
+        val count = pageCount
+        if (count == null) {
             callback.onWriteFailed("not laid out")
             return
         }
         val wanted = pages?.takeUnless { it.isEmpty() } ?: arrayOf(PageRange.ALL_PAGES)
         val pdf = PrintedPdfDocument(context, printAttributes)
         try {
-            for (pageNumber in 0 until laidOut.pageCount) {
+            for (pageNumber in 0 until count) {
                 if (wanted.none { pageNumber in it.start..it.end }) continue
                 if (cancellationSignal?.isCanceled == true) {
                     callback.onWriteCancelled()
@@ -113,7 +175,7 @@ private class QrLabelsPrintAdapter(
                 // PdfDocument moves the origin to the printer's content rect; the layout is
                 // for the whole sheet, so move it back to the paper's corner.
                 page.canvas.translate(-page.info.contentRect.left.toFloat(), -page.info.contentRect.top.toFloat())
-                drawQrLabelPage(page.canvas, laidOut.onPage(pageNumber), labels)
+                content.draw(page.canvas, pageNumber, pageWidth, pageHeight)
                 pdf.finishPage(page)
             }
             FileOutputStream(destination.fileDescriptor).use { pdf.writeTo(it) }
@@ -150,26 +212,38 @@ internal fun drawQrLabelPage(
 
     placements.forEach { placement ->
         val label = labels[placement.index]
-        modulePaint.color = label.color
-        // One path, filled once: rectangles filled one by one leave hairline seams where
-        // anti-aliased edges meet, in PDF viewers and on paper.
-        val code = Path()
-        label.modules.moduleRects(placement.qr).forEach {
-            code.addRect(
-                it.left.toFloat(),
-                it.top.toFloat(),
-                it.right.toFloat(),
-                it.bottom.toFloat(),
-                Path.Direction.CW,
-            )
-        }
-        canvas.drawPath(code, modulePaint)
+        drawCode(canvas, label, placement.qr, modulePaint)
         val centerX = placement.cell.centerX.toFloat()
         val width = placement.cell.width.toFloat()
         namePaint.color = label.color
         canvas.drawText(fit(label.name, namePaint, width), centerX, placement.nameBaseline.toFloat(), namePaint)
         canvas.drawText(fit(label.link, linkPaint, width), centerX, placement.linkBaseline.toFloat(), linkPaint)
     }
+}
+
+/** Draws [label]'s code alone on a page of [pageWidth] × [pageHeight] points: no name, no link. */
+internal fun drawQrFullPage(
+    canvas: Canvas,
+    label: PrintLabel,
+    pageWidth: Double,
+    pageHeight: Double,
+) = drawCode(canvas, label, QrLabelLayout.fullPage(pageWidth, pageHeight), Paint().apply { style = Paint.Style.FILL })
+
+/** [label]'s modules in its colour, covering [symbol] exactly. */
+private fun drawCode(
+    canvas: Canvas,
+    label: PrintLabel,
+    symbol: PrintRect,
+    paint: Paint,
+) {
+    paint.color = label.color
+    // One path, filled once: rectangles filled one by one leave hairline seams where
+    // anti-aliased edges meet, in PDF viewers and on paper.
+    val code = Path()
+    label.modules.moduleRects(symbol).forEach {
+        code.addRect(it.left.toFloat(), it.top.toFloat(), it.right.toFloat(), it.bottom.toFloat(), Path.Direction.CW)
+    }
+    canvas.drawPath(code, paint)
 }
 
 /** [text] cut short with an ellipsis if it is wider than [width]. */

@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -49,24 +47,20 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.platform.NfcStatus
-import com.ostomate.app.platform.QrCodeEncoder
 import com.ostomate.app.platform.rememberQrPrinter
 import com.ostomate.app.resources.Res
 import com.ostomate.app.resources.cd_back
+import com.ostomate.app.resources.cd_print_qr_for
 import com.ostomate.app.resources.cd_qr_code_for
 import com.ostomate.app.resources.cd_setup_sticker_for
-import com.ostomate.app.resources.cd_share_all_links
-import com.ostomate.app.resources.cd_share_qr_for
 import com.ostomate.app.resources.cd_write_sticker_for
 import com.ostomate.app.resources.labels_no_supplies
 import com.ostomate.app.resources.labels_print
+import com.ostomate.app.resources.labels_print_qr
 import com.ostomate.app.resources.labels_setup_sticker
-import com.ostomate.app.resources.labels_share_qr
 import com.ostomate.app.resources.labels_title
 import com.ostomate.app.resources.labels_write_sticker
-import com.ostomate.app.resources.qr_links_header
 import com.ostomate.app.ui.theme.supplyColor
 import com.ostomate.app.ui.theme.supplyPrintColor
 import io.github.alexzhirkevich.qrose.options.QrBrush
@@ -74,11 +68,10 @@ import io.github.alexzhirkevich.qrose.options.QrColors
 import io.github.alexzhirkevich.qrose.options.solid
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Settings → Labels & stickers (FEAT-05): one row per item with its QR code (print / share)
+ * Settings → Labels & stickers (FEAT-05): one row per item with its QR code (printed full page)
  * and its NFC sticker (written in the app on Android; setup steps on iPhone).
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,14 +81,12 @@ fun LabelsScreen(
     viewModel: LabelsViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val fileSharer = koinInject<FileSharer>()
     val qrPrinter = rememberQrPrinter()
 
     StickerWritingLifecycle(viewModel)
 
     Scaffold(
         topBar = {
-            val qrLinksHeader = stringResource(Res.string.qr_links_header)
             TopAppBar(
                 title = { Text(stringResource(Res.string.labels_title)) },
                 navigationIcon = {
@@ -111,18 +102,6 @@ fun LabelsScreen(
                         TextButton(onClick = { qrPrinter.print(uiState.items.map { it.supply }) }) {
                             Text(stringResource(Res.string.labels_print))
                         }
-                    }
-                    IconButton(
-                        onClick = {
-                            val urls = uiState.items.joinToString("\n\n") { "${it.supply.name}\n${it.link}" }
-                            fileSharer.shareText(
-                                content = "$qrLinksHeader\n\n$urls",
-                                fileName = "ostomate-qr-links.txt",
-                                mimeType = "text/plain",
-                            )
-                        },
-                    ) {
-                        Icon(Icons.Filled.Share, contentDescription = stringResource(Res.string.cd_share_all_links))
                     }
                 },
             )
@@ -155,7 +134,12 @@ fun LabelsScreen(
                 LabelRow(
                     item = item,
                     nfcStatus = uiState.nfcStatus,
-                    onShareQr = { shareQr(fileSharer, item) },
+                    onPrintQr =
+                        if (qrPrinter.isPrintingAvailable()) {
+                            { qrPrinter.printFullPage(item.supply) }
+                        } else {
+                            null
+                        },
                     onSticker = { viewModel.openSticker(item) },
                 )
             }
@@ -197,28 +181,17 @@ private fun StickerWritingLifecycle(viewModel: LabelsViewModel) {
     }
 }
 
-private fun shareQr(
-    fileSharer: FileSharer,
-    item: LabelItem,
-) {
-    val color = supplyPrintColor(item.supply.kind, item.supply.colorIndex).toArgb()
-    val png = QrCodeEncoder.encodeToPng(item.link, 512, color)
-    if (png.isNotEmpty()) {
-        fileSharer.shareBytes(bytes = png, fileName = "${item.supply.name}-qr.png", mimeType = "image/png")
-    }
-}
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun LabelRow(
     item: LabelItem,
     nfcStatus: NfcStatus,
-    onShareQr: () -> Unit,
+    onPrintQr: (() -> Unit)?,
     onSticker: () -> Unit,
 ) {
     val supply = item.supply
     val accent = supplyColor(supply.kind, supply.colorIndex)
-    // The print colour, not the theme's: what's on screen and shared matches the printed label.
+    // The print colour, not the theme's: what's on screen matches the printed code.
     val qrColor = supplyPrintColor(supply.kind, supply.colorIndex)
     val qrPainter =
         rememberQrCodePainter(
@@ -252,15 +225,15 @@ internal fun LabelRow(
                 )
                 Spacer(Modifier.height(4.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    val shareLabel = stringResource(Res.string.cd_share_qr_for, supply.name)
-                    TextButton(
-                        onClick = onShareQr,
-                        modifier = Modifier.semantics { contentDescription = shareLabel },
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                    ) {
-                        Icon(Icons.Filled.Share, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(4.dp))
-                        Text(stringResource(Res.string.labels_share_qr))
+                    if (onPrintQr != null) {
+                        val printLabel = stringResource(Res.string.cd_print_qr_for, supply.name)
+                        TextButton(
+                            onClick = onPrintQr,
+                            modifier = Modifier.testTag("printQrButton").semantics { contentDescription = printLabel },
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                        ) {
+                            Text(stringResource(Res.string.labels_print_qr))
+                        }
                     }
                     if (nfcStatus != NfcStatus.NO_HARDWARE) {
                         StickerButton(

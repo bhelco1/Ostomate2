@@ -2,7 +2,6 @@ package com.ostomate.app.ui.screenshot
 
 import com.ostomate.app.domain.StickerWriteOutcome
 import com.ostomate.app.domain.SupplyKind
-import com.ostomate.app.platform.FileSharer
 import com.ostomate.app.platform.NfcStatus
 import com.ostomate.app.ui.FakeNfcStickerWriting
 import com.ostomate.app.ui.settings.LabelItem
@@ -12,30 +11,14 @@ import com.ostomate.app.ui.settings.StickerCard
 import com.ostomate.app.ui.settings.StickerSheet
 import com.ostomate.app.ui.settings.WritePhase
 import com.ostomate.app.ui.testSupply
-import org.junit.After
-import org.junit.Before
 import org.junit.Test
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 
 /**
- * Labels & stickers (FEAT-05). The screen resolves its FileSharer through `koinInject`, so it
- * needs a Koin graph. The QR bitmaps are a pure function of the link, so they are stable
- * across runs. The sticker dialog's card is captured on its own: a Dialog opens its own window,
+ * Labels & stickers (FEAT-05). The QR bitmaps are a pure function of the link, so they are
+ * stable across runs. The sticker dialog's card is captured on its own: a Dialog opens its own window,
  * which a composable capture does not see.
  */
 class LabelsScreenshotTest : ScreenshotTest() {
-    @Before
-    fun startKoinForFileSharer() {
-        startKoin { modules(module { single { FileSharer() } }) }
-    }
-
-    @After
-    fun stopKoinAfterTest() {
-        stopKoin()
-    }
-
     private fun seedItems() =
         seed {
             supplyDao.seed(
@@ -47,7 +30,7 @@ class LabelsScreenshotTest : ScreenshotTest() {
 
     private fun viewModel(status: NfcStatus) = LabelsViewModel(supplyRepository, FakeNfcStickerWriting(status))
 
-    /** Android with NFC: one row per item with Share QR and Write sticker. */
+    /** Android with NFC: one row per item with Print QR and Write sticker; the top bar has Print only. */
     @Test
     fun labelsRows() {
         seedItems()

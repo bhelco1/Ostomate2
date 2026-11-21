@@ -130,10 +130,11 @@ name: "iOS store screenshots — iPhone"
     id: "nav_settings"
 - tapOn:
     text: "Labels & stickers"
-# The Settings row carries the same title, so wait on a label only the new screen has.
+# The Settings row carries the same title, so wait on a label only the new screen has:
+# each row's NFC sticker button (always there on iPhone; Print QR needs a printer).
 - extendedWaitUntil:
     visible:
-      text: "Share QR.*"
+      text: "NFC sticker.*"
       index: 0
     timeout: 5000
 - waitForAnimationToEnd

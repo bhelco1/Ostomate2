@@ -129,6 +129,41 @@ class QrLabelSheetTest {
     }
 
     @Test
+    fun aFullPageCodeFillsTheWidthInsideTheMarginsOnPortraitPaper() {
+        // Letter: 612 − 2 × 36 = 540 pt, and the page is taller than wide, so width decides.
+        assertEquals(PrintRect(36.0, 36.0, 540.0, 540.0), QrLabelLayout.fullPage(letterWidth, letterHeight))
+        // A4: 595.28 − 72 = 523.28 pt.
+        val a4 = QrLabelLayout.fullPage(595.28, 841.89)
+        assertClose(36.0, a4.left)
+        assertClose(36.0, a4.top)
+        assertClose(523.28, a4.width)
+        assertClose(523.28, a4.height)
+    }
+
+    @Test
+    fun aFullPageCodeOnLandscapePaperFillsTheHeightAndIsCentredAcross() {
+        val code = QrLabelLayout.fullPage(letterHeight, letterWidth)
+
+        // 612 − 72 = 540 pt high; (792 − 540) / 2 = 126 pt each side.
+        assertEquals(PrintRect(126.0, 36.0, 540.0, 540.0), code)
+    }
+
+    @Test
+    fun aFullPageCodeIsSquareCentredTopAlignedAndInsideTheMargins() {
+        for ((width, height) in listOf(letterWidth to letterHeight, 595.28 to 841.89, letterHeight to letterWidth)) {
+            val code = QrLabelLayout.fullPage(width, height)
+            val m = QrLabelLayout.MARGIN_PT
+            assertClose(code.width, code.height, "square on $width×$height")
+            assertClose(width / 2, code.centerX, "centred on $width×$height")
+            assertClose(m, code.top, "top on $width×$height")
+            assertTrue(code.left >= m - eps && code.right <= width - m + eps, "across on $width×$height")
+            assertTrue(code.bottom <= height - m + eps, "down on $width×$height")
+            // As large as fits: it touches the margins on its tighter side.
+            assertClose(minOf(width, height) - 2 * m, code.width, "size on $width×$height")
+        }
+    }
+
+    @Test
     fun moduleRectsMakeTheSymbolExactlyFillItsSquare() {
         // A made-up 5-module symbol: dark corners, centre and second row. (Real codes need an
         // encoder; Core Image cannot render in the iOS simulator test runner.)
