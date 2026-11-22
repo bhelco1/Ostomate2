@@ -20,6 +20,14 @@ name: "Journey 8: Biometric gate on Settings"
     visible:
       text: "Ostomate"
     timeout: 20000
+# Home's first load schedules a low-stock reminder (0 on hand after Skip), and iOS answers
+# with the notification permission alert about a second later. A tap made while it is up is
+# lost (run 44853724456: the Settings tap hit the alert). Maestro never matches "Allow" — its
+# driver dismisses the alert whenever it reads the screen — so this optional tap is really the
+# ~5 s wait that lets the alert come and go before the flow touches the app.
+- tapOn:
+    text: "Allow"
+    optional: true
 
 # Lock on: tapping the count must not open the set-count dialog.
 - tapOn:
@@ -55,6 +63,9 @@ name: "Journey 8: Biometric gate on Settings"
     visible:
       text: "Ostomate"
     timeout: 20000
+- tapOn:
+    text: "Allow"
+    optional: true
 - tapOn:
     id: "nav_settings"
 - tapOn:

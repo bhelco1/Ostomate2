@@ -139,7 +139,8 @@ commit (reporting standard §4); there is no separate tracker here. There is del
 quarantine lane**: a quarantined flow is a failure CI is told to ignore, and every E2E "flake"
 so far was a real defect found only because the failure could not be ignored — iOS flow 01's
 wait matching the home-screen icon label (PR #41), flow 10's Back closing only the keyboard,
-the Maestro 2.6.1 driver's false "App crashed" (PR #37), the snackbar race (PR #27).
+the Maestro 2.6.1 driver's false "App crashed" (PR #37), the snackbar race (PR #27),
+iOS flow 08's Settings tap landing on the notification permission alert (run 44853724456).
 
 When a flow fails intermittently:
 1. Read the evidence **before** rerunning — `e2e-diagnostics` (Android: logcat, focus,
