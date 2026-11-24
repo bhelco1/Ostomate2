@@ -1,9 +1,7 @@
 # Ostomate 2.0 — Claude Code Project Instructions
 
 Cross-platform (Android + iOS) ostomy supply tracker. Ground-up rewrite of Ostomate v1,
-which lives at `~/Projects/Ostomate` and stays untouched in maintenance mode (it is
-Bobby's daily driver until Phase 2 exit). The folders `~/Projects/Ostimate` and
-`~/Projects/Ostimate copy` are old v1 backups — never modify them.
+which is retired and archived: nothing in this repo uses it.
 
 ## Source of truth for all decisions
 
@@ -19,20 +17,12 @@ Store assets: `docs/privacy.html` (**the** privacy policy — it is what GitHub 
 serves at https://bhelco1.github.io/Ostomate2/, via the `docs/index.html` redirect), and
 `docs/store-listing.md`.
 
-## Current status (2026-10-08)
+## Current status
 
-**Phases 0–2.5 complete; Phase 3 (release prep) next** — it starts with steps only Bobby can do
-(Apple Developer + Google Play accounts, the upload keystore and its GitHub secrets).
-Release signing + the CI `build-release` job are already in (PR #38), skipping until the
-keystore secrets exist. See `planning/05-dev-plan.md`.
-JVM host gate: 88 shared tests + 64 composeApp tests (51 ViewModel/UiState + 10 Roborazzi
-screenshot + 3 accessibility); the iOS sim runs 86 shared + 51 composeApp (counts from CI run
-37857036492, 950b796; testpulse shows 163 distinct tests). JaCoCo floors gate every PR
-(shared domain+data 91%, composeApp ViewModel+UiState 93%), and so does a Pitest mutation
-score on the domain layer (95% floor, 98% measured). ktlint + detekt green.
-Maestro E2E: 8 Android flows + 5 iOS flows green; both jobs report JUnit to testpulse via the
-shared action `bhelco1/testpulse/.github/actions/report@v1`. The Android emulator build is
-pinned (`emulator-build`), like `MAESTRO_VERSION`.
+Where the project stands, and its test counts, live in `STATUS.json` and
+`planning/05-dev-plan.md`, not here.
+
+## Gotchas
 
 **Flaky E2E flows are root-caused, never quarantined** (decision 2026-10-08; procedure in
 `planning/04-test-plan.md` "Flaky tests"). Every flake so far was a real defect: Maestro
@@ -44,9 +34,6 @@ a rerun that goes green explains nothing.
 **The biometric lock guards supply-count edits in Manage Supplies**, not the Settings screen.
 Android 9–10 use `BIOMETRIC_WEAK | DEVICE_CREDENTIAL` because androidx.biometric rejects
 STRONG | DEVICE_CREDENTIAL there (it silently dropped every locked edit until PR #43).
-
-(Shared went 86 → 79 when FEAT-00 deleted `CsvExporter` and its 9 tests — not a regression —
-then 79 → 82 with the negative-inventory regression tests.)
 
 **Trust `test-results/*/TEST-*.xml` execution counts over any number written in a doc —
 including this one.** Docs drift; the XML does not.
