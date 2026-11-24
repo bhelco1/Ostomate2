@@ -4,9 +4,9 @@
 [![QA dashboard](https://img.shields.io/badge/QA-dashboard-blue)](https://github.com/bhelco1/Ostomate2/tree/test-dashboard)
 
 Cross-platform (Android + iOS) ostomy supply tracker. Ground-up rewrite of
-[Ostomate v1](../Ostomate) in Kotlin Multiplatform with Compose Multiplatform UI.
+Ostomate v1 (retired) in Kotlin Multiplatform with Compose Multiplatform UI.
 
-**Status:** Phase 2.5 (test hardening) — see `planning/05-dev-plan.md` for the current
+**Status:** see `STATUS.json` and `planning/05-dev-plan.md` for the current phase and
 checklist and the rest of `planning/` for all design docs (product spec, architecture,
 test strategy, security, business). Test results are published per merge to the
 [`test-dashboard`](https://github.com/bhelco1/Ostomate2/tree/test-dashboard) branch,
@@ -48,6 +48,6 @@ adb shell am start -a android.intent.action.VIEW -d "ostomate://log?item=bag" co
 
 ## Conventions
 
-Architecture rules live in `../Ostomate/ostimate-2.0/02-architecture.md`. Short version:
+Architecture rules live in `planning/02-architecture.md`. Short version:
 logic in `shared/commonMain`; UI state as one `UiState` per screen via `StateFlow`;
 DI via Koin only; Room schema export ON with a migration test per version bump; no `!!`.

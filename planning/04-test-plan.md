@@ -26,12 +26,9 @@ Run on **both** JVM (`testAndroidHostTest`, gated on every PR) and iOS simulator
 |---|---|---|
 | DeepLinkParserTest | 15 | All URI parse cases including edge cases |
 | PredictionEngineTest | 13 | Days-remaining calculation, averaging, edge cases |
-| CsvExporterTest | 9 | CSV serialization, escaping, round-trip |
-| CsvImporterTest | 8 | CSV parse, round-trip, malformed input |
 | CalendarAggregatorTest | 7 | Month aggregation, boundary days |
-| CsvMigrationTest | 5 | V1 CSV format import |
 | SettingsRepositoryTest | 3 | DataStore read/write (moved from iosTest in 2.5.1) |
-| **Subtotal** | **60** | Run on JVM + iOS sim |
+| **Subtotal** | see `test-results/*/TEST-*.xml` | Run on JVM + iOS sim. CSV suites removed with FEAT-00 (2026-07-12) |
 
 ## SQLite Tests (Room DAO + migrations)
 
