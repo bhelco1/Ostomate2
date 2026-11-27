@@ -44,11 +44,13 @@
   "now": "Phases 0–2.5 done, main green. Phase 3 under way: signed Android release builds in CI, privacy fixes in, store text and screenshots ready for both stores (iPhone-only). Nov 2026: a month-long check that no scans are lost; weeks 1–4 matched (Nov 26 bag added to the Pixel by hand). NFC stickers log on both phones. FEAT-05 Labels & stickers done and verified on the phones: 25 mm colour label sheet, Android writes NFC stickers, no sharing.",
   "next": [
     "Upload the first signed Android build to a Play closed test (12 testers × 14 days)",
+    "FEAT-06 planned: one-tap iPhone stickers via https links on ostomate-app.helcolabs.com (iPhone half needs the paid Apple account)",
     "Trial wrap-up ~11-30; iPhone reinstall before the profile expires Fri 12-04 11:45 am",
     "3.2 iOS release signing + TestFlight lane, after the Apple team exists"
   ],
   "waitingOnBobby": [
     "Recruit 12 testers for the Play closed test",
-    "Finish Apple Developer enrollment (Xcode still shows only the free team)"
+    "Finish Apple Developer enrollment (Xcode still shows only the free team)",
+    "Add DNS record CNAME ostomate-app → bhelco1.github.io for helcolabs.com (FEAT-06)"
   ]
 }
