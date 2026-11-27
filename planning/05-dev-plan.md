@@ -475,6 +475,84 @@ reading and writing stickers happen on the phone only, with no network.
   top Print's 25 mm colour sheet printed and scanned correctly from both phones. Both phones
   run 47d9fe1 (#71) since 19:01.
 
+### FEAT-06 — One-tap stickers on iPhone without Shortcuts ⬜ (planned 2026-11-27)
+Requested by Bobby 2026-11-27: "Right now it is pretty technical to go in and create the
+scripts on the iphone. I don't like that." Other people must be able to set up a sticker
+with no Shortcuts automation.
+
+Why Shortcuts is needed today: iPhones (XS and later) read NFC stickers in the background
+and offer to open the matching app, but Apple's "Adding Support for Background Tag Reading"
+says: "Background tag reading doesn't support custom URL schemes. Use universal links
+instead." Our links are `ostomate://…`, a custom scheme, so iOS ignores them.
+
+The fix: labels and stickers carry an https link on our own subdomain,
+**`https://ostomate-app.helcolabs.com/log?item=<bag|flange|id:N>`** (Bobby, 2026-11-27).
+iPhone: hold the phone to the sticker → "Open in Ostomate" banner → tap → logged; no setup.
+Android: the same link opens the app directly as a verified App Link. A phone without the
+app opens a static "Get Ostomate" page instead.
+
+Decisions (Bobby, 2026-11-27):
+- Domain: `ostomate-app.helcolabs.com`. Bobby owns helcolabs.com, so there is no new cost
+  (07-business-plan.md). Not `ostomate.helcolabs.com`: that hosts Bobby's own usage
+  dashboard, and a stranger's sticker must never lead there.
+- The subdomain must stay up for as long as anyone uses Ostomate stickers or labels: a link
+  stored on a sticker or printed in a QR code can't be changed afterwards. Keep helcolabs.com
+  renewed.
+
+Privacy: the app itself still makes no new network call. The phone's OS fetches the two
+verification files from our domain (Apple through its CDN, Android when the app is
+installed), and they hold no user data. Record this in 06-security-privacy.md.
+
+**A. Domain and site (no Apple account needed)**
+- [ ] Bobby: DNS record `CNAME ostomate-app → bhelco1.github.io` at helcolabs.com's DNS
+  provider, and verify helcolabs.com in GitHub (Settings → Pages → Verified domains), which
+  stops anyone else claiming the subdomain on GitHub Pages.
+- [ ] Set the repo's Pages custom domain to `ostomate-app.helcolabs.com` with HTTPS
+  enforced. The whole `docs/` site moves, so the privacy policy becomes
+  `https://ostomate-app.helcolabs.com/privacy.html` (GitHub redirects the old address).
+  Update `docs/store-listing.md`, `fastlane/metadata` and 3.5 below to the new address.
+- [ ] `docs/log/index.html`: the "Get Ostomate" page for a phone without the app. Static,
+  no scripts, no tracking.
+- [ ] `docs/.well-known/` served as-is (add `docs/.nojekyll`). Check with
+  `curl -sI https://ostomate-app.helcolabs.com/.well-known/assetlinks.json`: a 200 straight
+  away, no redirect.
+
+**B. Android App Links (no Apple account needed)**
+- [ ] `docs/.well-known/assetlinks.json` with the SHA-256 of the upload key and of Play's
+  app-signing key (from the Play Console after the first upload). For debug builds, test with
+  `adb shell pm set-app-links` instead of adding the debug key.
+- [ ] `MainActivity`: an `autoVerify` VIEW filter and an `NDEF_DISCOVERED` filter for
+  `https://ostomate-app.helcolabs.com/log`. The `ostomate://` filters stay, so existing
+  stickers, labels and the widget keep working.
+- [ ] `DeepLinkParser` accepts both forms and nothing else: `ostomate://log?…` and
+  `https://ostomate-app.helcolabs.com/log?…`, rejecting other hosts, paths and http.
+  Unit tests for each.
+
+**C. iPhone universal links (needs the paid Apple Developer account)**
+- [ ] Associated Domains entitlement `applinks:ostomate-app.helcolabs.com` and
+  `docs/.well-known/apple-app-site-association` with the paid team's ID (it may differ from
+  the free team's) and `/log` as the only path. Check what Apple serves:
+  `https://app-site-association.cdn-apple.com/a/v1/ostomate-app.helcolabs.com`.
+- [ ] Receive the link in `iOSApp.swift`. A sticker read arrives as a browsing-web user
+  activity carrying the tag's NDEF message, and a QR scan arrives as plain URL. Use that to
+  tag NFC taps `source:nfc` on iPhone without `&src=nfc`. Confirm on the iPhone which SwiftUI
+  handler gets each one.
+- [ ] In-app sticker writing on iPhone (Core NFC, deferred from FEAT-05 for the paid
+  account), so an iPhone-only user needs no other app or phone.
+
+**D. Switch the stickers and labels over (after B and C work on real phones)**
+- [ ] `SupplyLink` builds the https link. Printed labels, written stickers and Copy link
+  all follow. The widgets keep their own `ostomate://` links (in-app only, no change needed).
+- [ ] Labels & stickers: the iPhone sticker steps become "write the sticker, then tap it";
+  the Shortcuts automation steps are removed.
+- [ ] Tests: `SupplyLinkTest`, `DeepLinkParserTest`, the Labels screenshots and the
+  Copy-link Maestro check (still open in FEAT-05). An Android Maestro flow opens the https
+  link with the app link force-approved. The simulator can't verify a domain, so the iOS
+  https path is checked by hand on the iPhone; the simulator keeps testing `ostomate://`.
+- [ ] Verified on both phones: a newly written https sticker and a reprinted label each log
+  exactly one event with the right source. An old `ostomate://` sticker still logs on the
+  Pixel. On an iPhone with no Shortcuts automation, the banner opens Ostomate and logs.
+
 ---
 
 ## Phase 3 — Release Preparation
